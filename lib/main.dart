@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 
 void main() {
+  _testQuery(); // test db
+
   runApp(const MyApp());
+}
+
+Future<void> _testQuery() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final database = AppDatabase();
+
+  print(await database.queryTest());
 }
 
 class MyApp extends StatelessWidget {
