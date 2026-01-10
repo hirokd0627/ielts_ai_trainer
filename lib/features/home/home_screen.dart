@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ielts_ai_trainer/features/home/calendar.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
 
 /// Home screen shown on app launch, displaying questions users have previously
@@ -14,6 +15,27 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return BaseScreenScaffold(body: Column(children: [Text("Home Screen")]));
+    return BaseScreenScaffold(
+      body: Column(
+        children: [
+          Column(
+            children: [
+              // History
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    "History",
+                    style: Theme.of(context).textTheme.headlineLarge,
+                  ),
+                ],
+              ),
+              // Calendar
+              Calendar<String>(),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
