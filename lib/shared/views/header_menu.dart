@@ -1,4 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ielts_ai_trainer/features/development/development_route.dart';
+import 'package:ielts_ai_trainer/features/home/home_route.dart';
 
 /// Common header for screens
 class HeaderMenuBar extends StatefulWidget {
@@ -23,7 +27,9 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
     return [
       // Logo
       MenuItemButton(
-        onPressed: () {},
+        onPressed: () {
+          context.go(homeScreenRoutPath);
+        },
         style: ButtonStyle(
           backgroundColor: WidgetStateColor.transparent,
           overlayColor: WidgetStateColor.transparent,
@@ -34,7 +40,12 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
       ),
 
       // Home
-      MenuItemButton(onPressed: () {}, child: const Text('Home')),
+      MenuItemButton(
+        onPressed: () {
+          context.go(homeScreenRoutPath);
+        },
+        child: const Text('Home'),
+      ),
 
       // Writing
       SubmenuButton(
@@ -59,6 +70,21 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
 
       /// Setting
       MenuItemButton(onPressed: () {}, child: const Text('Setting')),
+
+      // Development
+      if (kDebugMode)
+        SubmenuButton(
+          menuStyle: _subMenuStyle,
+          menuChildren: [
+            MenuItemButton(
+              onPressed: () {
+                context.go(developmentScreenRoutePath);
+              },
+              child: const Text('Reset DB'),
+            ),
+          ],
+          child: const Text('Development'),
+        ),
     ];
   }
 

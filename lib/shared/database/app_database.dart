@@ -1,12 +1,15 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:flutter/foundation.dart';
+import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:path_provider/path_provider.dart';
 
 part 'app_database.g.dart';
 
 // Ref. https://drift.simonbinder.eu/setup/#database-class
 
-@DriftDatabase(tables: [])
+/// Application Database
+@DriftDatabase(tables: [UserAnswersTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
@@ -17,20 +20,23 @@ class AppDatabase extends _$AppDatabase {
     return driftDatabase(
       name: 'db',
       native: const DriftNativeOptions(
-        // macos: Library/Containers/ielts_ai_trainer/Data/Library/com.example.ieltsAiTrainer/db.sql
-        databaseDirectory: getApplicationSupportDirectory,
+        // databaseDirectory: getApplicationSupportDirectory,
+        databaseDirectory: kDebugMode
+            // macos: Library/Containers/com.example.ieltsAiTrainer/Data/Documents/db.sql
+            ? getApplicationDocumentsDirectory
+            // macos: Library/Containers/ielts_ai_trainer/Data/Library/com.example.ieltsAiTrainer/db.sql
+            : getApplicationSupportDirectory,
       ),
     );
   }
+}
 
-  /// query test
-  Future<List<String>> queryTest() async {
-    final result = await customSelect('''
-  SELECT name
-  FROM sqlite_schema
-  WHERE type='table' AND name NOT LIKE 'sqlite_%';
-      ''').get();
+/// user_answers table
+class UserAnswersTable extends Table {
+  @override
+  String get tableName => 'user_answers';
 
-    return result.map((row) => row.read<String>('name')).toList();
-  }
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get testTask => textEnum<TestTask>()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
