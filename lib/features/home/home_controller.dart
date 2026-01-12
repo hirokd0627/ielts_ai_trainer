@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/features/home/home_query_service.dart';
 import 'package:ielts_ai_trainer/features/home/user_answer_vm.dart';
+import 'package:ielts_ai_trainer/shared/question_list/question_list_view.dart';
 import 'package:ielts_ai_trainer/shared/utils/datetime_utils.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -59,5 +60,18 @@ class HomeContoller {
       return DateTimeRange(start: now, end: now);
     }
     return range;
+  }
+
+  /// Returns a list of QuestionListViewVM filtered by date, word, and limit.
+  Future<List<QuestionListViewVM>> getAnswersByDateWord({
+    DateTime? date,
+    String word = '',
+    int? limit,
+  }) async {
+    return await _querySrv.selectAnswersByDateWord(
+      date: date,
+      word: word,
+      limit: limit,
+    );
   }
 }

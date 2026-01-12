@@ -9,7 +9,7 @@ part 'app_database.g.dart';
 // Ref. https://drift.simonbinder.eu/setup/#database-class
 
 /// Application Database
-@DriftDatabase(tables: [UserAnswersTable])
+@DriftDatabase(tables: [UserAnswersTable, WritingAnswerDetailsTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
@@ -39,4 +39,36 @@ class UserAnswersTable extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get testTask => textEnum<TestTask>()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+/// writing_answer_details
+class WritingAnswerDetailsTable extends Table {
+  @override
+  String get tableName => 'writing_answer_details';
+
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get userAnswer => integer().references(UserAnswersTable, #id)();
+  TextColumn get promptText => text().withLength(min: 1)();
+  TextColumn get topics => text().withLength(min: 1)();
+  TextColumn get answerText => text().withLength(min: 1)();
+  IntColumn get duration => integer()();
+  // score and feedback are nullable because they will be updated after evaluation.
+  RealColumn get score => real().nullable()();
+  RealColumn get achievementScore => real().nullable()();
+  RealColumn get coherenceScore => real().nullable()();
+  RealColumn get lexialScore => real().nullable()();
+  RealColumn get grammaticalScore => real().nullable()();
+  BoolColumn get isGraded => boolean()();
+  TextColumn get feedback => text().nullable()();
+}
+
+/// prompt_topics
+class PromptTopicsTable extends Table {
+  @override
+  String get tableName => 'prompt_topics';
+
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get userAnswer => integer().references(UserAnswersTable, #id)();
+  IntColumn get order => integer()();
+  TextColumn get title => text().withLength(min: 1)();
 }
