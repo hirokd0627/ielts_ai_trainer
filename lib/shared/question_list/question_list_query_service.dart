@@ -6,19 +6,11 @@ import 'package:ielts_ai_trainer/shared/question_list/question_list_view.dart';
 part 'question_list_query_service.g.dart';
 
 /// Query service for QuestionListView, handling database data for display.
-@DriftAccessor(tables: [UserAnswersTable, WritingAnswerDetailsTable])
+@DriftAccessor(
+  tables: [UserAnswersTable, WritingAnswerDetailsTable, PromptTopicsTable],
+)
 class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
     with _$QuestionListQueryServiceMixin {
-  List<Join<HasResultSet, dynamic>> get detailTableJoins {
-    return [
-      leftOuterJoin(
-        writingAnswerDetailsTable,
-        writingAnswerDetailsTable.userAnswer.equalsExp(userAnswersTable.id),
-      ),
-      // TODO: speaking
-    ];
-  }
-
   QuestionListQueryService(super.attachedDatabase);
 
   /// Selects answer histories filtered by test tasks, date, search word, and limit.
@@ -46,7 +38,6 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
         testTasks.contains(TestTask.speakingPart3)) {
       // TODO: speaking
     }
-
     final joinedQuery = select(userAnswersTable).join(joins);
 
     // Where
@@ -81,27 +72,47 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
       joinedQuery.limit(limit);
     }
 
-    // execute
-    final rows = await joinedQuery.map((row) {
-      return {
-        'userAnswers': row.readTable(userAnswersTable),
-        'writingAnswerDetails': row.readTableOrNull(writingAnswerDetailsTable),
+    // order
+    joinedQuery.orderBy([OrderingTerm.asc(userAnswersTable.id)]);
 
-        // TODO: speaking
-      };
-    }).get();
+    // UserAnswers and Details
+    final userAnswerRows = await joinedQuery.get();
+    if (userAnswerRows.isEmpty) {
+      return [];
+    }
 
-    final userAnswers = rows.map((row) {
-      final ua = row['userAnswers'] as UserAnswersTableData;
-      final wa = row['writingAnswerDetails'] as WritingAnswerDetailsTableData;
-      return QuestionListViewVM(
-        promptText: wa.promptText,
-        testTask: ua.testTask,
-        // TODO: topics from DB
-        topics: ["topic a", "topic b", "topic c"],
-        datetime: ua.createdAt,
+    // Topics
+    final userAnswerIds = userAnswerRows
+        .map((row) => row.readTable(userAnswersTable).id)
+        .toList();
+    final topicsRows =
+        await (select(promptTopicsTable)
+              ..where((t) => t.userAnswer.isIn(userAnswerIds))
+              ..orderBy([
+                (t) => OrderingTerm.asc(t.userAnswer),
+                (t) => OrderingTerm.asc(t.order),
+              ]))
+            .get();
+    final topicsMap = <int, List<String>>{};
+    for (final row in topicsRows) {
+      topicsMap.putIfAbsent(row.userAnswer, () => []).add(row.title);
+    }
+
+    /// Converts a database query row into a QuestionListViewVM.
+    final userAnswers = <QuestionListViewVM>[];
+    for (final row in userAnswerRows) {
+      final ua = row.readTable(userAnswersTable);
+      final wa = row.readTableOrNull(writingAnswerDetailsTable);
+
+      userAnswers.add(
+        QuestionListViewVM(
+          promptText: wa?.promptText ?? '',
+          testTask: ua.testTask,
+          datetime: ua.createdAt,
+          topics: topicsMap[ua.id] ?? [],
+        ),
       );
-    }).toList();
+    }
 
     return userAnswers;
   }

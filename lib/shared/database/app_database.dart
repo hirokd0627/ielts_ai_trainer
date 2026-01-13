@@ -9,7 +9,9 @@ part 'app_database.g.dart';
 // Ref. https://drift.simonbinder.eu/setup/#database-class
 
 /// Application Database
-@DriftDatabase(tables: [UserAnswersTable, WritingAnswerDetailsTable])
+@DriftDatabase(
+  tables: [UserAnswersTable, WritingAnswerDetailsTable, PromptTopicsTable],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
@@ -49,7 +51,6 @@ class WritingAnswerDetailsTable extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get userAnswer => integer().references(UserAnswersTable, #id)();
   TextColumn get promptText => text().withLength(min: 1)();
-  TextColumn get topics => text().withLength(min: 1)();
   TextColumn get answerText => text().withLength(min: 1)();
   IntColumn get duration => integer()();
   // score and feedback are nullable because they will be updated after evaluation.

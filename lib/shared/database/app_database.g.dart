@@ -310,16 +310,6 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _topicsMeta = const VerificationMeta('topics');
-  @override
-  late final GeneratedColumn<String> topics = GeneratedColumn<String>(
-    'topics',
-    aliasedName,
-    false,
-    additionalChecks: GeneratedColumn.checkTextLength(minTextLength: 1),
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
   static const VerificationMeta _answerTextMeta = const VerificationMeta(
     'answerText',
   );
@@ -426,7 +416,6 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     id,
     userAnswer,
     promptText,
-    topics,
     answerText,
     duration,
     score,
@@ -467,14 +456,6 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
       );
     } else if (isInserting) {
       context.missing(_promptTextMeta);
-    }
-    if (data.containsKey('topics')) {
-      context.handle(
-        _topicsMeta,
-        topics.isAcceptableOrUnknown(data['topics']!, _topicsMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_topicsMeta);
     }
     if (data.containsKey('answer_text')) {
       context.handle(
@@ -572,10 +553,6 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         DriftSqlType.string,
         data['${effectivePrefix}prompt_text'],
       )!,
-      topics: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}topics'],
-      )!,
       answerText: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}answer_text'],
@@ -626,7 +603,6 @@ class WritingAnswerDetailsTableData extends DataClass
   final int id;
   final int userAnswer;
   final String promptText;
-  final String topics;
   final String answerText;
   final int duration;
   final double? score;
@@ -640,7 +616,6 @@ class WritingAnswerDetailsTableData extends DataClass
     required this.id,
     required this.userAnswer,
     required this.promptText,
-    required this.topics,
     required this.answerText,
     required this.duration,
     this.score,
@@ -657,7 +632,6 @@ class WritingAnswerDetailsTableData extends DataClass
     map['id'] = Variable<int>(id);
     map['user_answer'] = Variable<int>(userAnswer);
     map['prompt_text'] = Variable<String>(promptText);
-    map['topics'] = Variable<String>(topics);
     map['answer_text'] = Variable<String>(answerText);
     map['duration'] = Variable<int>(duration);
     if (!nullToAbsent || score != null) {
@@ -687,7 +661,6 @@ class WritingAnswerDetailsTableData extends DataClass
       id: Value(id),
       userAnswer: Value(userAnswer),
       promptText: Value(promptText),
-      topics: Value(topics),
       answerText: Value(answerText),
       duration: Value(duration),
       score: score == null && nullToAbsent
@@ -721,7 +694,6 @@ class WritingAnswerDetailsTableData extends DataClass
       id: serializer.fromJson<int>(json['id']),
       userAnswer: serializer.fromJson<int>(json['userAnswer']),
       promptText: serializer.fromJson<String>(json['promptText']),
-      topics: serializer.fromJson<String>(json['topics']),
       answerText: serializer.fromJson<String>(json['answerText']),
       duration: serializer.fromJson<int>(json['duration']),
       score: serializer.fromJson<double?>(json['score']),
@@ -740,7 +712,6 @@ class WritingAnswerDetailsTableData extends DataClass
       'id': serializer.toJson<int>(id),
       'userAnswer': serializer.toJson<int>(userAnswer),
       'promptText': serializer.toJson<String>(promptText),
-      'topics': serializer.toJson<String>(topics),
       'answerText': serializer.toJson<String>(answerText),
       'duration': serializer.toJson<int>(duration),
       'score': serializer.toJson<double?>(score),
@@ -757,7 +728,6 @@ class WritingAnswerDetailsTableData extends DataClass
     int? id,
     int? userAnswer,
     String? promptText,
-    String? topics,
     String? answerText,
     int? duration,
     Value<double?> score = const Value.absent(),
@@ -771,7 +741,6 @@ class WritingAnswerDetailsTableData extends DataClass
     id: id ?? this.id,
     userAnswer: userAnswer ?? this.userAnswer,
     promptText: promptText ?? this.promptText,
-    topics: topics ?? this.topics,
     answerText: answerText ?? this.answerText,
     duration: duration ?? this.duration,
     score: score.present ? score.value : this.score,
@@ -799,7 +768,6 @@ class WritingAnswerDetailsTableData extends DataClass
       promptText: data.promptText.present
           ? data.promptText.value
           : this.promptText,
-      topics: data.topics.present ? data.topics.value : this.topics,
       answerText: data.answerText.present
           ? data.answerText.value
           : this.answerText,
@@ -828,7 +796,6 @@ class WritingAnswerDetailsTableData extends DataClass
           ..write('id: $id, ')
           ..write('userAnswer: $userAnswer, ')
           ..write('promptText: $promptText, ')
-          ..write('topics: $topics, ')
           ..write('answerText: $answerText, ')
           ..write('duration: $duration, ')
           ..write('score: $score, ')
@@ -847,7 +814,6 @@ class WritingAnswerDetailsTableData extends DataClass
     id,
     userAnswer,
     promptText,
-    topics,
     answerText,
     duration,
     score,
@@ -865,7 +831,6 @@ class WritingAnswerDetailsTableData extends DataClass
           other.id == this.id &&
           other.userAnswer == this.userAnswer &&
           other.promptText == this.promptText &&
-          other.topics == this.topics &&
           other.answerText == this.answerText &&
           other.duration == this.duration &&
           other.score == this.score &&
@@ -882,7 +847,6 @@ class WritingAnswerDetailsTableCompanion
   final Value<int> id;
   final Value<int> userAnswer;
   final Value<String> promptText;
-  final Value<String> topics;
   final Value<String> answerText;
   final Value<int> duration;
   final Value<double?> score;
@@ -896,7 +860,6 @@ class WritingAnswerDetailsTableCompanion
     this.id = const Value.absent(),
     this.userAnswer = const Value.absent(),
     this.promptText = const Value.absent(),
-    this.topics = const Value.absent(),
     this.answerText = const Value.absent(),
     this.duration = const Value.absent(),
     this.score = const Value.absent(),
@@ -911,7 +874,6 @@ class WritingAnswerDetailsTableCompanion
     this.id = const Value.absent(),
     required int userAnswer,
     required String promptText,
-    required String topics,
     required String answerText,
     required int duration,
     this.score = const Value.absent(),
@@ -923,7 +885,6 @@ class WritingAnswerDetailsTableCompanion
     this.feedback = const Value.absent(),
   }) : userAnswer = Value(userAnswer),
        promptText = Value(promptText),
-       topics = Value(topics),
        answerText = Value(answerText),
        duration = Value(duration),
        isGraded = Value(isGraded);
@@ -931,7 +892,6 @@ class WritingAnswerDetailsTableCompanion
     Expression<int>? id,
     Expression<int>? userAnswer,
     Expression<String>? promptText,
-    Expression<String>? topics,
     Expression<String>? answerText,
     Expression<int>? duration,
     Expression<double>? score,
@@ -946,7 +906,6 @@ class WritingAnswerDetailsTableCompanion
       if (id != null) 'id': id,
       if (userAnswer != null) 'user_answer': userAnswer,
       if (promptText != null) 'prompt_text': promptText,
-      if (topics != null) 'topics': topics,
       if (answerText != null) 'answer_text': answerText,
       if (duration != null) 'duration': duration,
       if (score != null) 'score': score,
@@ -963,7 +922,6 @@ class WritingAnswerDetailsTableCompanion
     Value<int>? id,
     Value<int>? userAnswer,
     Value<String>? promptText,
-    Value<String>? topics,
     Value<String>? answerText,
     Value<int>? duration,
     Value<double?>? score,
@@ -978,7 +936,6 @@ class WritingAnswerDetailsTableCompanion
       id: id ?? this.id,
       userAnswer: userAnswer ?? this.userAnswer,
       promptText: promptText ?? this.promptText,
-      topics: topics ?? this.topics,
       answerText: answerText ?? this.answerText,
       duration: duration ?? this.duration,
       score: score ?? this.score,
@@ -1002,9 +959,6 @@ class WritingAnswerDetailsTableCompanion
     }
     if (promptText.present) {
       map['prompt_text'] = Variable<String>(promptText.value);
-    }
-    if (topics.present) {
-      map['topics'] = Variable<String>(topics.value);
     }
     if (answerText.present) {
       map['answer_text'] = Variable<String>(answerText.value);
@@ -1042,7 +996,6 @@ class WritingAnswerDetailsTableCompanion
           ..write('id: $id, ')
           ..write('userAnswer: $userAnswer, ')
           ..write('promptText: $promptText, ')
-          ..write('topics: $topics, ')
           ..write('answerText: $answerText, ')
           ..write('duration: $duration, ')
           ..write('score: $score, ')
@@ -1057,6 +1010,310 @@ class WritingAnswerDetailsTableCompanion
   }
 }
 
+class $PromptTopicsTableTable extends PromptTopicsTable
+    with TableInfo<$PromptTopicsTableTable, PromptTopicsTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PromptTopicsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _userAnswerMeta = const VerificationMeta(
+    'userAnswer',
+  );
+  @override
+  late final GeneratedColumn<int> userAnswer = GeneratedColumn<int>(
+    'user_answer',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES user_answers (id)',
+    ),
+  );
+  static const VerificationMeta _orderMeta = const VerificationMeta('order');
+  @override
+  late final GeneratedColumn<int> order = GeneratedColumn<int>(
+    'order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(minTextLength: 1),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, userAnswer, order, title];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'prompt_topics';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PromptTopicsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user_answer')) {
+      context.handle(
+        _userAnswerMeta,
+        userAnswer.isAcceptableOrUnknown(data['user_answer']!, _userAnswerMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userAnswerMeta);
+    }
+    if (data.containsKey('order')) {
+      context.handle(
+        _orderMeta,
+        order.isAcceptableOrUnknown(data['order']!, _orderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_orderMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PromptTopicsTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PromptTopicsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      userAnswer: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_answer'],
+      )!,
+      order: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+    );
+  }
+
+  @override
+  $PromptTopicsTableTable createAlias(String alias) {
+    return $PromptTopicsTableTable(attachedDatabase, alias);
+  }
+}
+
+class PromptTopicsTableData extends DataClass
+    implements Insertable<PromptTopicsTableData> {
+  final int id;
+  final int userAnswer;
+  final int order;
+  final String title;
+  const PromptTopicsTableData({
+    required this.id,
+    required this.userAnswer,
+    required this.order,
+    required this.title,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['user_answer'] = Variable<int>(userAnswer);
+    map['order'] = Variable<int>(order);
+    map['title'] = Variable<String>(title);
+    return map;
+  }
+
+  PromptTopicsTableCompanion toCompanion(bool nullToAbsent) {
+    return PromptTopicsTableCompanion(
+      id: Value(id),
+      userAnswer: Value(userAnswer),
+      order: Value(order),
+      title: Value(title),
+    );
+  }
+
+  factory PromptTopicsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PromptTopicsTableData(
+      id: serializer.fromJson<int>(json['id']),
+      userAnswer: serializer.fromJson<int>(json['userAnswer']),
+      order: serializer.fromJson<int>(json['order']),
+      title: serializer.fromJson<String>(json['title']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'userAnswer': serializer.toJson<int>(userAnswer),
+      'order': serializer.toJson<int>(order),
+      'title': serializer.toJson<String>(title),
+    };
+  }
+
+  PromptTopicsTableData copyWith({
+    int? id,
+    int? userAnswer,
+    int? order,
+    String? title,
+  }) => PromptTopicsTableData(
+    id: id ?? this.id,
+    userAnswer: userAnswer ?? this.userAnswer,
+    order: order ?? this.order,
+    title: title ?? this.title,
+  );
+  PromptTopicsTableData copyWithCompanion(PromptTopicsTableCompanion data) {
+    return PromptTopicsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      userAnswer: data.userAnswer.present
+          ? data.userAnswer.value
+          : this.userAnswer,
+      order: data.order.present ? data.order.value : this.order,
+      title: data.title.present ? data.title.value : this.title,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PromptTopicsTableData(')
+          ..write('id: $id, ')
+          ..write('userAnswer: $userAnswer, ')
+          ..write('order: $order, ')
+          ..write('title: $title')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, userAnswer, order, title);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PromptTopicsTableData &&
+          other.id == this.id &&
+          other.userAnswer == this.userAnswer &&
+          other.order == this.order &&
+          other.title == this.title);
+}
+
+class PromptTopicsTableCompanion
+    extends UpdateCompanion<PromptTopicsTableData> {
+  final Value<int> id;
+  final Value<int> userAnswer;
+  final Value<int> order;
+  final Value<String> title;
+  const PromptTopicsTableCompanion({
+    this.id = const Value.absent(),
+    this.userAnswer = const Value.absent(),
+    this.order = const Value.absent(),
+    this.title = const Value.absent(),
+  });
+  PromptTopicsTableCompanion.insert({
+    this.id = const Value.absent(),
+    required int userAnswer,
+    required int order,
+    required String title,
+  }) : userAnswer = Value(userAnswer),
+       order = Value(order),
+       title = Value(title);
+  static Insertable<PromptTopicsTableData> custom({
+    Expression<int>? id,
+    Expression<int>? userAnswer,
+    Expression<int>? order,
+    Expression<String>? title,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userAnswer != null) 'user_answer': userAnswer,
+      if (order != null) 'order': order,
+      if (title != null) 'title': title,
+    });
+  }
+
+  PromptTopicsTableCompanion copyWith({
+    Value<int>? id,
+    Value<int>? userAnswer,
+    Value<int>? order,
+    Value<String>? title,
+  }) {
+    return PromptTopicsTableCompanion(
+      id: id ?? this.id,
+      userAnswer: userAnswer ?? this.userAnswer,
+      order: order ?? this.order,
+      title: title ?? this.title,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (userAnswer.present) {
+      map['user_answer'] = Variable<int>(userAnswer.value);
+    }
+    if (order.present) {
+      map['order'] = Variable<int>(order.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PromptTopicsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('userAnswer: $userAnswer, ')
+          ..write('order: $order, ')
+          ..write('title: $title')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1065,6 +1322,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $WritingAnswerDetailsTableTable writingAnswerDetailsTable =
       $WritingAnswerDetailsTableTable(this);
+  late final $PromptTopicsTableTable promptTopicsTable =
+      $PromptTopicsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1072,7 +1331,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     userAnswersTable,
     writingAnswerDetailsTable,
+    promptTopicsTable,
   ];
+  @override
+  DriftDatabaseOptions get options =>
+      const DriftDatabaseOptions(storeDateTimeAsText: true);
 }
 
 typedef $$UserAnswersTableTableCreateCompanionBuilder =
@@ -1123,6 +1386,33 @@ final class $$UserAnswersTableTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _writingAnswerDetailsTableRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $PromptTopicsTableTable,
+    List<PromptTopicsTableData>
+  >
+  _promptTopicsTableRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.promptTopicsTable,
+        aliasName: $_aliasNameGenerator(
+          db.userAnswersTable.id,
+          db.promptTopicsTable.userAnswer,
+        ),
+      );
+
+  $$PromptTopicsTableTableProcessedTableManager get promptTopicsTableRefs {
+    final manager = $$PromptTopicsTableTableTableManager(
+      $_db,
+      $_db.promptTopicsTable,
+    ).filter((f) => f.userAnswer.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _promptTopicsTableRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -1179,6 +1469,31 @@ class $$UserAnswersTableTableFilterComposer
                     $removeJoinBuilderFromRootComposer,
               ),
         );
+    return f(composer);
+  }
+
+  Expression<bool> promptTopicsTableRefs(
+    Expression<bool> Function($$PromptTopicsTableTableFilterComposer f) f,
+  ) {
+    final $$PromptTopicsTableTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.promptTopicsTable,
+      getReferencedColumn: (t) => t.userAnswer,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PromptTopicsTableTableFilterComposer(
+            $db: $db,
+            $table: $db.promptTopicsTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return f(composer);
   }
 }
@@ -1252,6 +1567,32 @@ class $$UserAnswersTableTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> promptTopicsTableRefs<T extends Object>(
+    Expression<T> Function($$PromptTopicsTableTableAnnotationComposer a) f,
+  ) {
+    final $$PromptTopicsTableTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.promptTopicsTable,
+          getReferencedColumn: (t) => t.userAnswer,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PromptTopicsTableTableAnnotationComposer(
+                $db: $db,
+                $table: $db.promptTopicsTable,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$UserAnswersTableTableTableManager
@@ -1267,7 +1608,10 @@ class $$UserAnswersTableTableTableManager
           $$UserAnswersTableTableUpdateCompanionBuilder,
           (UserAnswersTableData, $$UserAnswersTableTableReferences),
           UserAnswersTableData,
-          PrefetchHooks Function({bool writingAnswerDetailsTableRefs})
+          PrefetchHooks Function({
+            bool writingAnswerDetailsTableRefs,
+            bool promptTopicsTableRefs,
+          })
         > {
   $$UserAnswersTableTableTableManager(
     _$AppDatabase db,
@@ -1310,38 +1654,67 @@ class $$UserAnswersTableTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({writingAnswerDetailsTableRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (writingAnswerDetailsTableRefs) db.writingAnswerDetailsTable,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (writingAnswerDetailsTableRefs)
-                    await $_getPrefetchedData<
-                      UserAnswersTableData,
-                      $UserAnswersTableTable,
-                      WritingAnswerDetailsTableData
-                    >(
-                      currentTable: table,
-                      referencedTable: $$UserAnswersTableTableReferences
-                          ._writingAnswerDetailsTableRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$UserAnswersTableTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).writingAnswerDetailsTableRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.userAnswer == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({
+                writingAnswerDetailsTableRefs = false,
+                promptTopicsTableRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (writingAnswerDetailsTableRefs)
+                      db.writingAnswerDetailsTable,
+                    if (promptTopicsTableRefs) db.promptTopicsTable,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (writingAnswerDetailsTableRefs)
+                        await $_getPrefetchedData<
+                          UserAnswersTableData,
+                          $UserAnswersTableTable,
+                          WritingAnswerDetailsTableData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UserAnswersTableTableReferences
+                              ._writingAnswerDetailsTableRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UserAnswersTableTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).writingAnswerDetailsTableRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userAnswer == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (promptTopicsTableRefs)
+                        await $_getPrefetchedData<
+                          UserAnswersTableData,
+                          $UserAnswersTableTable,
+                          PromptTopicsTableData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UserAnswersTableTableReferences
+                              ._promptTopicsTableRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UserAnswersTableTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).promptTopicsTableRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userAnswer == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -1358,14 +1731,16 @@ typedef $$UserAnswersTableTableProcessedTableManager =
       $$UserAnswersTableTableUpdateCompanionBuilder,
       (UserAnswersTableData, $$UserAnswersTableTableReferences),
       UserAnswersTableData,
-      PrefetchHooks Function({bool writingAnswerDetailsTableRefs})
+      PrefetchHooks Function({
+        bool writingAnswerDetailsTableRefs,
+        bool promptTopicsTableRefs,
+      })
     >;
 typedef $$WritingAnswerDetailsTableTableCreateCompanionBuilder =
     WritingAnswerDetailsTableCompanion Function({
       Value<int> id,
       required int userAnswer,
       required String promptText,
-      required String topics,
       required String answerText,
       required int duration,
       Value<double?> score,
@@ -1381,7 +1756,6 @@ typedef $$WritingAnswerDetailsTableTableUpdateCompanionBuilder =
       Value<int> id,
       Value<int> userAnswer,
       Value<String> promptText,
-      Value<String> topics,
       Value<String> answerText,
       Value<int> duration,
       Value<double?> score,
@@ -1445,11 +1819,6 @@ class $$WritingAnswerDetailsTableTableFilterComposer
 
   ColumnFilters<String> get promptText => $composableBuilder(
     column: $table.promptText,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get topics => $composableBuilder(
-    column: $table.topics,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1541,11 +1910,6 @@ class $$WritingAnswerDetailsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get topics => $composableBuilder(
-    column: $table.topics,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get answerText => $composableBuilder(
     column: $table.answerText,
     builder: (column) => ColumnOrderings(column),
@@ -1631,9 +1995,6 @@ class $$WritingAnswerDetailsTableTableAnnotationComposer
     column: $table.promptText,
     builder: (column) => column,
   );
-
-  GeneratedColumn<String> get topics =>
-      $composableBuilder(column: $table.topics, builder: (column) => column);
 
   GeneratedColumn<String> get answerText => $composableBuilder(
     column: $table.answerText,
@@ -1741,7 +2102,6 @@ class $$WritingAnswerDetailsTableTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> userAnswer = const Value.absent(),
                 Value<String> promptText = const Value.absent(),
-                Value<String> topics = const Value.absent(),
                 Value<String> answerText = const Value.absent(),
                 Value<int> duration = const Value.absent(),
                 Value<double?> score = const Value.absent(),
@@ -1755,7 +2115,6 @@ class $$WritingAnswerDetailsTableTableTableManager
                 id: id,
                 userAnswer: userAnswer,
                 promptText: promptText,
-                topics: topics,
                 answerText: answerText,
                 duration: duration,
                 score: score,
@@ -1771,7 +2130,6 @@ class $$WritingAnswerDetailsTableTableTableManager
                 Value<int> id = const Value.absent(),
                 required int userAnswer,
                 required String promptText,
-                required String topics,
                 required String answerText,
                 required int duration,
                 Value<double?> score = const Value.absent(),
@@ -1785,7 +2143,6 @@ class $$WritingAnswerDetailsTableTableTableManager
                 id: id,
                 userAnswer: userAnswer,
                 promptText: promptText,
-                topics: topics,
                 answerText: answerText,
                 duration: duration,
                 score: score,
@@ -1868,6 +2225,319 @@ typedef $$WritingAnswerDetailsTableTableProcessedTableManager =
       WritingAnswerDetailsTableData,
       PrefetchHooks Function({bool userAnswer})
     >;
+typedef $$PromptTopicsTableTableCreateCompanionBuilder =
+    PromptTopicsTableCompanion Function({
+      Value<int> id,
+      required int userAnswer,
+      required int order,
+      required String title,
+    });
+typedef $$PromptTopicsTableTableUpdateCompanionBuilder =
+    PromptTopicsTableCompanion Function({
+      Value<int> id,
+      Value<int> userAnswer,
+      Value<int> order,
+      Value<String> title,
+    });
+
+final class $$PromptTopicsTableTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $PromptTopicsTableTable,
+          PromptTopicsTableData
+        > {
+  $$PromptTopicsTableTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $UserAnswersTableTable _userAnswerTable(_$AppDatabase db) =>
+      db.userAnswersTable.createAlias(
+        $_aliasNameGenerator(
+          db.promptTopicsTable.userAnswer,
+          db.userAnswersTable.id,
+        ),
+      );
+
+  $$UserAnswersTableTableProcessedTableManager get userAnswer {
+    final $_column = $_itemColumn<int>('user_answer')!;
+
+    final manager = $$UserAnswersTableTableTableManager(
+      $_db,
+      $_db.userAnswersTable,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userAnswerTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PromptTopicsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $PromptTopicsTableTable> {
+  $$PromptTopicsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get order => $composableBuilder(
+    column: $table.order,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UserAnswersTableTableFilterComposer get userAnswer {
+    final $$UserAnswersTableTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userAnswer,
+      referencedTable: $db.userAnswersTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserAnswersTableTableFilterComposer(
+            $db: $db,
+            $table: $db.userAnswersTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PromptTopicsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $PromptTopicsTableTable> {
+  $$PromptTopicsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get order => $composableBuilder(
+    column: $table.order,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UserAnswersTableTableOrderingComposer get userAnswer {
+    final $$UserAnswersTableTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userAnswer,
+      referencedTable: $db.userAnswersTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserAnswersTableTableOrderingComposer(
+            $db: $db,
+            $table: $db.userAnswersTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PromptTopicsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PromptTopicsTableTable> {
+  $$PromptTopicsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get order =>
+      $composableBuilder(column: $table.order, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  $$UserAnswersTableTableAnnotationComposer get userAnswer {
+    final $$UserAnswersTableTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userAnswer,
+      referencedTable: $db.userAnswersTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserAnswersTableTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userAnswersTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PromptTopicsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PromptTopicsTableTable,
+          PromptTopicsTableData,
+          $$PromptTopicsTableTableFilterComposer,
+          $$PromptTopicsTableTableOrderingComposer,
+          $$PromptTopicsTableTableAnnotationComposer,
+          $$PromptTopicsTableTableCreateCompanionBuilder,
+          $$PromptTopicsTableTableUpdateCompanionBuilder,
+          (PromptTopicsTableData, $$PromptTopicsTableTableReferences),
+          PromptTopicsTableData,
+          PrefetchHooks Function({bool userAnswer})
+        > {
+  $$PromptTopicsTableTableTableManager(
+    _$AppDatabase db,
+    $PromptTopicsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PromptTopicsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PromptTopicsTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PromptTopicsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> userAnswer = const Value.absent(),
+                Value<int> order = const Value.absent(),
+                Value<String> title = const Value.absent(),
+              }) => PromptTopicsTableCompanion(
+                id: id,
+                userAnswer: userAnswer,
+                order: order,
+                title: title,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int userAnswer,
+                required int order,
+                required String title,
+              }) => PromptTopicsTableCompanion.insert(
+                id: id,
+                userAnswer: userAnswer,
+                order: order,
+                title: title,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PromptTopicsTableTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userAnswer = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userAnswer) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.userAnswer,
+                                referencedTable:
+                                    $$PromptTopicsTableTableReferences
+                                        ._userAnswerTable(db),
+                                referencedColumn:
+                                    $$PromptTopicsTableTableReferences
+                                        ._userAnswerTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PromptTopicsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PromptTopicsTableTable,
+      PromptTopicsTableData,
+      $$PromptTopicsTableTableFilterComposer,
+      $$PromptTopicsTableTableOrderingComposer,
+      $$PromptTopicsTableTableAnnotationComposer,
+      $$PromptTopicsTableTableCreateCompanionBuilder,
+      $$PromptTopicsTableTableUpdateCompanionBuilder,
+      (PromptTopicsTableData, $$PromptTopicsTableTableReferences),
+      PromptTopicsTableData,
+      PrefetchHooks Function({bool userAnswer})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1879,4 +2549,6 @@ class $AppDatabaseManager {
         _db,
         _db.writingAnswerDetailsTable,
       );
+  $$PromptTopicsTableTableTableManager get promptTopicsTable =>
+      $$PromptTopicsTableTableTableManager(_db, _db.promptTopicsTable);
 }

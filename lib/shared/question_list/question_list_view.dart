@@ -30,7 +30,9 @@ class _QuestionListViewState extends State<QuestionListView> {
   void initState() {
     super.initState();
 
-    _rows = _questionListToDataRows(widget.eventList);
+    _rows = _questionListToDataRows(
+      _sortList(_sortColumnIndex, _sortAscending),
+    );
   }
 
   /// Updates the list when the parent widget gets the list.
@@ -40,7 +42,9 @@ class _QuestionListViewState extends State<QuestionListView> {
 
     if (oldWidget.eventList != widget.eventList) {
       setState(() {
-        _rows = _questionListToDataRows(widget.eventList);
+        _rows = _questionListToDataRows(
+          _sortList(_sortColumnIndex, _sortAscending),
+        );
       });
     }
   }
@@ -68,12 +72,65 @@ class _QuestionListViewState extends State<QuestionListView> {
     }).toList();
   }
 
-  void _sort<T>(int columnIndex, bool ascending) {
-    // TODO: implementtation
-    // _rows._sort
+  /// Sorts items.
+  List<QuestionListViewVM> _sortList(int columnIndex, bool ascending) {
+    if (columnIndex == 0) {
+      _sortByPromptText(ascending);
+    } else if (columnIndex == 1) {
+      _sortByDate(ascending);
+    } else if (columnIndex == 2) {
+      _sortByTestTask(ascending);
+    } else if (columnIndex == 3) {
+      _sortByTopics(ascending);
+    }
+
+    return widget.eventList;
+  }
+
+  /// Called when the column is tapped.
+  void _onSort(int columnIndex, bool ascending) {
+    final eventList = _sortList(columnIndex, ascending);
+
     setState(() {
       _sortColumnIndex = columnIndex;
       _sortAscending = ascending;
+      _rows = _questionListToDataRows(eventList);
+    });
+  }
+
+  /// Sorts items by prompt text.
+  void _sortByPromptText(bool ascending) {
+    widget.eventList.sort((a, b) {
+      return ascending
+          ? a.promptText.compareTo(b.promptText)
+          : b.promptText.compareTo(a.promptText);
+    });
+  }
+
+  /// Sorts items by created date.
+  void _sortByDate(bool ascending) {
+    widget.eventList.sort((a, b) {
+      return ascending
+          ? a.datetime.compareTo(b.datetime)
+          : b.datetime.compareTo(a.datetime);
+    });
+  }
+
+  /// Sorts items by test task.
+  void _sortByTestTask(bool ascending) {
+    widget.eventList.sort((a, b) {
+      return ascending
+          ? a.testTask.index.compareTo(b.testTask.index)
+          : b.testTask.index.compareTo(a.testTask.index);
+    });
+  }
+
+  /// Sorts items by topics.
+  void _sortByTopics(bool ascending) {
+    widget.eventList.sort((a, b) {
+      return ascending
+          ? a.topics.toString().compareTo(b.topics.toString())
+          : b.topics.toString().compareTo(a.topics.toString());
     });
   }
 
@@ -86,22 +143,22 @@ class _QuestionListViewState extends State<QuestionListView> {
         DataColumn2(
           size: ColumnSize.L,
           label: const Text('Prompt'),
-          onSort: _sort,
+          onSort: _onSort,
         ),
         DataColumn2(
           size: ColumnSize.M,
           label: const Text('Date'),
-          onSort: _sort,
+          onSort: _onSort,
         ),
         DataColumn2(
           size: ColumnSize.S,
           label: const Text('Task'),
-          onSort: _sort,
+          onSort: _onSort,
         ),
         DataColumn2(
           size: ColumnSize.S,
           label: const Text('Topic'),
-          onSort: _sort,
+          onSort: _onSort,
         ),
       ],
       sortColumnIndex: _sortColumnIndex,
