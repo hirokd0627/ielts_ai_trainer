@@ -1,14 +1,29 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
-import 'package:intl/intl.dart';
+import 'package:ielts_ai_trainer/shared/question_list/question_list_controller.dart';
+import 'package:ielts_ai_trainer/shared/question_list/question_list_query_service.dart';
+import 'package:provider/provider.dart';
+import 'package:throttling/throttling.dart';
 
 /// Widget that displayes a list of questions users have previously practiced.
 class QuestionListView extends StatefulWidget {
-  /// Items to be displayed in the list.
-  final List<QuestionListViewVM> eventList;
+  /// Controller for QuestionListView
+  final QuestionListController? controller;
 
-  const QuestionListView({super.key, required this.eventList});
+  /// The date of the data to display
+  final DateTime? date;
+
+  /// Whether or not the search bar displays
+  final bool searchBarEnabled;
+
+  const QuestionListView({
+    super.key,
+    this.controller,
+    this.date,
+    this.searchBarEnabled = false,
+  });
 
   @override
   State<QuestionListView> createState() => _QuestionListViewState();
@@ -16,164 +31,164 @@ class QuestionListView extends StatefulWidget {
 
 /// State for QuestionListView
 class _QuestionListViewState extends State<QuestionListView> {
-  /// DateTime format: 'MMM d, yyyy', e.g., 'Jan 12, 2026'.
-  final _displayDateFormat = DateFormat('MMM d, yyyy');
+  /// TextEditingController for the search input field.
+  final _editingController = TextEditingController();
 
-  // Fields for DataTable2
-  int _sortColumnIndex = 0;
-  bool _sortAscending = true;
+  /// Controller for QuestionListView
+  late final QuestionListController _ctrl;
 
-  /// DataRows for DataTable2
-  late List<DataRow> _rows;
+  /// Whether _ctrl is created internal.
+  late final bool _isInternalCtrl;
+
+  /// Used to adjust the execution timing for searching questions.
+  final _debounce = Debouncing<void>(
+    duration: const Duration(milliseconds: 500),
+  );
+
+  _QuestionListViewState();
 
   @override
   void initState() {
     super.initState();
 
-    _rows = _questionListToDataRows(
-      _sortList(_sortColumnIndex, _sortAscending),
-    );
+    if (widget.controller != null) {
+      _ctrl = widget.controller!;
+      _isInternalCtrl = false;
+    } else {
+      _ctrl = QuestionListController(
+        queryService: QuestionListQueryService(context.read<AppDatabase>()),
+      );
+      _isInternalCtrl = true;
+    }
+
+    _loadInitialData();
   }
 
-  /// Updates the list when the parent widget gets the list.
+  @override
+  void dispose() {
+    if (!_isInternalCtrl) {
+      _ctrl.dispose();
+    }
+    _editingController.dispose();
+    super.dispose();
+  }
+
+  /// Loads the initial data.
+  Future<void> _loadInitialData() async {
+    _ctrl.setSearchWord("");
+    await _ctrl.refreshListRows();
+  }
+
+  /// Updates the list when the parent widget changes the date.
   @override
   void didUpdateWidget(covariant QuestionListView oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.eventList != widget.eventList) {
-      setState(() {
-        _rows = _questionListToDataRows(
-          _sortList(_sortColumnIndex, _sortAscending),
-        );
-      });
+    if (oldWidget.date != widget.date) {
+      _ctrl.setDate(widget.date, refreshList: true);
     }
-  }
-
-  /// Converts a list of QuestionListViewVM into a list of DataRow for DataTable.
-  List<DataRow> _questionListToDataRows(List<QuestionListViewVM> eventList) {
-    return eventList.map((item) {
-      return DataRow(
-        cells: [
-          DataCell(
-            Text(
-              item.promptText.replaceAll('\n', ' '), // To one line
-              maxLines: 1,
-              // Fade to the right
-              overflow: TextOverflow.fade,
-              softWrap: false,
-            ),
-          ),
-          DataCell(Text(_displayDateFormat.format(item.datetime))),
-          DataCell(
-            Text(switch (item.testTask) {
-              TestTask.speakingPart1 => 'Speaking Part 1',
-              TestTask.speakingPart2 => 'Speaking Part 2',
-              TestTask.speakingPart3 => 'Speaking Part 3',
-              TestTask.writingTask1 => 'Writing Task 1',
-              TestTask.writingTask2 => 'Writing Task 2',
-            }),
-          ),
-          DataCell(Text(item.topics.join(', '))),
-        ],
-      );
-    }).toList();
-  }
-
-  /// Sorts items.
-  List<QuestionListViewVM> _sortList(int columnIndex, bool ascending) {
-    if (columnIndex == 0) {
-      _sortByPromptText(ascending);
-    } else if (columnIndex == 1) {
-      _sortByDate(ascending);
-    } else if (columnIndex == 2) {
-      _sortByTestTask(ascending);
-    } else if (columnIndex == 3) {
-      _sortByTopics(ascending);
-    }
-
-    return widget.eventList;
   }
 
   /// Called when the column is tapped.
   void _onSort(int columnIndex, bool ascending) {
-    final eventList = _sortList(columnIndex, ascending);
-
-    setState(() {
-      _sortColumnIndex = columnIndex;
-      _sortAscending = ascending;
-      _rows = _questionListToDataRows(eventList);
-    });
+    _ctrl.setOrder(columnIndex, ascending, refreshList: true);
   }
 
-  /// Sorts items by prompt text.
-  void _sortByPromptText(bool ascending) {
-    widget.eventList.sort((a, b) {
-      return ascending
-          ? a.promptText.compareTo(b.promptText)
-          : b.promptText.compareTo(a.promptText);
-    });
+  /// Called when the search word clear botton is tapped.
+  Future<void> _onSearchWordClearButtonPressed() async {
+    _editingController.clear();
+    _ctrl.setSearchWord("", refreshList: true);
   }
 
-  /// Sorts items by created date.
-  void _sortByDate(bool ascending) {
-    widget.eventList.sort((a, b) {
-      return ascending
-          ? a.datetime.compareTo(b.datetime)
-          : b.datetime.compareTo(a.datetime);
-    });
-  }
-
-  /// Sorts items by test task.
-  void _sortByTestTask(bool ascending) {
-    widget.eventList.sort((a, b) {
-      return ascending
-          ? a.testTask.index.compareTo(b.testTask.index)
-          : b.testTask.index.compareTo(a.testTask.index);
-    });
-  }
-
-  /// Sorts items by topics.
-  void _sortByTopics(bool ascending) {
-    widget.eventList.sort((a, b) {
-      return ascending
-          ? a.topics.toString().compareTo(b.topics.toString())
-          : b.topics.toString().compareTo(a.topics.toString());
+  /// Called when a search word is changed.
+  Future<void> _onSearchWordChanged(String value) async {
+    // Search questions a short time after search word is entered.
+    _debounce.debounce(() async {
+      _ctrl.setSearchWord(value.trim(), refreshList: true);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Uses PaginatedDataTable2 for the sticky header
-    return DataTable2(
-      // wrapInCard: false, // disable round border
-      columns: [
-        DataColumn2(
-          size: ColumnSize.L,
-          label: const Text('Prompt'),
-          onSort: _onSort,
-        ),
-        DataColumn2(
-          size: ColumnSize.M,
-          label: const Text('Date'),
-          onSort: _onSort,
-        ),
-        DataColumn2(
-          size: ColumnSize.S,
-          label: const Text('Task'),
-          onSort: _onSort,
-        ),
-        DataColumn2(
-          size: ColumnSize.S,
-          label: const Text('Topics'),
-          onSort: _onSort,
-        ),
-      ],
-      sortColumnIndex: _sortColumnIndex,
-      sortAscending: _sortAscending,
-      fixedTopRows: 1, // Set the sticky header
-      isHorizontalScrollBarVisible: false,
-      isVerticalScrollBarVisible: true,
-      rows: _rows,
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (context, _) {
+        return Column(
+          children: [
+            // Search box
+            if (widget.searchBarEnabled)
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: Colors.grey, width: 1),
+                    bottom: BorderSide(color: Colors.grey, width: 1),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _editingController,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 12.0,
+                          ),
+                          hintText: 'Enter word to search...',
+                          prefixIcon: Icon(Icons.search),
+                        ),
+                        keyboardType: TextInputType.text,
+                        onChanged: _onSearchWordChanged,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    if (_ctrl.searchWord.isNotEmpty)
+                      IconButton(
+                        onPressed: _onSearchWordClearButtonPressed,
+                        icon: Icon(Icons.clear),
+                      ),
+                    SizedBox(width: 8),
+                  ],
+                ),
+              ),
+            Expanded(
+              // Uses PaginatedDataTable2 for the sticky header
+              child: DataTable2(
+                // wrapInCard: false, // disable round border
+                columns: [
+                  DataColumn2(
+                    size: ColumnSize.L,
+                    label: const Text('Prompt'),
+                    onSort: _onSort,
+                  ),
+                  DataColumn2(
+                    size: ColumnSize.M,
+                    label: const Text('Date'),
+                    onSort: _onSort,
+                  ),
+                  DataColumn2(
+                    size: ColumnSize.S,
+                    label: const Text('Task'),
+                    onSort: _onSort,
+                  ),
+                  DataColumn2(
+                    size: ColumnSize.S,
+                    label: const Text('Topics'),
+                    onSort: _onSort,
+                  ),
+                ],
+                sortColumnIndex: _ctrl.sortColumnIndex,
+                sortAscending: _ctrl.sortAscending,
+                fixedTopRows: 1, // Set the sticky header
+                isHorizontalScrollBarVisible: false,
+                isVerticalScrollBarVisible: true,
+                rows: _ctrl.rows,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
