@@ -166,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               // Calendar
               if (_isLoaded)
-                Calendar<UserAnswerVM>(
+                Calendar(
                   firstEventDay: _calendarVisibleDateRange.start,
                   lastEventDay: _calendarVisibleDateRange.end,
                   onDaySelected: _onDaySelected,

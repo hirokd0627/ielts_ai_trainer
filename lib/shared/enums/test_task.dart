@@ -4,5 +4,17 @@ enum TestTask {
   writingTask2,
   speakingPart1,
   speakingPart2,
-  speakingPart3,
+  speakingPart3;
+
+  /// Returns true if this task is a writing type.
+  bool get isWriting {
+    return this == TestTask.writingTask1 || this == TestTask.writingTask2;
+  }
+
+  /// Returns true if this task is a speaking type.
+  bool get isSpeaking {
+    return this == TestTask.speakingPart1 ||
+        this == TestTask.speakingPart2 ||
+        this == TestTask.speakingPart3;
+  }
 }

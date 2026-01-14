@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:ielts_ai_trainer/features/home/user_answer_vm.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:ielts_ai_trainer/shared/utils/datetime_utils.dart';
 
 /// Calendar displays marks on days user practiced
-class Calendar<T> extends StatefulWidget {
+class Calendar extends StatefulWidget {
   /// The first selectable year-month
   final DateTime firstEventDay;
 
@@ -15,7 +16,7 @@ class Calendar<T> extends StatefulWidget {
   final DateTime initialSelectedDate;
 
   /// Events in current displayed month
-  final Map<DateTime, List<T>> currentMonthEvents;
+  final Map<DateTime, List<UserAnswerVM>> currentMonthEvents;
 
   /// Called when a day is selected.
   final OnDaySelected onDaySelected;
@@ -38,11 +39,11 @@ class Calendar<T> extends StatefulWidget {
   });
 
   @override
-  State<Calendar<T>> createState() => _CalendarState<T>();
+  State<Calendar> createState() => _CalendarState();
 }
 
 /// State for Calendar
-class _CalendarState<T> extends State<Calendar<T>> {
+class _CalendarState extends State<Calendar> {
   /// Current displayed Year and Month
   late DateTime _focusedDate;
 
@@ -151,6 +152,31 @@ class _CalendarState<T> extends State<Calendar<T>> {
     _canMoveNextMonth = focusedYearMonth.isBefore(lastYearMonth);
   }
 
+  // MarkerBuilder function for calendar.
+  Widget? _markerBuilder(_, DateTime day, _) {
+    final markerStyle = TextStyle(fontSize: 12);
+    // Displays marks in days that have events.
+    final date = DateTime(day.year, day.month, day.day);
+    final events = widget.currentMonthEvents[date];
+    if (events == null || events.isEmpty) {
+      return null;
+    }
+    final marker = <Widget>[];
+    if (events.any((e) => e.testTask.isWriting)) {
+      marker.add(Text('W', style: markerStyle));
+    }
+    if (events.any((e) => e.testTask.isSpeaking)) {
+      marker.add(Text('S', style: markerStyle));
+    }
+    if (marker.length == 2) {
+      marker.insert(1, SizedBox(width: 4));
+    }
+    if (widget.currentMonthEvents[date]?.isNotEmpty ?? false) {
+      return Positioned(bottom: 0, child: Row(children: marker));
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -198,7 +224,7 @@ class _CalendarState<T> extends State<Calendar<T>> {
             },
             child:
                 // Calendar
-                TableCalendar<T>(
+                TableCalendar<UserAnswerVM>(
                   currentDay: null,
                   firstDay: _tappableFirstDay,
                   lastDay: _tappableLastDay,
@@ -238,25 +264,7 @@ class _CalendarState<T> extends State<Calendar<T>> {
                         ),
                       );
                     },
-                    markerBuilder: (_, day, _) {
-                      // Displays marks in days that have events.
-                      final date = DateTime(day.year, day.month, day.day);
-                      if (widget.currentMonthEvents[date]?.isNotEmpty ??
-                          false) {
-                        return Positioned(
-                          bottom: 4,
-                          child: Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        );
-                      }
-                      return null;
-                    },
+                    markerBuilder: _markerBuilder,
                   ),
                 ),
           ),

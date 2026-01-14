@@ -102,7 +102,7 @@ class HomeQueryService extends DatabaseAccessor<AppDatabase>
     final rows = await query.get();
 
     return rows.map((row) {
-      return UserAnswerVM(createdAt: row.createdAt);
+      return UserAnswerVM(testTask: row.testTask, createdAt: row.createdAt);
     }).toList();
   }
 }

@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserAnswerVM {
 
- DateTime get createdAt;
+ TestTask get testTask; DateTime get createdAt;
 /// Create a copy of UserAnswerVM
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $UserAnswerVMCopyWith<UserAnswerVM> get copyWith => _$UserAnswerVMCopyWithImpl<U
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserAnswerVM&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserAnswerVM&&(identical(other.testTask, testTask) || other.testTask == testTask)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,createdAt);
+int get hashCode => Object.hash(runtimeType,testTask,createdAt);
 
 @override
 String toString() {
-  return 'UserAnswerVM(createdAt: $createdAt)';
+  return 'UserAnswerVM(testTask: $testTask, createdAt: $createdAt)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $UserAnswerVMCopyWith<$Res>  {
   factory $UserAnswerVMCopyWith(UserAnswerVM value, $Res Function(UserAnswerVM) _then) = _$UserAnswerVMCopyWithImpl;
 @useResult
 $Res call({
- DateTime createdAt
+ TestTask testTask, DateTime createdAt
 });
 
 
@@ -62,9 +62,10 @@ class _$UserAnswerVMCopyWithImpl<$Res>
 
 /// Create a copy of UserAnswerVM
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? testTask = null,Object? createdAt = null,}) {
   return _then(_self.copyWith(
-createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+testTask: null == testTask ? _self.testTask : testTask // ignore: cast_nullable_to_non_nullable
+as TestTask,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
 }
@@ -150,10 +151,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( TestTask testTask,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserAnswerVM() when $default != null:
-return $default(_that.createdAt);case _:
+return $default(_that.testTask,_that.createdAt);case _:
   return orElse();
 
 }
@@ -171,10 +172,10 @@ return $default(_that.createdAt);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( TestTask testTask,  DateTime createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _UserAnswerVM():
-return $default(_that.createdAt);case _:
+return $default(_that.testTask,_that.createdAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -191,10 +192,10 @@ return $default(_that.createdAt);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( TestTask testTask,  DateTime createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _UserAnswerVM() when $default != null:
-return $default(_that.createdAt);case _:
+return $default(_that.testTask,_that.createdAt);case _:
   return null;
 
 }
@@ -206,9 +207,10 @@ return $default(_that.createdAt);case _:
 
 
 class _UserAnswerVM implements UserAnswerVM {
-  const _UserAnswerVM({required this.createdAt});
+  const _UserAnswerVM({required this.testTask, required this.createdAt});
   
 
+@override final  TestTask testTask;
 @override final  DateTime createdAt;
 
 /// Create a copy of UserAnswerVM
@@ -221,16 +223,16 @@ _$UserAnswerVMCopyWith<_UserAnswerVM> get copyWith => __$UserAnswerVMCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserAnswerVM&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserAnswerVM&&(identical(other.testTask, testTask) || other.testTask == testTask)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,createdAt);
+int get hashCode => Object.hash(runtimeType,testTask,createdAt);
 
 @override
 String toString() {
-  return 'UserAnswerVM(createdAt: $createdAt)';
+  return 'UserAnswerVM(testTask: $testTask, createdAt: $createdAt)';
 }
 
 
@@ -241,7 +243,7 @@ abstract mixin class _$UserAnswerVMCopyWith<$Res> implements $UserAnswerVMCopyWi
   factory _$UserAnswerVMCopyWith(_UserAnswerVM value, $Res Function(_UserAnswerVM) _then) = __$UserAnswerVMCopyWithImpl;
 @override @useResult
 $Res call({
- DateTime createdAt
+ TestTask testTask, DateTime createdAt
 });
 
 
@@ -258,9 +260,10 @@ class __$UserAnswerVMCopyWithImpl<$Res>
 
 /// Create a copy of UserAnswerVM
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? testTask = null,Object? createdAt = null,}) {
   return _then(_UserAnswerVM(
-createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+testTask: null == testTask ? _self.testTask : testTask // ignore: cast_nullable_to_non_nullable
+as TestTask,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
 }
