@@ -63,10 +63,17 @@ class _QuestionListViewState extends State<QuestionListView> {
               softWrap: false,
             ),
           ),
-          // TODO: format
           DataCell(Text(_displayDateFormat.format(item.datetime))),
-          DataCell(Text(item.testTask.toString())),
-          DataCell(Text(item.topics.toString())),
+          DataCell(
+            Text(switch (item.testTask) {
+              TestTask.speakingPart1 => 'Speaking Part 1',
+              TestTask.speakingPart2 => 'Speaking Part 2',
+              TestTask.speakingPart3 => 'Speaking Part 3',
+              TestTask.writingTask1 => 'Writing Task 1',
+              TestTask.writingTask2 => 'Writing Task 2',
+            }),
+          ),
+          DataCell(Text(item.topics.join(', '))),
         ],
       );
     }).toList();
@@ -157,7 +164,7 @@ class _QuestionListViewState extends State<QuestionListView> {
         ),
         DataColumn2(
           size: ColumnSize.S,
-          label: const Text('Topic'),
+          label: const Text('Topics'),
           onSort: _onSort,
         ),
       ],
