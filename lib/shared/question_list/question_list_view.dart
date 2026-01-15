@@ -7,15 +7,15 @@ import 'package:ielts_ai_trainer/shared/question_list/question_list_query_servic
 import 'package:provider/provider.dart';
 import 'package:throttling/throttling.dart';
 
-/// Widget that displayes a list of questions users have previously practiced.
+/// Widget that displays a list of questions users have previously practiced.
 class QuestionListView extends StatefulWidget {
-  /// Controller for QuestionListView
+  /// Controller for QuestionListView.
   final QuestionListController? controller;
 
-  /// The date of the data to display
+  /// The date of the data to display.
   final DateTime? date;
 
-  /// Whether or not the search bar displays
+  /// Whether the search bar is displayed.
   final bool searchBarEnabled;
 
   const QuestionListView({
@@ -29,7 +29,7 @@ class QuestionListView extends StatefulWidget {
   State<QuestionListView> createState() => _QuestionListViewState();
 }
 
-/// State for QuestionListView
+/// State for QuestionListView.
 class _QuestionListViewState extends State<QuestionListView> {
   /// TextEditingController for the search input field.
   final _editingController = TextEditingController();
@@ -51,6 +51,8 @@ class _QuestionListViewState extends State<QuestionListView> {
   void initState() {
     super.initState();
 
+    /// Indicates whether the controller is created internally by this widget
+    /// or passed from a parent widget.
     if (widget.controller != null) {
       _ctrl = widget.controller!;
       _isInternalCtrl = false;
@@ -89,7 +91,7 @@ class _QuestionListViewState extends State<QuestionListView> {
     }
   }
 
-  /// Called when the column is tapped.
+  /// Called when a column header is tapped.
   void _onSort(int columnIndex, bool ascending) {
     _ctrl.setOrder(columnIndex, ascending, refreshList: true);
   }
@@ -193,7 +195,7 @@ class _QuestionListViewState extends State<QuestionListView> {
   }
 }
 
-/// ViewModel representing a UserAnswer for display on Question list
+/// ViewModel representing a UserAnswer for display on Question list.
 class QuestionListViewVM {
   final String promptText;
   final TestTask testTask;

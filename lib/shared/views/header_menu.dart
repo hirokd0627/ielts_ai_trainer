@@ -54,11 +54,16 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
         menuChildren: [
           MenuItemButton(
             onPressed: () {
-              context.go(writingTask1QuestionGeneratorScreenRoutPath);
+              context.go(writingTask1QuestionGeneratorScreenRoutePath);
             },
             child: const Text('Task 1'),
           ),
-          MenuItemButton(onPressed: () {}, child: const Text('Task 2')),
+          MenuItemButton(
+            onPressed: () {
+              context.go(writingTask2QuestionGeneratorScreenRoutePath);
+            },
+            child: const Text('Task 2'),
+          ),
         ],
         child: const Text('Writing'),
       ),

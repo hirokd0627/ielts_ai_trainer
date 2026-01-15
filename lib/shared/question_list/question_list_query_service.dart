@@ -1,11 +1,12 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/question_list/question_list_view.dart';
 
 part 'question_list_query_service.g.dart';
 
-/// Query service for QuestionListView, handling database data for display.
+/// Query service for QuestionListView, handling database data retrieval.
 @DriftAccessor(
   tables: [UserAnswersTable, WritingAnswerDetailsTable, PromptTopicsTable],
 )
@@ -13,7 +14,8 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
     with _$QuestionListQueryServiceMixin {
   QuestionListQueryService(super.attachedDatabase);
 
-  /// Selects answer histories filtered by test tasks, date, search word, and limit.
+  /// Selects answer histories, optionally filtered by test tasks, date,
+  /// search word, and limiting the results.
   Future<List<QuestionListViewVM>> selectAnswersByDateWord({
     Set<TestTask>? testTasks,
     DateTime? date,
@@ -50,8 +52,23 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
       );
     }
 
-    final wordWhereClauses = <Expression<bool>>[];
+    // Test Task
+    if (testTasks.isNotEmpty &&
+        !setEquals(testTasks, Set.from(TestTask.values))) {
+      final testTaskWhereClauses = <Expression<bool>>[];
+      for (final testTask in TestTask.values) {
+        if (testTasks.contains(testTask)) {
+          testTaskWhereClauses.add(
+            userAnswersTable.testTask.equalsValue(testTask),
+          );
+        }
+      }
+      joinedQuery.where(testTaskWhereClauses.reduce((a, b) => a | b));
+    }
+
+    // Search word
     if (word.isNotEmpty) {
+      final wordWhereClauses = <Expression<bool>>[];
       if (testTasks.contains(TestTask.writingTask1) ||
           testTasks.contains(TestTask.writingTask2)) {
         wordWhereClauses.add(
@@ -63,8 +80,9 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
           testTasks.contains(TestTask.speakingPart3)) {
         // TODO: speaking
       }
-
-      joinedQuery.where(wordWhereClauses.reduce((a, b) => a | b));
+      if (wordWhereClauses.isNotEmpty) {
+        joinedQuery.where(wordWhereClauses.reduce((a, b) => a | b));
+      }
     }
 
     // limit

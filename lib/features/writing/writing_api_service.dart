@@ -1,15 +1,19 @@
 import 'package:faker/faker.dart';
 
+/// API service for Writing Task screens.
 class WritingApiService {
-  Future<Response> generatePromptText(List<String> topics) async {
+  /// Generates a writing prompt text beased on the given topics.
+  Future<WritingPromptResponse> generatePromptText(List<String> topics) async {
     // TODO: dummy data
     await Future.delayed(const Duration(seconds: 2));
-    return Response(faker.lorem.sentences(3).join("\n"));
+    return WritingPromptResponse(faker.lorem.sentences(3).join("\n"));
   }
 }
 
-class Response {
+/// Response for writing prompt generation.
+class WritingPromptResponse {
+  /// Generated prompt text.
   final String promptText;
 
-  const Response(this.promptText);
+  const WritingPromptResponse(this.promptText);
 }

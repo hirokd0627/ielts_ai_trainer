@@ -4,54 +4,56 @@ import 'package:ielts_ai_trainer/shared/question_list/question_list_query_servic
 import 'package:ielts_ai_trainer/shared/question_list/question_list_view.dart';
 import 'package:intl/intl.dart';
 
-/// Controller for QuestionListView widget
+/// Controller for QuestionListView widget.
 class QuestionListController extends ChangeNotifier {
   /// DateTime format: 'MMM d, yyyy', e.g., 'Jan 12, 2026'.
   final _displayDateFormat = DateFormat('MMM d, yyyy');
+
+  /// Query service for QuestionList.
   final QuestionListQueryService _querySrv;
 
-  /// Events displayed in the QuestionListView.
+  /// The TestTask of the data to display.
+  final TestTask? _testTask;
+
+  /// The events displayed in the QuestionListView.
   late List<QuestionListViewVM> _eventList;
 
-  /// The current search word
+  /// The current search word.
   String _searchWord = '';
 
-  /// DataRows for DataTable2
+  /// DataRows for DataTable2.
   List<DataRow> _rows = [];
 
-  // Fields for DataTable2
+  // Fields for DataTable2.
   int _sortColumnIndex = 0;
   bool _sortAscending = true;
 
-  /// The date of the data to display
+  /// The date of the data to display.
   DateTime? _date;
 
-  /// Returns the current search word
   String get searchWord {
     return _searchWord;
   }
 
-  /// Returns the current sort column index
   int get sortColumnIndex {
     return _sortColumnIndex;
   }
 
-  /// Returns the current sort ascending
   bool get sortAscending {
     return _sortAscending;
   }
 
-  /// Returns the current list data for DataTable2
   List<DataRow> get rows {
     return _rows;
   }
 
-  QuestionListController({required QuestionListQueryService queryService})
-    : _querySrv = queryService;
+  QuestionListController({
+    required QuestionListQueryService queryService,
+    TestTask? testTask,
+  }) : _querySrv = queryService,
+       _testTask = testTask;
 
-  /// Sets the search word.
-  ///
-  /// Refreshes the list if refreshList is true.
+  /// Sets the search word and optionally refreshes the list.
   Future<void> setSearchWord(String word, {bool refreshList = false}) async {
     _searchWord = word;
     if (refreshList) {
@@ -60,9 +62,7 @@ class QuestionListController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Sets the date.
-  ///
-  /// Refreshes the list if refreshList is true.
+  /// Sets the date and optionally refreshes the list.
   Future<void> setDate(DateTime? date, {bool refreshList = false}) async {
     _date = date;
     if (refreshList) {
@@ -71,9 +71,7 @@ class QuestionListController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Sets the list order.
-  ///
-  /// Refreshes the list if refreshList is true.
+  /// Sets the list order and optionally refreshes the list.
   Future<void> setOrder(
     int columnIndex,
     bool asc, {
@@ -93,20 +91,22 @@ class QuestionListController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Selects the list data based on current parameters.
+  /// Selects the list data based on current search word, date, and sort order.
   Future<void> _selectListRows() async {
-    final events = await _getQuestionEventList();
+    final events = await _getAnswersByDateWord();
 
     _eventList = events;
     _rows = _questionListToDataRows(
       _sortList(_sortColumnIndex, _sortAscending),
     );
-    _eventList = events;
   }
 
   /// Returns a list of QuestionListViewVM filtered by date, word, and limit.
-  Future<List<QuestionListViewVM>> _getAnswersByDateWord({int? limit}) async {
+  Future<List<QuestionListViewVM>> _getAnswersByDateWord() async {
+    // Displays 20 events if date and word is empty
+    final limit = (_date == null && _searchWord.isEmpty) ? 20 : null;
     return await _querySrv.selectAnswersByDateWord(
+      testTasks: _testTask != null ? {_testTask} : null,
       date: _date,
       word: _searchWord,
       limit: limit,
@@ -143,7 +143,7 @@ class QuestionListController extends ChangeNotifier {
     }).toList();
   }
 
-  /// Sorts items.
+  /// Sorts the items.
   List<QuestionListViewVM> _sortList(int columnIndex, bool ascending) {
     if (columnIndex == 0) {
       _sortByPromptText(ascending);
@@ -192,13 +192,5 @@ class QuestionListController extends ChangeNotifier {
           ? a.topics.toString().compareTo(b.topics.toString())
           : b.topics.toString().compareTo(a.topics.toString());
     });
-  }
-
-  /// Gets QuestionListViewVM based on selected date and search word.
-  Future<List<QuestionListViewVM>> _getQuestionEventList() async {
-    // Displays 20 events if date and word is empty
-    final limit = (_date == null && _searchWord.isEmpty) ? 20 : null;
-    final eventList = await _getAnswersByDateWord(limit: limit);
-    return eventList;
   }
 }

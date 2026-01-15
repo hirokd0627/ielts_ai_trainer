@@ -1,10 +1,10 @@
-/// The question types of Writing Task 1.
-enum WritingTask1QuestionType {
-  table,
-  chart,
-  process,
-  map,
-  graph,
+/// The essay types of Writing Task 2.
+enum WritingTask2EssayType {
+  discussionEssay,
+  problemAndSolution,
+  opinionEssay,
+  twoPartQuestionEssay,
+  advantagesAndDisadvantages,
 
   // static bool contains(String name) {
   //   return WritingTask1QuestionType.values.any((e) => e.name == name);

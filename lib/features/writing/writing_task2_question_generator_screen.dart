@@ -4,18 +4,18 @@ import 'package:ielts_ai_trainer/features/writing/writing_question_generator_scr
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
 
-/// Writing Task 1 Question Generator Screen.
-class WritingTask1QuestionGeneratorScreen extends StatefulWidget {
-  const WritingTask1QuestionGeneratorScreen({super.key});
+/// Writing Task 2 Question Generator Screen.
+class WritingTask2QuestionGeneratorScreen extends StatefulWidget {
+  const WritingTask2QuestionGeneratorScreen({super.key});
 
   @override
-  State<WritingTask1QuestionGeneratorScreen> createState() =>
-      _WritingTask1QuestionGeneratorScreenState();
+  State<WritingTask2QuestionGeneratorScreen> createState() =>
+      _WritingTask2QuestionGeneratorScreenState();
 }
 
-/// State for WritingTask1QuestionGeneratorScreen
-class _WritingTask1QuestionGeneratorScreenState
-    extends State<WritingTask1QuestionGeneratorScreen> {
+/// State for WritingTask2QuestionGeneratorScreen
+class _WritingTask2QuestionGeneratorScreenState
+    extends State<WritingTask2QuestionGeneratorScreen> {
   /// API service to generate prompt text
   final WritingApiService _apiSrv = WritingApiService();
 
@@ -39,7 +39,7 @@ class _WritingTask1QuestionGeneratorScreenState
       body: WritingQuestionGeneratorScreen(
         generatePromptText: _generatePromptText,
         onTappedStart: _onTappedStart,
-        testTask: TestTask.writingTask1,
+        testTask: TestTask.writingTask2,
       ),
     );
   }

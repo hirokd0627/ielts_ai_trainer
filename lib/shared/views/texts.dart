@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-class ScreenTitlteText extends StatelessWidget {
+/// Text widget styled as a screen title.
+class ScreenTitleText extends StatelessWidget {
   final String text;
 
-  const ScreenTitlteText(this.text, {super.key});
+  const ScreenTitleText(this.text, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +16,7 @@ class ScreenTitlteText extends StatelessWidget {
   }
 }
 
+/// Text widget styled as a headline text.
 class HeadlineText extends StatelessWidget {
   final String text;
 
@@ -30,6 +32,7 @@ class HeadlineText extends StatelessWidget {
   }
 }
 
+/// Text widget styled as an input field label.
 class FieldLabel extends StatelessWidget {
   final String text;
 
@@ -41,6 +44,24 @@ class FieldLabel extends StatelessWidget {
       margin: EdgeInsets.only(),
       padding: EdgeInsets.only(),
       child: Text(text, style: Theme.of(context).textTheme.titleMedium),
+    );
+  }
+}
+
+/// Text widget styled as an input error text.
+class InputErrorText extends StatelessWidget {
+  final String text;
+
+  const InputErrorText(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 12,
+        color: Theme.of(context).colorScheme.error,
+      ),
     );
   }
 }
