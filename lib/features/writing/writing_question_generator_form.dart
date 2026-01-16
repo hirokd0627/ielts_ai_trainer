@@ -4,24 +4,47 @@ import 'package:ielts_ai_trainer/features/writing/writing_question_generator_for
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_task1_question_type.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_task2_essay_type.dart';
+import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 
 /// Question Generator Form for Writing Tasks.
 class WritingQuestionGeneratorForm extends StatefulWidget {
   /// Called when generation button is tapped.
-  final Future<String> Function(List<String> topics) generatePromptText;
+  final Future<String> Function(dynamic promptType, List<String> topics)
+  generatePromptText;
 
   /// Called when start button is tapped.
-  final void Function(String promptText, List<String> topics) onTappedStart;
+  final void Function(
+    String promptText,
+    List<String> topics,
+    dynamic promptType,
+  )
+  onTappedStart;
 
   /// The task type.
   final TestTask testTask;
+
+  /// The question type to display initially, if set.
+  final WritingTask1QuestionType? questionType;
+
+  /// The essay type to display initially, if set.
+  final WritingTask2EssayType? essayType;
+
+  /// The prompt text to display initially, if set.
+  final String? promptText;
+
+  /// The topics to display initially, if set.
+  final List<String>? topics;
 
   const WritingQuestionGeneratorForm({
     super.key,
     required this.generatePromptText,
     required this.onTappedStart,
     required this.testTask,
+    this.promptText,
+    this.topics,
+    this.questionType,
+    this.essayType,
   });
 
   @override
@@ -53,20 +76,22 @@ class _WritingQuestionGeneratorFormState
     return 'Essay Type';
   }
 
-  /// Options for prompt type.
-  List<DropdownMenuEntry<String>> get _promptTypeEntries {
-    if (widget.testTask == TestTask.writingTask1) {
-      return WritingTask1QuestionType.values.map((e) {
-        String label = switch (e) {
-          WritingTask1QuestionType.chart => 'Chart',
-          WritingTask1QuestionType.graph => 'Graph',
-          WritingTask1QuestionType.map => 'Map',
-          WritingTask1QuestionType.process => 'Process',
-          WritingTask1QuestionType.table => 'Table',
-        };
-        return DropdownMenuEntry(value: e.name, label: label);
-      }).toList();
-    }
+  /// Options for question type.
+  List<DropdownMenuEntry<WritingTask1QuestionType>> get _questionTypeEntries {
+    return WritingTask1QuestionType.values.map((e) {
+      String label = switch (e) {
+        WritingTask1QuestionType.chart => 'Chart',
+        WritingTask1QuestionType.graph => 'Graph',
+        WritingTask1QuestionType.map => 'Map',
+        WritingTask1QuestionType.process => 'Process',
+        WritingTask1QuestionType.table => 'Table',
+      };
+      return DropdownMenuEntry(value: e, label: label);
+    }).toList();
+  }
+
+  /// Options for essay type.
+  List<DropdownMenuEntry<WritingTask2EssayType>> get _essayTypeEntries {
     return WritingTask2EssayType.values.map((e) {
       String label = switch (e) {
         WritingTask2EssayType.discussionEssay => 'Discussion Essay',
@@ -77,7 +102,7 @@ class _WritingQuestionGeneratorFormState
         WritingTask2EssayType.advantagesAndDisadvantages =>
           'Advantages and Disadvantages',
       };
-      return DropdownMenuEntry(value: e.name, label: label);
+      return DropdownMenuEntry(value: e, label: label);
     }).toList();
   }
 
@@ -93,8 +118,13 @@ class _WritingQuestionGeneratorFormState
     super.initState();
 
     _ctrl = WritingQuestionGeneratorFormController(
+      testTask: widget.testTask,
       apiSrv: WritingApiService(),
       generatePromptText: widget.generatePromptText,
+      promptText: widget.promptText,
+      topics: widget.topics,
+      questionType: widget.questionType,
+      essayType: widget.essayType,
     );
   }
 
@@ -107,9 +137,16 @@ class _WritingQuestionGeneratorFormState
   }
 
   /// Called when the question type is changed.
-  void _onSelectedPromptType(String? value) {
+  void _onSelectedQuetionType(WritingTask1QuestionType? value) {
     if (value != null) {
-      _ctrl.promptType = value;
+      _ctrl.questionType = value;
+    }
+  }
+
+  /// Called when the essay type is changed.
+  void _onSelectedEssayType(WritingTask2EssayType? value) {
+    if (value != null) {
+      _ctrl.essayType = value;
     }
   }
 
@@ -153,11 +190,26 @@ class _WritingQuestionGeneratorFormState
   }
 
   /// Called when the start button is tapped.
-  void _onPressedStart() {
-    // TODO: confirm
-    // Pass prompt text and topics
-    // These data saved when user submit answer
-    widget.onTappedStart(_ctrl.propmtText, _ctrl.usedTopics);
+  void _onPressedStart() async {
+    // Confirm whether to start practicing.
+    final confirmed = await showConfirmDialog(
+      context,
+      'Start to practice?',
+      '',
+    );
+    if (confirmed == null || !confirmed) {
+      return;
+    }
+
+    if (!mounted) {
+      // If state has been destroyed, context cannot be used, so return
+      return;
+    }
+
+    final promptType = (widget.testTask == TestTask.writingTask1)
+        ? _ctrl.questionType
+        : _ctrl.essayType;
+    widget.onTappedStart(_ctrl.propmtText, _ctrl.usedTopics, promptType);
   }
 
   @override
@@ -175,14 +227,24 @@ class _WritingQuestionGeneratorFormState
               margin: EdgeInsets.only(bottom: 8),
               child: FieldLabel(_promptTypeLabel),
             ),
-            DropdownMenu<String>(
-              width: 250,
-              requestFocusOnTap: false,
-              hintText: _promptTypeHintText,
-              initialSelection: null,
-              dropdownMenuEntries: _promptTypeEntries,
-              onSelected: _onSelectedPromptType,
-            ),
+            if (widget.testTask == TestTask.writingTask1)
+              DropdownMenu<WritingTask1QuestionType>(
+                width: 250,
+                requestFocusOnTap: false,
+                hintText: _promptTypeHintText,
+                initialSelection: _ctrl.questionType,
+                dropdownMenuEntries: _questionTypeEntries,
+                onSelected: _onSelectedQuetionType,
+              )
+            else if (widget.testTask == TestTask.writingTask2)
+              DropdownMenu<WritingTask2EssayType>(
+                width: 250,
+                requestFocusOnTap: false,
+                hintText: _promptTypeHintText,
+                initialSelection: _ctrl.essayType,
+                dropdownMenuEntries: _essayTypeEntries,
+                onSelected: _onSelectedEssayType,
+              ),
             SizedBox(height: 24),
             // Topics
             Container(

@@ -8,11 +8,16 @@ import 'app_database.dart';
 
 /// Seeding utilities for development
 extension AppDatabaseDevSeed on AppDatabase {
-  /// Reset all data for development initial state
-  Future<void> resetToDevelopmentData() async {
+  /// Erases all data for development initial state.
+  Future<void> eraseAll() async {
+    await delete(promptTopicsTable).go();
     await delete(writingAnswerDetailsTable).go();
     await delete(userAnswersTable).go();
+  }
 
+  /// Resets all data for development initial state.
+  Future<void> resetToDevelopmentData() async {
+    await eraseAll();
     await addWritingTask1AnswerDetail();
   }
 
