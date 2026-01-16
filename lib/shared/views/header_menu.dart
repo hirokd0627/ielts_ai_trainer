@@ -1,9 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ielts_ai_trainer/app/router_extra.dart';
 import 'package:ielts_ai_trainer/features/development/development_route.dart';
 import 'package:ielts_ai_trainer/features/home/home_route.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
+import 'package:ielts_ai_trainer/shared/enums/writing_task1_question_type.dart';
+import 'package:ielts_ai_trainer/shared/enums/writing_task2_essay_type.dart';
 
 /// Common header for screens
 class HeaderMenuBar extends StatefulWidget {
@@ -92,6 +95,38 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
                 context.go(developmentScreenRoutePath);
               },
               child: const Text('Reset DB'),
+            ),
+            MenuItemButton(
+              onPressed: () {
+                context.go(
+                  writingTask1QuestionGeneratorScreenRoutePath,
+                  extra: RouterExtra({
+                    'questionType': WritingTask1QuestionType.graph,
+                    'promptText': 'developer prompt text 1',
+                    'topics': ['topic 1', 'topic 2'],
+                  }),
+                );
+              },
+              child: const Text('Writing Task 1 Question Generator'),
+            ),
+            MenuItemButton(
+              onPressed: () {
+                context.go(
+                  writingTask2QuestionGeneratorScreenRoutePath,
+                  extra: RouterExtra({
+                    'essayType': WritingTask2EssayType.discussionEssay,
+                    'promptText': 'developer prompt text 2',
+                    'topics': ['topic 3', 'topic 4'],
+                  }),
+                );
+              },
+              child: const Text('Writing Task 2 Question Generator'),
+            ),
+            MenuItemButton(
+              onPressed: () {
+                context.go(writingTask1AnswerInputScreenRoutePath);
+              },
+              child: const Text('Writing Task 1 Input'),
             ),
           ],
           child: const Text('Development'),

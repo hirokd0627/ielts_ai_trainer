@@ -21,9 +21,20 @@ class DevelopmentScreen extends StatelessWidget {
               final logger = createLogger('DevelopmentScreenState');
 
               await db.resetToDevelopmentData();
-              logger.d('DB reset complete');
+              logger.d('DB reset completed');
             },
             child: Text("Reset DB data"),
+          ),
+          // Button to erase database all data
+          TextButton(
+            onPressed: () async {
+              final db = context.read<AppDatabase>();
+              final logger = createLogger('DevelopmentScreenState');
+
+              await db.eraseAll();
+              logger.d('Erase data completed');
+            },
+            child: Text("Erase DB data"),
           ),
         ],
       ),
