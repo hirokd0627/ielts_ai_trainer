@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/app/router.dart';
-import 'package:ielts_ai_trainer/app/theme.dart';
+import 'package:ielts_ai_trainer/app/theme/theme.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:provider/provider.dart';
 

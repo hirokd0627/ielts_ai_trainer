@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// PageTransitionsBuilder with no animation
 class _NoTransitionPageBuilder extends PageTransitionsBuilder {
@@ -32,9 +33,18 @@ final _pageTransitionsTheme = const PageTransitionsTheme(
 final themeData = ThemeData(
   colorScheme: .fromSeed(seedColor: Colors.deepPurple),
   pageTransitionsTheme: _pageTransitionsTheme,
-  textTheme: const TextTheme(
-    headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-    headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-    headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  textTheme: TextTheme(
+    headlineLarge: GoogleFonts.roboto(
+      textStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+    ),
+    headlineMedium: GoogleFonts.roboto(
+      textStyle: TextStyle(fontSize: 19, fontWeight: FontWeight.w500),
+    ),
+    headlineSmall: GoogleFonts.roboto(
+      textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.normal),
+    ),
+    titleMedium: GoogleFonts.roboto(
+      textStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+    ),
   ),
 );

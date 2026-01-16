@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/features/development/development_route.dart';
 import 'package:ielts_ai_trainer/features/home/home_route.dart';
+import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 
 /// Common header for screens
 class HeaderMenuBar extends StatefulWidget {
@@ -51,8 +52,18 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
       SubmenuButton(
         menuStyle: _subMenuStyle,
         menuChildren: [
-          MenuItemButton(onPressed: () {}, child: const Text('Task 1')),
-          MenuItemButton(onPressed: () {}, child: const Text('Task 2')),
+          MenuItemButton(
+            onPressed: () {
+              context.go(writingTask1QuestionGeneratorScreenRoutePath);
+            },
+            child: const Text('Task 1'),
+          ),
+          MenuItemButton(
+            onPressed: () {
+              context.go(writingTask2QuestionGeneratorScreenRoutePath);
+            },
+            child: const Text('Task 2'),
+          ),
         ],
         child: const Text('Writing'),
       ),
