@@ -5,13 +5,13 @@ import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_question_generator_screen.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task2_essay_type.dart';
+import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
 
 /// Writing Task 2 Question Generator Screen.
 class WritingTask2QuestionGeneratorScreen extends StatefulWidget {
-  /// The essay type to display initially, if set.
-  final WritingTask2EssayType? essayType;
+  /// The prompt type to display initially, if set.
+  final WritingPromptType? promptType;
 
   /// The prompt text to display initially, if set.
   final String? promptText;
@@ -21,7 +21,7 @@ class WritingTask2QuestionGeneratorScreen extends StatefulWidget {
 
   const WritingTask2QuestionGeneratorScreen({
     super.key,
-    this.essayType,
+    this.promptType,
     this.promptText,
     this.topics,
   });
@@ -41,10 +41,9 @@ class _WritingTask2QuestionGeneratorScreenState
   ///
   /// Called when generation button is tapped.
   Future<String> _generatePromptText(
-    dynamic promptType,
+    WritingPromptType promptType,
     List<String> topics,
   ) async {
-    final essayType = promptType as WritingTask2EssayType;
     final resp = await _apiSrv.generatePromptText(topics);
     // TODO: error handling
     return resp.promptText;
@@ -61,7 +60,7 @@ class _WritingTask2QuestionGeneratorScreenState
       extra: RouterExtra({
         'promptText': promptText,
         'topics': topics,
-        'essayType': promptType as WritingTask2EssayType,
+        'promptType': promptType,
       }),
     );
   }
@@ -73,7 +72,7 @@ class _WritingTask2QuestionGeneratorScreenState
         generatePromptText: _generatePromptText,
         onTappedStart: _onTappedStart,
         testTask: TestTask.writingTask2,
-        essayType: widget.essayType,
+        promptType: widget.promptType,
         promptText: widget.promptText,
         topics: widget.topics,
       ),

@@ -6,8 +6,7 @@ import 'package:ielts_ai_trainer/features/writing/writing_answer_input_controlle
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task1_question_type.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task2_essay_type.dart';
+import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
@@ -24,19 +23,15 @@ class WritingAnswerInputScreen extends StatefulWidget {
   /// The task type.
   final TestTask testTask;
 
-  /// The question type used to generate the prompt.
-  final WritingTask1QuestionType? questionType;
-
-  /// The essay type used to generate the prompt.
-  final WritingTask2EssayType? essayType;
+  /// The prompt type used to generate the prompt.
+  final WritingPromptType promptType;
 
   const WritingAnswerInputScreen({
     super.key,
     required this.promptText,
     required this.topics,
     required this.testTask,
-    this.questionType,
-    this.essayType,
+    required this.promptType,
   });
 
   @override
@@ -48,6 +43,7 @@ class WritingAnswerInputScreen extends StatefulWidget {
 class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
   late final WritingAnswerInputController _ctrl;
 
+  /// Returns the screen title based on the task type.
   String get _screenTitle {
     return widget.testTask == TestTask.writingTask1
         ? 'Writing Task 1'
@@ -65,8 +61,7 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
       testTask: widget.testTask,
       promptText: widget.promptText,
       topics: widget.topics,
-      questionType: widget.questionType,
-      essayType: widget.essayType,
+      promptType: widget.promptType,
     );
 
     _ctrl.startTimer();
@@ -103,7 +98,11 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
       return;
     }
 
-    // TODO: Navigates to the result screen.
+    // Navigates to the result screen.
+    context.go(
+      writingTask1ResultScreenRoutePath,
+      extra: RouterExtra({'id': id}),
+    );
   }
 
   /// Called when the cancel button is pressed.
@@ -120,24 +119,15 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
     }
 
     // Navigates to the question generator screen.
+    final extra = RouterExtra({
+      'promptText': widget.promptText,
+      'topics': widget.topics,
+      'promptType': widget.promptType,
+    });
     if (widget.testTask == TestTask.writingTask1) {
-      context.go(
-        writingTask1QuestionGeneratorScreenRoutePath,
-        extra: RouterExtra({
-          'promptText': widget.promptText,
-          'topics': widget.topics,
-          'questionType': widget.questionType,
-        }),
-      );
+      context.go(writingTask1QuestionGeneratorScreenRoutePath, extra: extra);
     } else if (widget.testTask == TestTask.writingTask2) {
-      context.go(
-        writingTask2QuestionGeneratorScreenRoutePath,
-        extra: RouterExtra({
-          'promptText': widget.promptText,
-          'topics': widget.topics,
-          'essayType': widget.essayType,
-        }),
-      );
+      context.go(writingTask2QuestionGeneratorScreenRoutePath, extra: extra);
     }
   }
 

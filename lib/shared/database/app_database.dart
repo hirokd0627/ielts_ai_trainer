@@ -50,6 +50,7 @@ class WritingAnswerDetailsTable extends Table {
 
   IntColumn get id => integer().autoIncrement()();
   IntColumn get userAnswer => integer().references(UserAnswersTable, #id)();
+  TextColumn get promptType => text().withLength(min: 1)();
   TextColumn get promptText => text().withLength(min: 1)();
   TextColumn get answerText => text().withLength(min: 1)();
   IntColumn get duration => integer()();
@@ -61,6 +62,7 @@ class WritingAnswerDetailsTable extends Table {
   RealColumn get grammaticalScore => real().nullable()();
   BoolColumn get isGraded => boolean()();
   TextColumn get feedback => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 /// prompt_topics

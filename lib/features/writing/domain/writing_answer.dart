@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task1_question_type.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task2_essay_type.dart';
+import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
 part 'writing_answer.freezed.dart';
 
@@ -13,6 +12,8 @@ abstract class WritingAnswer with _$WritingAnswer {
     int? detailId,
     required TestTask testTask,
     required DateTime createdAt,
+    required DateTime updatedAt,
+    required WritingPromptType promptType,
     required String promptText,
     required List<String> topics,
     required String answerText,
@@ -24,7 +25,5 @@ abstract class WritingAnswer with _$WritingAnswer {
     double? grammatical,
     double? score,
     String? feedback,
-    WritingTask1QuestionType? questionType,
-    WritingTask2EssayType? essayType,
   }) = _WritingAnswer;
 }

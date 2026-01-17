@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_question_generator_form.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task1_question_type.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task2_essay_type.dart';
+import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/question_list/question_list_controller.dart';
 import 'package:ielts_ai_trainer/shared/question_list/question_list_query_service.dart';
 import 'package:ielts_ai_trainer/shared/question_list/question_list_view.dart';
@@ -13,7 +12,10 @@ import 'package:provider/provider.dart';
 /// Question Generator Screen for Task 1 and 2.
 class WritingQuestionGeneratorScreen extends StatefulWidget {
   /// Called when generation button is tapped.
-  final Future<String> Function(dynamic promptType, List<String> topics)
+  final Future<String> Function(
+    WritingPromptType promptType,
+    List<String> topics,
+  )
   generatePromptText;
 
   /// Called when start button is tapped.
@@ -27,11 +29,8 @@ class WritingQuestionGeneratorScreen extends StatefulWidget {
   /// The task type.
   final TestTask testTask;
 
-  /// The question type to display initially, if set.
-  final WritingTask1QuestionType? questionType;
-
-  /// The essay type to display initially, if set.
-  final WritingTask2EssayType? essayType;
+  /// The prompt type to display initially, if set.
+  final WritingPromptType? promptType;
 
   /// The prompt text to display initially, if set.
   final String? promptText;
@@ -46,8 +45,7 @@ class WritingQuestionGeneratorScreen extends StatefulWidget {
     required this.testTask,
     this.promptText,
     this.topics,
-    this.questionType,
-    this.essayType,
+    this.promptType,
   });
 
   @override
@@ -61,6 +59,7 @@ class _WritingQuestionGeneratorScreenState
   /// Controller for QuestionListView
   late final QuestionListController _questionListController;
 
+  /// Returns the screen title based on the task type.
   String get _screenTitle {
     return widget.testTask == TestTask.writingTask1
         ? 'Writing Task 1'
@@ -102,8 +101,7 @@ class _WritingQuestionGeneratorScreenState
           testTask: widget.testTask,
           promptText: widget.promptText,
           topics: widget.topics,
-          questionType: widget.questionType,
-          essayType: widget.essayType,
+          promptType: widget.promptType,
         ),
         SizedBox(height: 40),
         // Question List
