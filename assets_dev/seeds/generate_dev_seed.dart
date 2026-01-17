@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:faker/faker.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
+import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
 /// Number of seed data records
 final recordCount = 100;
@@ -19,6 +20,9 @@ void main() {
     recordCount,
     (_) => {
       'testTask': faker.randomGenerator.element(TestTask.values).name,
+      'promptType': faker.randomGenerator
+          .element(WritingPromptType.values)
+          .name,
       'promptText': faker.lorem.sentences(3).join("\n"),
       'answerText': faker.lorem.sentences(15).join("\n"),
       'achievementScore': _roundScore(

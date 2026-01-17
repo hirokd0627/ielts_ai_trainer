@@ -35,16 +35,18 @@ extension AppDatabaseDevSeed on AppDatabase {
     for (final data in jsonData) {
       _addWritingTask1HisotryDetail(
         promptText: data['promptText'],
+        promptType: data['promptType'],
         answerText: data['answerText'],
-        achievementScore: data['achievementScore'],
-        coherenceScore: data['coherenceScore'],
-        lexialScore: data['lexialScore'],
-        grammaticalScore: data['grammaticalScore'],
+        // achievementScore: data['achievementScore'],
+        // coherenceScore: data['coherenceScore'],
+        // lexialScore: data['lexialScore'],
+        // grammaticalScore: data['grammaticalScore'],
         duration: data['duration'],
         feedback: data['feedback'],
-        isGraded: true,
+        isGraded: false,
         topics: (data['topics'] as List).cast<String>(),
         createdAt: DateTime.parse(data['createdAt']),
+        updatedAt: DateTime.parse(data['createdAt']),
       );
     }
   }
@@ -52,16 +54,18 @@ extension AppDatabaseDevSeed on AppDatabase {
   /// Insert WritingAnswerDetail for Task 1 with associated UserAnswer
   Future<int> _addWritingTask1HisotryDetail({
     required String promptText,
+    required String promptType,
     required String answerText,
-    required double achievementScore,
-    required double coherenceScore,
-    required double lexialScore,
-    required double grammaticalScore,
+    double? achievementScore,
+    double? coherenceScore,
+    double? lexialScore,
+    double? grammaticalScore,
     required String feedback,
     required bool isGraded,
     required int duration,
     required List<String> topics,
     required DateTime createdAt,
+    required DateTime updatedAt,
   }) {
     return transaction<int>(() async {
       // UserAnswer
@@ -74,11 +78,20 @@ extension AppDatabaseDevSeed on AppDatabase {
 
       // WritingAnswerDetails for Task 1
       final score =
-          (achievementScore + coherenceScore + lexialScore + grammaticalScore) /
-          4.0;
+          (achievementScore != null &&
+              coherenceScore != null &&
+              lexialScore != null &&
+              grammaticalScore != null)
+          ? (achievementScore +
+                    coherenceScore +
+                    lexialScore +
+                    grammaticalScore) /
+                4.0
+          : null;
       final dtId = await into(writingAnswerDetailsTable).insert(
         WritingAnswerDetailsTableCompanion(
           userAnswer: Value(uphId),
+          promptType: Value(promptType),
           promptText: Value(promptText),
           answerText: Value(answerText),
           score: Value(score),
@@ -89,6 +102,7 @@ extension AppDatabaseDevSeed on AppDatabase {
           duration: Value(duration),
           feedback: Value(feedback),
           isGraded: Value(isGraded),
+          updatedAt: Value(createdAt),
         ),
       );
 

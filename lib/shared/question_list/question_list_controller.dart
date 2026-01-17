@@ -2,13 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/question_list/question_list_query_service.dart';
 import 'package:ielts_ai_trainer/shared/question_list/question_list_view.dart';
-import 'package:intl/intl.dart';
 
 /// Controller for QuestionListView widget.
 class QuestionListController extends ChangeNotifier {
-  /// DateTime format: 'MMM d, yyyy', e.g., 'Jan 12, 2026'.
-  final _displayDateFormat = DateFormat('MMM d, yyyy');
-
   /// Query service for QuestionList.
   final QuestionListQueryService _querySrv;
 
@@ -16,13 +12,10 @@ class QuestionListController extends ChangeNotifier {
   final TestTask? _testTask;
 
   /// The events displayed in the QuestionListView.
-  late List<QuestionListViewVM> _eventList;
+  List<QuestionListViewVM> _eventList = [];
 
   /// The current search word.
   String _searchWord = '';
-
-  /// DataRows for DataTable2.
-  List<DataRow> _rows = [];
 
   // Fields for DataTable2.
   int _sortColumnIndex = 0;
@@ -43,8 +36,8 @@ class QuestionListController extends ChangeNotifier {
     return _sortAscending;
   }
 
-  List<DataRow> get rows {
-    return _rows;
+  List<QuestionListViewVM> get eventList {
+    return _eventList;
   }
 
   QuestionListController({
@@ -96,9 +89,7 @@ class QuestionListController extends ChangeNotifier {
     final events = await _getAnswersByDateWord();
 
     _eventList = events;
-    _rows = _questionListToDataRows(
-      _sortList(_sortColumnIndex, _sortAscending),
-    );
+    _sortList(_sortColumnIndex, _sortAscending);
   }
 
   /// Returns a list of QuestionListViewVM filtered by date, word, and limit.
@@ -111,36 +102,6 @@ class QuestionListController extends ChangeNotifier {
       word: _searchWord,
       limit: limit,
     );
-  }
-
-  /// Converts a list of QuestionListViewVM into a list of DataRow for DataTable.
-  List<DataRow> _questionListToDataRows(List<QuestionListViewVM> eventList) {
-    return eventList.map((item) {
-      return DataRow(
-        cells: [
-          DataCell(
-            Text(
-              item.promptText.replaceAll('\n', ' '), // To one line
-              maxLines: 1,
-              // Fade to the right
-              overflow: TextOverflow.fade,
-              softWrap: false,
-            ),
-          ),
-          DataCell(Text(_displayDateFormat.format(item.datetime))),
-          DataCell(
-            Text(switch (item.testTask) {
-              TestTask.speakingPart1 => 'Speaking Part 1',
-              TestTask.speakingPart2 => 'Speaking Part 2',
-              TestTask.speakingPart3 => 'Speaking Part 3',
-              TestTask.writingTask1 => 'Writing Task 1',
-              TestTask.writingTask2 => 'Writing Task 2',
-            }),
-          ),
-          DataCell(Text(item.topics.join(', '))),
-        ],
-      );
-    }).toList();
   }
 
   /// Sorts the items.

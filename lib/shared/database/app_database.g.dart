@@ -298,6 +298,18 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
       'REFERENCES user_answers (id)',
     ),
   );
+  static const VerificationMeta _promptTypeMeta = const VerificationMeta(
+    'promptType',
+  );
+  @override
+  late final GeneratedColumn<String> promptType = GeneratedColumn<String>(
+    'prompt_type',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(minTextLength: 1),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _promptTextMeta = const VerificationMeta(
     'promptText',
   );
@@ -411,10 +423,23 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     userAnswer,
+    promptType,
     promptText,
     answerText,
     duration,
@@ -425,6 +450,7 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     grammaticalScore,
     isGraded,
     feedback,
+    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -448,6 +474,14 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
       );
     } else if (isInserting) {
       context.missing(_userAnswerMeta);
+    }
+    if (data.containsKey('prompt_type')) {
+      context.handle(
+        _promptTypeMeta,
+        promptType.isAcceptableOrUnknown(data['prompt_type']!, _promptTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_promptTypeMeta);
     }
     if (data.containsKey('prompt_text')) {
       context.handle(
@@ -529,6 +563,12 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         feedback.isAcceptableOrUnknown(data['feedback']!, _feedbackMeta),
       );
     }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -548,6 +588,10 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
       userAnswer: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}user_answer'],
+      )!,
+      promptType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}prompt_type'],
       )!,
       promptText: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -589,6 +633,10 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         DriftSqlType.string,
         data['${effectivePrefix}feedback'],
       ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
     );
   }
 
@@ -602,6 +650,7 @@ class WritingAnswerDetailsTableData extends DataClass
     implements Insertable<WritingAnswerDetailsTableData> {
   final int id;
   final int userAnswer;
+  final String promptType;
   final String promptText;
   final String answerText;
   final int duration;
@@ -612,9 +661,11 @@ class WritingAnswerDetailsTableData extends DataClass
   final double? grammaticalScore;
   final bool isGraded;
   final String? feedback;
+  final DateTime updatedAt;
   const WritingAnswerDetailsTableData({
     required this.id,
     required this.userAnswer,
+    required this.promptType,
     required this.promptText,
     required this.answerText,
     required this.duration,
@@ -625,12 +676,14 @@ class WritingAnswerDetailsTableData extends DataClass
     this.grammaticalScore,
     required this.isGraded,
     this.feedback,
+    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['user_answer'] = Variable<int>(userAnswer);
+    map['prompt_type'] = Variable<String>(promptType);
     map['prompt_text'] = Variable<String>(promptText);
     map['answer_text'] = Variable<String>(answerText);
     map['duration'] = Variable<int>(duration);
@@ -653,6 +706,7 @@ class WritingAnswerDetailsTableData extends DataClass
     if (!nullToAbsent || feedback != null) {
       map['feedback'] = Variable<String>(feedback);
     }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
@@ -660,6 +714,7 @@ class WritingAnswerDetailsTableData extends DataClass
     return WritingAnswerDetailsTableCompanion(
       id: Value(id),
       userAnswer: Value(userAnswer),
+      promptType: Value(promptType),
       promptText: Value(promptText),
       answerText: Value(answerText),
       duration: Value(duration),
@@ -682,6 +737,7 @@ class WritingAnswerDetailsTableData extends DataClass
       feedback: feedback == null && nullToAbsent
           ? const Value.absent()
           : Value(feedback),
+      updatedAt: Value(updatedAt),
     );
   }
 
@@ -693,6 +749,7 @@ class WritingAnswerDetailsTableData extends DataClass
     return WritingAnswerDetailsTableData(
       id: serializer.fromJson<int>(json['id']),
       userAnswer: serializer.fromJson<int>(json['userAnswer']),
+      promptType: serializer.fromJson<String>(json['promptType']),
       promptText: serializer.fromJson<String>(json['promptText']),
       answerText: serializer.fromJson<String>(json['answerText']),
       duration: serializer.fromJson<int>(json['duration']),
@@ -703,6 +760,7 @@ class WritingAnswerDetailsTableData extends DataClass
       grammaticalScore: serializer.fromJson<double?>(json['grammaticalScore']),
       isGraded: serializer.fromJson<bool>(json['isGraded']),
       feedback: serializer.fromJson<String?>(json['feedback']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
   @override
@@ -711,6 +769,7 @@ class WritingAnswerDetailsTableData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'userAnswer': serializer.toJson<int>(userAnswer),
+      'promptType': serializer.toJson<String>(promptType),
       'promptText': serializer.toJson<String>(promptText),
       'answerText': serializer.toJson<String>(answerText),
       'duration': serializer.toJson<int>(duration),
@@ -721,12 +780,14 @@ class WritingAnswerDetailsTableData extends DataClass
       'grammaticalScore': serializer.toJson<double?>(grammaticalScore),
       'isGraded': serializer.toJson<bool>(isGraded),
       'feedback': serializer.toJson<String?>(feedback),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
   WritingAnswerDetailsTableData copyWith({
     int? id,
     int? userAnswer,
+    String? promptType,
     String? promptText,
     String? answerText,
     int? duration,
@@ -737,9 +798,11 @@ class WritingAnswerDetailsTableData extends DataClass
     Value<double?> grammaticalScore = const Value.absent(),
     bool? isGraded,
     Value<String?> feedback = const Value.absent(),
+    DateTime? updatedAt,
   }) => WritingAnswerDetailsTableData(
     id: id ?? this.id,
     userAnswer: userAnswer ?? this.userAnswer,
+    promptType: promptType ?? this.promptType,
     promptText: promptText ?? this.promptText,
     answerText: answerText ?? this.answerText,
     duration: duration ?? this.duration,
@@ -756,6 +819,7 @@ class WritingAnswerDetailsTableData extends DataClass
         : this.grammaticalScore,
     isGraded: isGraded ?? this.isGraded,
     feedback: feedback.present ? feedback.value : this.feedback,
+    updatedAt: updatedAt ?? this.updatedAt,
   );
   WritingAnswerDetailsTableData copyWithCompanion(
     WritingAnswerDetailsTableCompanion data,
@@ -765,6 +829,9 @@ class WritingAnswerDetailsTableData extends DataClass
       userAnswer: data.userAnswer.present
           ? data.userAnswer.value
           : this.userAnswer,
+      promptType: data.promptType.present
+          ? data.promptType.value
+          : this.promptType,
       promptText: data.promptText.present
           ? data.promptText.value
           : this.promptText,
@@ -787,6 +854,7 @@ class WritingAnswerDetailsTableData extends DataClass
           : this.grammaticalScore,
       isGraded: data.isGraded.present ? data.isGraded.value : this.isGraded,
       feedback: data.feedback.present ? data.feedback.value : this.feedback,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -795,6 +863,7 @@ class WritingAnswerDetailsTableData extends DataClass
     return (StringBuffer('WritingAnswerDetailsTableData(')
           ..write('id: $id, ')
           ..write('userAnswer: $userAnswer, ')
+          ..write('promptType: $promptType, ')
           ..write('promptText: $promptText, ')
           ..write('answerText: $answerText, ')
           ..write('duration: $duration, ')
@@ -804,7 +873,8 @@ class WritingAnswerDetailsTableData extends DataClass
           ..write('lexialScore: $lexialScore, ')
           ..write('grammaticalScore: $grammaticalScore, ')
           ..write('isGraded: $isGraded, ')
-          ..write('feedback: $feedback')
+          ..write('feedback: $feedback, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -813,6 +883,7 @@ class WritingAnswerDetailsTableData extends DataClass
   int get hashCode => Object.hash(
     id,
     userAnswer,
+    promptType,
     promptText,
     answerText,
     duration,
@@ -823,6 +894,7 @@ class WritingAnswerDetailsTableData extends DataClass
     grammaticalScore,
     isGraded,
     feedback,
+    updatedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -830,6 +902,7 @@ class WritingAnswerDetailsTableData extends DataClass
       (other is WritingAnswerDetailsTableData &&
           other.id == this.id &&
           other.userAnswer == this.userAnswer &&
+          other.promptType == this.promptType &&
           other.promptText == this.promptText &&
           other.answerText == this.answerText &&
           other.duration == this.duration &&
@@ -839,13 +912,15 @@ class WritingAnswerDetailsTableData extends DataClass
           other.lexialScore == this.lexialScore &&
           other.grammaticalScore == this.grammaticalScore &&
           other.isGraded == this.isGraded &&
-          other.feedback == this.feedback);
+          other.feedback == this.feedback &&
+          other.updatedAt == this.updatedAt);
 }
 
 class WritingAnswerDetailsTableCompanion
     extends UpdateCompanion<WritingAnswerDetailsTableData> {
   final Value<int> id;
   final Value<int> userAnswer;
+  final Value<String> promptType;
   final Value<String> promptText;
   final Value<String> answerText;
   final Value<int> duration;
@@ -856,9 +931,11 @@ class WritingAnswerDetailsTableCompanion
   final Value<double?> grammaticalScore;
   final Value<bool> isGraded;
   final Value<String?> feedback;
+  final Value<DateTime> updatedAt;
   const WritingAnswerDetailsTableCompanion({
     this.id = const Value.absent(),
     this.userAnswer = const Value.absent(),
+    this.promptType = const Value.absent(),
     this.promptText = const Value.absent(),
     this.answerText = const Value.absent(),
     this.duration = const Value.absent(),
@@ -869,10 +946,12 @@ class WritingAnswerDetailsTableCompanion
     this.grammaticalScore = const Value.absent(),
     this.isGraded = const Value.absent(),
     this.feedback = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   });
   WritingAnswerDetailsTableCompanion.insert({
     this.id = const Value.absent(),
     required int userAnswer,
+    required String promptType,
     required String promptText,
     required String answerText,
     required int duration,
@@ -883,7 +962,9 @@ class WritingAnswerDetailsTableCompanion
     this.grammaticalScore = const Value.absent(),
     required bool isGraded,
     this.feedback = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   }) : userAnswer = Value(userAnswer),
+       promptType = Value(promptType),
        promptText = Value(promptText),
        answerText = Value(answerText),
        duration = Value(duration),
@@ -891,6 +972,7 @@ class WritingAnswerDetailsTableCompanion
   static Insertable<WritingAnswerDetailsTableData> custom({
     Expression<int>? id,
     Expression<int>? userAnswer,
+    Expression<String>? promptType,
     Expression<String>? promptText,
     Expression<String>? answerText,
     Expression<int>? duration,
@@ -901,10 +983,12 @@ class WritingAnswerDetailsTableCompanion
     Expression<double>? grammaticalScore,
     Expression<bool>? isGraded,
     Expression<String>? feedback,
+    Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (userAnswer != null) 'user_answer': userAnswer,
+      if (promptType != null) 'prompt_type': promptType,
       if (promptText != null) 'prompt_text': promptText,
       if (answerText != null) 'answer_text': answerText,
       if (duration != null) 'duration': duration,
@@ -915,12 +999,14 @@ class WritingAnswerDetailsTableCompanion
       if (grammaticalScore != null) 'grammatical_score': grammaticalScore,
       if (isGraded != null) 'is_graded': isGraded,
       if (feedback != null) 'feedback': feedback,
+      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
   WritingAnswerDetailsTableCompanion copyWith({
     Value<int>? id,
     Value<int>? userAnswer,
+    Value<String>? promptType,
     Value<String>? promptText,
     Value<String>? answerText,
     Value<int>? duration,
@@ -931,10 +1017,12 @@ class WritingAnswerDetailsTableCompanion
     Value<double?>? grammaticalScore,
     Value<bool>? isGraded,
     Value<String?>? feedback,
+    Value<DateTime>? updatedAt,
   }) {
     return WritingAnswerDetailsTableCompanion(
       id: id ?? this.id,
       userAnswer: userAnswer ?? this.userAnswer,
+      promptType: promptType ?? this.promptType,
       promptText: promptText ?? this.promptText,
       answerText: answerText ?? this.answerText,
       duration: duration ?? this.duration,
@@ -945,6 +1033,7 @@ class WritingAnswerDetailsTableCompanion
       grammaticalScore: grammaticalScore ?? this.grammaticalScore,
       isGraded: isGraded ?? this.isGraded,
       feedback: feedback ?? this.feedback,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -956,6 +1045,9 @@ class WritingAnswerDetailsTableCompanion
     }
     if (userAnswer.present) {
       map['user_answer'] = Variable<int>(userAnswer.value);
+    }
+    if (promptType.present) {
+      map['prompt_type'] = Variable<String>(promptType.value);
     }
     if (promptText.present) {
       map['prompt_text'] = Variable<String>(promptText.value);
@@ -987,6 +1079,9 @@ class WritingAnswerDetailsTableCompanion
     if (feedback.present) {
       map['feedback'] = Variable<String>(feedback.value);
     }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
     return map;
   }
 
@@ -995,6 +1090,7 @@ class WritingAnswerDetailsTableCompanion
     return (StringBuffer('WritingAnswerDetailsTableCompanion(')
           ..write('id: $id, ')
           ..write('userAnswer: $userAnswer, ')
+          ..write('promptType: $promptType, ')
           ..write('promptText: $promptText, ')
           ..write('answerText: $answerText, ')
           ..write('duration: $duration, ')
@@ -1004,7 +1100,8 @@ class WritingAnswerDetailsTableCompanion
           ..write('lexialScore: $lexialScore, ')
           ..write('grammaticalScore: $grammaticalScore, ')
           ..write('isGraded: $isGraded, ')
-          ..write('feedback: $feedback')
+          ..write('feedback: $feedback, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -1740,6 +1837,7 @@ typedef $$WritingAnswerDetailsTableTableCreateCompanionBuilder =
     WritingAnswerDetailsTableCompanion Function({
       Value<int> id,
       required int userAnswer,
+      required String promptType,
       required String promptText,
       required String answerText,
       required int duration,
@@ -1750,11 +1848,13 @@ typedef $$WritingAnswerDetailsTableTableCreateCompanionBuilder =
       Value<double?> grammaticalScore,
       required bool isGraded,
       Value<String?> feedback,
+      Value<DateTime> updatedAt,
     });
 typedef $$WritingAnswerDetailsTableTableUpdateCompanionBuilder =
     WritingAnswerDetailsTableCompanion Function({
       Value<int> id,
       Value<int> userAnswer,
+      Value<String> promptType,
       Value<String> promptText,
       Value<String> answerText,
       Value<int> duration,
@@ -1765,6 +1865,7 @@ typedef $$WritingAnswerDetailsTableTableUpdateCompanionBuilder =
       Value<double?> grammaticalScore,
       Value<bool> isGraded,
       Value<String?> feedback,
+      Value<DateTime> updatedAt,
     });
 
 final class $$WritingAnswerDetailsTableTableReferences
@@ -1814,6 +1915,11 @@ class $$WritingAnswerDetailsTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get promptType => $composableBuilder(
+    column: $table.promptType,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1867,6 +1973,11 @@ class $$WritingAnswerDetailsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$UserAnswersTableTableFilterComposer get userAnswer {
     final $$UserAnswersTableTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -1902,6 +2013,11 @@ class $$WritingAnswerDetailsTableTableOrderingComposer
   });
   ColumnOrderings<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get promptType => $composableBuilder(
+    column: $table.promptType,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1955,6 +2071,11 @@ class $$WritingAnswerDetailsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$UserAnswersTableTableOrderingComposer get userAnswer {
     final $$UserAnswersTableTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -1990,6 +2111,11 @@ class $$WritingAnswerDetailsTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get promptType => $composableBuilder(
+    column: $table.promptType,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get promptText => $composableBuilder(
     column: $table.promptText,
@@ -2032,6 +2158,9 @@ class $$WritingAnswerDetailsTableTableAnnotationComposer
 
   GeneratedColumn<String> get feedback =>
       $composableBuilder(column: $table.feedback, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
   $$UserAnswersTableTableAnnotationComposer get userAnswer {
     final $$UserAnswersTableTableAnnotationComposer composer = $composerBuilder(
@@ -2101,6 +2230,7 @@ class $$WritingAnswerDetailsTableTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<int> userAnswer = const Value.absent(),
+                Value<String> promptType = const Value.absent(),
                 Value<String> promptText = const Value.absent(),
                 Value<String> answerText = const Value.absent(),
                 Value<int> duration = const Value.absent(),
@@ -2111,9 +2241,11 @@ class $$WritingAnswerDetailsTableTableTableManager
                 Value<double?> grammaticalScore = const Value.absent(),
                 Value<bool> isGraded = const Value.absent(),
                 Value<String?> feedback = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
               }) => WritingAnswerDetailsTableCompanion(
                 id: id,
                 userAnswer: userAnswer,
+                promptType: promptType,
                 promptText: promptText,
                 answerText: answerText,
                 duration: duration,
@@ -2124,11 +2256,13 @@ class $$WritingAnswerDetailsTableTableTableManager
                 grammaticalScore: grammaticalScore,
                 isGraded: isGraded,
                 feedback: feedback,
+                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required int userAnswer,
+                required String promptType,
                 required String promptText,
                 required String answerText,
                 required int duration,
@@ -2139,9 +2273,11 @@ class $$WritingAnswerDetailsTableTableTableManager
                 Value<double?> grammaticalScore = const Value.absent(),
                 required bool isGraded,
                 Value<String?> feedback = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
               }) => WritingAnswerDetailsTableCompanion.insert(
                 id: id,
                 userAnswer: userAnswer,
+                promptType: promptType,
                 promptText: promptText,
                 answerText: answerText,
                 duration: duration,
@@ -2152,6 +2288,7 @@ class $$WritingAnswerDetailsTableTableTableManager
                 grammaticalScore: grammaticalScore,
                 isGraded: isGraded,
                 feedback: feedback,
+                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_answer_input_screen.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task1_question_type.dart';
+import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
 /// Writing Task 1 Answer Input Screen.
 class WritingTask1AnswerInputScreen extends StatefulWidget {
@@ -12,13 +12,13 @@ class WritingTask1AnswerInputScreen extends StatefulWidget {
   final List<String> topics;
 
   /// The question type used to generate the prompt.
-  final WritingTask1QuestionType questionType;
+  final WritingPromptType promptType;
 
   const WritingTask1AnswerInputScreen({
     super.key,
     required this.promptText,
     required this.topics,
-    required this.questionType,
+    required this.promptType,
   });
 
   @override
@@ -35,7 +35,7 @@ class _WritingTask1AnswerInputScreenState
       promptText: widget.promptText,
       topics: widget.topics,
       testTask: TestTask.writingTask1,
-      questionType: widget.questionType,
+      promptType: widget.promptType,
     );
   }
 }

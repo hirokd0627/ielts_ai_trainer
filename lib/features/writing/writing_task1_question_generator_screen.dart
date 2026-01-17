@@ -5,13 +5,13 @@ import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_question_generator_screen.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task1_question_type.dart';
+import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
 
 /// Writing Task 1 Question Generator Screen.
 class WritingTask1QuestionGeneratorScreen extends StatefulWidget {
   /// The question type to display initially, if set.
-  final WritingTask1QuestionType? questionType;
+  final WritingPromptType? promptType;
 
   /// The prompt text to display initially, if set.
   final String? promptText;
@@ -21,7 +21,7 @@ class WritingTask1QuestionGeneratorScreen extends StatefulWidget {
 
   const WritingTask1QuestionGeneratorScreen({
     super.key,
-    this.questionType,
+    this.promptType,
     this.promptText,
     this.topics,
   });
@@ -41,10 +41,9 @@ class _WritingTask1QuestionGeneratorScreenState
   ///
   /// Called when generation button is tapped.
   Future<String> _generatePromptText(
-    dynamic promptType,
+    WritingPromptType promptType,
     List<String> topics,
   ) async {
-    final questionType = promptType as WritingTask1QuestionType;
     final resp = await _apiSrv.generatePromptText(topics);
     // TODO: error handling
     return resp.promptText;
@@ -61,7 +60,7 @@ class _WritingTask1QuestionGeneratorScreenState
       extra: RouterExtra({
         'promptText': promptText,
         'topics': topics,
-        'questionType': promptType as WritingTask1QuestionType,
+        'promptType': promptType,
       }),
     );
   }
@@ -73,7 +72,7 @@ class _WritingTask1QuestionGeneratorScreenState
         generatePromptText: _generatePromptText,
         onTappedStart: _onTappedStart,
         testTask: TestTask.writingTask1,
-        questionType: widget.questionType,
+        promptType: widget.promptType,
         promptText: widget.promptText,
         topics: widget.topics,
       ),

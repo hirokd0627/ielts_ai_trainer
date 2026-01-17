@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer_repository.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task1_question_type.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task2_essay_type.dart';
+import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
 /// Controller for WritingAnswerInputScreen.
 class WritingAnswerInputController extends ChangeNotifier {
@@ -31,11 +30,8 @@ class WritingAnswerInputController extends ChangeNotifier {
   /// The task type.
   final TestTask _testTask;
 
-  /// The question type used to generate the prompt.
-  final WritingTask1QuestionType? _questionType;
-
-  /// The essay type used to generate the prompt.
-  final WritingTask2EssayType? _essayType;
+  /// The prompt type used to generate the prompt.
+  final WritingPromptType _promptType;
 
   /// The answer text the user entered.
   String _answerText = '';
@@ -45,18 +41,14 @@ class WritingAnswerInputController extends ChangeNotifier {
     required TestTask testTask,
     required String promptText,
     required List<String> topics,
-    WritingTask1QuestionType? questionType,
-    WritingTask2EssayType? essayType,
+    required WritingPromptType promptType,
   }) : _repo = writingAnswerRepository,
        _testTask = testTask,
        _promptText = promptText,
        _topics = topics,
-       _questionType = questionType,
-       _essayType = essayType;
+       _promptType = promptType;
 
-  WritingTask1QuestionType? get questionType => _questionType;
-
-  WritingTask2EssayType? get essayType => _essayType;
+  WritingPromptType? get promptType => _promptType;
 
   String get answerText => _answerText;
 
@@ -113,18 +105,18 @@ class WritingAnswerInputController extends ChangeNotifier {
 
   /// Saves the user's answer.
   Future<int> saveUserAnswer() async {
-    final createdAt = DateTime.now();
+    final now = DateTime.now();
 
     final answer = WritingAnswer(
       testTask: _testTask,
-      createdAt: createdAt,
+      createdAt: now,
       promptText: _promptText,
       answerText: _answerText,
       isGraded: false,
       duration: _elapsedDuration.inSeconds,
       topics: _topics,
-      questionType: _questionType,
-      essayType: _essayType,
+      promptType: _promptType,
+      updatedAt: now,
     );
 
     return await _repo.saveUserAnswerWriting(answer);

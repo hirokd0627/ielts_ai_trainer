@@ -2,33 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_question_generator_form_controller.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task1_question_type.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_task2_essay_type.dart';
+import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 
 /// Question Generator Form for Writing Tasks.
 class WritingQuestionGeneratorForm extends StatefulWidget {
   /// Called when generation button is tapped.
-  final Future<String> Function(dynamic promptType, List<String> topics)
+  final Future<String> Function(
+    WritingPromptType promptType,
+    List<String> topics,
+  )
   generatePromptText;
 
   /// Called when start button is tapped.
   final void Function(
     String promptText,
     List<String> topics,
-    dynamic promptType,
+    WritingPromptType promptType,
   )
   onTappedStart;
 
   /// The task type.
   final TestTask testTask;
 
-  /// The question type to display initially, if set.
-  final WritingTask1QuestionType? questionType;
-
-  /// The essay type to display initially, if set.
-  final WritingTask2EssayType? essayType;
+  /// The prompt type to display initially, if set.
+  final WritingPromptType? promptType;
 
   /// The prompt text to display initially, if set.
   final String? promptText;
@@ -43,8 +42,7 @@ class WritingQuestionGeneratorForm extends StatefulWidget {
     required this.testTask,
     this.promptText,
     this.topics,
-    this.questionType,
-    this.essayType,
+    this.promptType,
   });
 
   @override
@@ -76,34 +74,34 @@ class _WritingQuestionGeneratorFormState
     return 'Essay Type';
   }
 
-  /// Options for question type.
-  List<DropdownMenuEntry<WritingTask1QuestionType>> get _questionTypeEntries {
-    return WritingTask1QuestionType.values.map((e) {
-      String label = switch (e) {
-        WritingTask1QuestionType.chart => 'Chart',
-        WritingTask1QuestionType.graph => 'Graph',
-        WritingTask1QuestionType.map => 'Map',
-        WritingTask1QuestionType.process => 'Process',
-        WritingTask1QuestionType.table => 'Table',
-      };
-      return DropdownMenuEntry(value: e, label: label);
-    }).toList();
-  }
-
-  /// Options for essay type.
-  List<DropdownMenuEntry<WritingTask2EssayType>> get _essayTypeEntries {
-    return WritingTask2EssayType.values.map((e) {
-      String label = switch (e) {
-        WritingTask2EssayType.discussionEssay => 'Discussion Essay',
-        WritingTask2EssayType.problemAndSolution => 'Problem and Solution',
-        WritingTask2EssayType.opinionEssay =>
-          'Opinion Essay (Agree or Disagree)',
-        WritingTask2EssayType.twoPartQuestionEssay => 'Two-part Question Essay',
-        WritingTask2EssayType.advantagesAndDisadvantages =>
-          'Advantages and Disadvantages',
-      };
-      return DropdownMenuEntry(value: e, label: label);
-    }).toList();
+  /// Options for prompt type.
+  List<DropdownMenuEntry<WritingPromptType>> get _promptTypeEntries {
+    final entries = <DropdownMenuEntry<WritingPromptType>>[];
+    for (final t in WritingPromptType.values) {
+      if (widget.testTask == TestTask.writingTask1 && t.isTask1) {
+        String label = switch (t) {
+          WritingPromptType.chart => 'Chart',
+          WritingPromptType.graph => 'Graph',
+          WritingPromptType.map => 'Map',
+          WritingPromptType.process => 'Process',
+          WritingPromptType.table => 'Table',
+          _ => throw ArgumentError('Unsupported prompt type: $t'),
+        };
+        entries.add(DropdownMenuEntry(value: t, label: label));
+      } else if (widget.testTask == TestTask.writingTask2 && t.isTask2) {
+        String label = switch (t) {
+          WritingPromptType.discussionEssay => 'Discussion Essay',
+          WritingPromptType.problemAndSolution => 'Problem and Solution',
+          WritingPromptType.opinionEssay => 'Opinion Essay (Agree or Disagree)',
+          WritingPromptType.twoPartQuestionEssay => 'Two-part Question Essay',
+          WritingPromptType.advantagesAndDisadvantages =>
+            'Advantages and Disadvantages',
+          _ => throw ArgumentError('Unsupported prompt type: $t'),
+        };
+        entries.add(DropdownMenuEntry(value: t, label: label));
+      }
+    }
+    return entries;
   }
 
   /// Hint text for prompt type.
@@ -123,8 +121,7 @@ class _WritingQuestionGeneratorFormState
       generatePromptText: widget.generatePromptText,
       promptText: widget.promptText,
       topics: widget.topics,
-      questionType: widget.questionType,
-      essayType: widget.essayType,
+      promptType: widget.promptType,
     );
   }
 
@@ -136,17 +133,10 @@ class _WritingQuestionGeneratorFormState
     super.dispose();
   }
 
-  /// Called when the question type is changed.
-  void _onSelectedQuetionType(WritingTask1QuestionType? value) {
+  /// Called when the prompt type is changed.
+  void _onSelectedPromptType(WritingPromptType? value) {
     if (value != null) {
-      _ctrl.questionType = value;
-    }
-  }
-
-  /// Called when the essay type is changed.
-  void _onSelectedEssayType(WritingTask2EssayType? value) {
-    if (value != null) {
-      _ctrl.essayType = value;
+      _ctrl.promptType = value;
     }
   }
 
@@ -206,10 +196,7 @@ class _WritingQuestionGeneratorFormState
       return;
     }
 
-    final promptType = (widget.testTask == TestTask.writingTask1)
-        ? _ctrl.questionType
-        : _ctrl.essayType;
-    widget.onTappedStart(_ctrl.propmtText, _ctrl.usedTopics, promptType);
+    widget.onTappedStart(_ctrl.propmtText, _ctrl.usedTopics, _ctrl.promptType!);
   }
 
   @override
@@ -227,24 +214,14 @@ class _WritingQuestionGeneratorFormState
               margin: EdgeInsets.only(bottom: 8),
               child: FieldLabel(_promptTypeLabel),
             ),
-            if (widget.testTask == TestTask.writingTask1)
-              DropdownMenu<WritingTask1QuestionType>(
-                width: 250,
-                requestFocusOnTap: false,
-                hintText: _promptTypeHintText,
-                initialSelection: _ctrl.questionType,
-                dropdownMenuEntries: _questionTypeEntries,
-                onSelected: _onSelectedQuetionType,
-              )
-            else if (widget.testTask == TestTask.writingTask2)
-              DropdownMenu<WritingTask2EssayType>(
-                width: 250,
-                requestFocusOnTap: false,
-                hintText: _promptTypeHintText,
-                initialSelection: _ctrl.essayType,
-                dropdownMenuEntries: _essayTypeEntries,
-                onSelected: _onSelectedEssayType,
-              ),
+            DropdownMenu<WritingPromptType>(
+              width: 250,
+              requestFocusOnTap: false,
+              hintText: _promptTypeHintText,
+              initialSelection: _ctrl.promptType,
+              dropdownMenuEntries: _promptTypeEntries,
+              onSelected: _onSelectedPromptType,
+            ),
             SizedBox(height: 24),
             // Topics
             Container(

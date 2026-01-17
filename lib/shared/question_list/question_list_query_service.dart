@@ -124,6 +124,7 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
 
       userAnswers.add(
         QuestionListViewVM(
+          id: ua.id,
           promptText: wa?.promptText ?? '',
           testTask: ua.testTask,
           datetime: ua.createdAt,
