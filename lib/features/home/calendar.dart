@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 import 'package:ielts_ai_trainer/features/home/user_answer_vm.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -51,10 +52,10 @@ class _CalendarState extends State<Calendar> {
   late DateTime? _selectedDate;
 
   /// The fist day that can be tapped
-  late final DateTime _tappableFirstDay;
+  late DateTime _tappableFirstDay;
 
   /// The last day that can be tapped
-  late final DateTime _tappableLastDay;
+  late DateTime _tappableLastDay;
 
   // Whether navigation to the previous month is enabled.
   bool _canMovePreviousMonth = true;
@@ -85,6 +86,35 @@ class _CalendarState extends State<Calendar> {
     _updateCalendarMonthChangeButtonState();
   }
 
+  /// Updates the list when the parent widget changes the date.
+  @override
+  void didUpdateWidget(covariant Calendar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final rangeChanged =
+        (oldWidget.firstEventDay != widget.firstEventDay ||
+        oldWidget.lastEventDay != widget.lastEventDay);
+    final currentMonthChanged =
+        oldWidget.currentMonthEvents != widget.currentMonthEvents;
+
+    if (rangeChanged || currentMonthChanged) {
+      final (firstY, firstM) = previousYearMonth(
+        widget.firstEventDay.year,
+        widget.firstEventDay.month,
+      );
+      final (lastY, lastM) = nextYearMonth(
+        widget.lastEventDay.year,
+        widget.lastEventDay.month,
+      );
+
+      setState(() {
+        _tappableFirstDay = DateTime(firstY, firstM, 1);
+        _tappableLastDay = DateTime(lastY, lastM, lastDayOfMonth(lastY, lastM));
+        _updateCalendarMonthChangeButtonState();
+      });
+    }
+  }
+
   /// Returns true if there are events on the given day.
   bool _isDayEnabled(DateTime day) {
     return widget.currentMonthEvents.containsKey(
@@ -98,6 +128,7 @@ class _CalendarState extends State<Calendar> {
 
     setState(() {
       _selectedDate = dt;
+      _focusedDate = focusedDay;
     });
 
     if (dt != null) {
@@ -105,6 +136,17 @@ class _CalendarState extends State<Calendar> {
     } else {
       widget.onDaySelectionCleared.call();
     }
+  }
+
+  // Clamp datetime between event date range.
+  DateTime _clampDate(DateTime date) {
+    var focusedDate = date;
+    if (focusedDate.isBefore(widget.firstEventDay)) {
+      focusedDate = widget.firstEventDay;
+    } else if (focusedDate.isAfter(widget.lastEventDay)) {
+      focusedDate = widget.lastEventDay;
+    }
+    return focusedDate;
   }
 
   /// Handles the event when the selected month is changed.
@@ -116,12 +158,7 @@ class _CalendarState extends State<Calendar> {
         : previousYearMonth(_focusedDate.year, _focusedDate.month);
 
     // Clamp datetime between event date range.
-    var nextFocusedDate = DateTime(y, m);
-    if (nextFocusedDate.isBefore(widget.firstEventDay)) {
-      nextFocusedDate = widget.firstEventDay;
-    } else if (nextFocusedDate.isAfter(widget.lastEventDay)) {
-      nextFocusedDate = widget.lastEventDay;
-    }
+    final nextFocusedDate = _clampDate(DateTime(y, m));
 
     setState(() {
       // Slide page
@@ -154,7 +191,11 @@ class _CalendarState extends State<Calendar> {
 
   // MarkerBuilder function for calendar.
   Widget? _markerBuilder(_, DateTime day, _) {
-    final markerStyle = TextStyle(fontSize: 12);
+    final markerStyle = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: AppColors.textColor,
+    );
     // Displays marks in days that have events.
     final date = DateTime(day.year, day.month, day.day);
     final events = widget.currentMonthEvents[date];
@@ -172,7 +213,7 @@ class _CalendarState extends State<Calendar> {
       marker.insert(1, SizedBox(width: 4));
     }
     if (widget.currentMonthEvents[date]?.isNotEmpty ?? false) {
-      return Positioned(bottom: 0, child: Row(children: marker));
+      return Positioned(bottom: 2, child: Row(children: marker));
     }
     return null;
   }
@@ -205,10 +246,16 @@ class _CalendarState extends State<Calendar> {
             // Month and year label
             Text(
               DateFormat.yMMMM().format(_focusedDate),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textColor,
+              ),
             ),
           ],
         ),
+
+        const SizedBox(height: 4),
 
         // Uses MouseRegion so that a day is deselected when clicking outside calendar.
         MouseRegion(
@@ -225,6 +272,10 @@ class _CalendarState extends State<Calendar> {
             child:
                 // Calendar
                 TableCalendar<UserAnswerVM>(
+                  key: ValueKey(
+                    // Uses the length of the list to rebuild when the list is updated.
+                    '${_focusedDate.year}-${_focusedDate.month}-${widget.currentMonthEvents.length}',
+                  ),
                   currentDay: null,
                   firstDay: _tappableFirstDay,
                   lastDay: _tappableLastDay,
@@ -248,6 +299,9 @@ class _CalendarState extends State<Calendar> {
                   calendarStyle: const CalendarStyle(
                     outsideDaysVisible: true,
                     isTodayHighlighted: false,
+                    outsideTextStyle: TextStyle(
+                      color: AppColors.disabledTextColor,
+                    ),
                   ),
                   headerVisible: false,
                   onDaySelected: _onDaySelected,
@@ -259,12 +313,44 @@ class _CalendarState extends State<Calendar> {
                         child: Text(
                           '${day.day}',
                           style: TextStyle(
-                            color: enabled ? Colors.black : Colors.grey,
+                            fontWeight: enabled
+                                ? FontWeight.bold
+                                : FontWeight.w400,
+                            color: enabled
+                                ? AppColors.textColor
+                                : AppColors.disabledTextColor,
                           ),
                         ),
                       );
                     },
                     markerBuilder: _markerBuilder,
+                    selectedBuilder: (context, date, events) {
+                      return Center(
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Transform.translate(
+                              offset: const Offset(0, 6),
+                              child: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade400,
+                                  shape: BoxShape.rectangle,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              '${date.day}',
+                              style: const TextStyle(
+                                color: AppColors.textColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
           ),

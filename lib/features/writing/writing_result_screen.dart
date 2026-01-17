@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer_repository.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_result_controller.dart';
@@ -61,6 +62,33 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
     }
   }
 
+  /// Returns a widget that shows score label and value.
+  Widget _scoreCellBuilder(
+    BuildContext context,
+    String title,
+    String value,
+    bool small,
+  ) {
+    final titleStyle = small
+        ? TextStyle(fontSize: 15, fontWeight: FontWeight.w400)
+        : TextStyle(fontSize: 22, fontWeight: FontWeight.w400);
+    final valueStyle = small
+        ? TextStyle(fontSize: 20, fontWeight: FontWeight.w500)
+        : TextStyle(fontSize: 40, fontWeight: FontWeight.w500);
+
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(title, style: titleStyle),
+          const SizedBox(height: 8),
+          Text(value, style: valueStyle),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -68,95 +96,136 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
       builder: (context, _) {
         return BaseScreenScaffold(
           body: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _screenTitle,
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
-                // Score
-                SizedBox(
-                  height: 400,
-                  child: Row(
-                    children: [
-                      // one cell at left
-                      Expanded(
-                        flex: 1,
-                        child: Container(
-                          color: Colors.blue,
-                          child: Center(child: Text(_ctrl.overallScore)),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Four cells at right
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      color: Colors.green,
-                                      child: Center(
-                                        child: Text(_ctrl.achievementScore),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Container(
-                                      color: Colors.green,
-                                      child: Center(
-                                        child: Text(_ctrl.coherenceScore),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      color: Colors.green,
-                                      child: Center(
-                                        child: Text(_ctrl.grammaticalScore),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Container(
-                                      color: Colors.green,
-                                      child: Center(
-                                        child: Text(_ctrl.lexialScore),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: AppStyles.screenPadding,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 24),
+                  // Title
+                  Text(
+                    _screenTitle,
+                    style: Theme.of(context).textTheme.headlineLarge,
                   ),
-                ),
-                // Question
-                HeadlineText("Question"),
-                Text(_ctrl.promptText),
-                // Answer
-                HeadlineText("Answer"),
-                Text(_ctrl.answerText),
-                // Feedback
-                HeadlineText("Feedback"),
-                Text(_ctrl.feedbackText),
-              ],
+                  // Score
+                  Center(
+                    child: SizedBox(
+                      height: 200,
+                      width: 500,
+                      child: !_ctrl.isGraded
+                          ? Center(child: const Text('grading...'))
+                          : Row(
+                              children: [
+                                // one cell at left
+                                Expanded(
+                                  flex: 3,
+                                  child: _scoreCellBuilder(
+                                    context,
+                                    'Overall',
+                                    _ctrl.overallScore,
+                                    false,
+                                  ),
+                                ),
+                                const SizedBox(width: 20),
+                                // Four cells at right
+                                Expanded(
+                                  flex: 7,
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: _scoreCellBuilder(
+                                                context,
+                                                'Achievement',
+                                                _ctrl.achievementScore,
+                                                true,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: _scoreCellBuilder(
+                                                context,
+                                                'Coherence',
+                                                _ctrl.coherenceScore,
+                                                true,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: _scoreCellBuilder(
+                                                context,
+                                                'Grammatical',
+                                                _ctrl.grammaticalScore,
+                                                true,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: _scoreCellBuilder(
+                                                context,
+                                                'Lexial',
+                                                _ctrl.lexialScore,
+                                                true,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                  SizedBox(height: 40),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Question
+                        HeadlineText("Question"),
+                        SizedBox(height: 4),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: 60),
+                          child: Text(_ctrl.promptText),
+                        ),
+                        SizedBox(height: 20),
+                        // Answer
+                        HeadlineText("Answer"),
+                        SizedBox(height: 4),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: 60),
+                          child: Text(_ctrl.answerText),
+                        ),
+                        SizedBox(height: 20),
+                        // Feedback
+                        HeadlineText("Feedback"),
+                        SizedBox(height: 4),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: 60),
+                          child: !_ctrl.isGraded
+                              ? Text('grading...')
+                              : Text(_ctrl.feedbackText),
+                        ),
+
+                        SizedBox(height: AppStyles.screenBottomPadding),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );

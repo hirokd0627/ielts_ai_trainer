@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 import 'package:ielts_ai_trainer/shared/question_list/question_list_view.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 import 'package:provider/provider.dart';
@@ -24,17 +25,17 @@ class _HomeScreenState extends State<HomeScreen> {
   late final HomeContoller _ctrl;
 
   /// The date range currently visible in the calendar
-  late final DateTimeRange _calendarVisibleDateRange;
-
-  /// Whether _currentMonthEvents is loaded.
-  bool _isLoaded = false;
+  DateTimeRange _calendarVisibleDateRange = DateTimeRange(
+    start: DateTime.now(),
+    end: DateTime.now(),
+  );
 
   /// Events in the currently visible month of the calendar.
   LinkedHashMap<DateTime, List<UserAnswerVM>> _currentMonthEvents =
       LinkedHashMap<DateTime, List<UserAnswerVM>>();
 
   /// The selected date in the calendar
-  DateTime? _selectedDate;
+  DateTime? _selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -57,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _calendarVisibleDateRange = dr;
       _selectedDate = _calendarVisibleDateRange.end;
       _currentMonthEvents = calEvents;
-      _isLoaded = true;
     });
   }
 
@@ -88,15 +88,18 @@ class _HomeScreenState extends State<HomeScreen> {
     return BaseScreenScaffold(
       body: Column(
         children: [
-          Column(
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [HeadlineText('History')],
-              ),
-              // Calendar
-              if (_isLoaded)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: AppStyles.screenPadding),
+            child: Column(
+              children: [
+                SizedBox(height: 24),
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [HeadlineText('History')],
+                ),
+                SizedBox(height: 8),
+                // Calendar
                 Calendar(
                   firstEventDay: _calendarVisibleDateRange.start,
                   lastEventDay: _calendarVisibleDateRange.end,
@@ -107,16 +110,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   initialSelectedDate: _calendarVisibleDateRange.end,
                   currentMonthEvents: _currentMonthEvents,
                 ),
-            ],
+              ],
+            ),
           ),
+          SizedBox(height: 40),
           Expanded(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [HeadlineText("Solved Questions")],
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppStyles.screenPadding,
+                  ),
+                  child: HeadlineText("Solved Questions"),
                 ),
+                SizedBox(height: 20),
                 // Question list
                 Expanded(
                   child: QuestionListView(

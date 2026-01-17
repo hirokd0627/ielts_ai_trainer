@@ -48,6 +48,7 @@ dependencies:
   throttling: ^2.0.1
   data_table_2: ^2.7.2
   google_fonts: ^7.0.2
+  window_manager: ^0.5.1
 
 dev_dependencies:
   flutter_test:

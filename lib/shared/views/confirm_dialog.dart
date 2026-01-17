@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 
 /// Confirmation dialog with Yes/No buttons.
 class ConfirmDialog extends StatelessWidget {
@@ -25,6 +26,9 @@ class ConfirmDialog extends StatelessWidget {
         // Cancel
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
+          style: ButtonStyle(
+            backgroundColor: WidgetStatePropertyAll(AppColors.chipBackground),
+          ),
           child: Text(noLabel),
         ),
         // OK
