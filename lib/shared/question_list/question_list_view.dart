@@ -1,9 +1,13 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ielts_ai_trainer/app/router_extra.dart';
+import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/question_list/question_list_controller.dart';
 import 'package:ielts_ai_trainer/shared/question_list/question_list_query_service.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:throttling/throttling.dart';
 
@@ -46,6 +50,38 @@ class _QuestionListViewState extends State<QuestionListView> {
   );
 
   _QuestionListViewState();
+
+  /// Returns the data rows in the list.
+  List<DataRow> get _questionListToDataRows {
+    final displayDateFormat = DateFormat('MMM d, yyyy');
+    return _ctrl.eventList.map((item) {
+      return DataRow2(
+        onTap: () => _onTappedRow(item),
+        cells: [
+          DataCell(
+            Text(
+              item.promptText.replaceAll('\n', ' '), // To one line
+              maxLines: 1,
+              // Fade to the right
+              overflow: TextOverflow.fade,
+              softWrap: false,
+            ),
+          ),
+          DataCell(Text(displayDateFormat.format(item.datetime))),
+          DataCell(
+            Text(switch (item.testTask) {
+              TestTask.speakingPart1 => 'Speaking Part 1',
+              TestTask.speakingPart2 => 'Speaking Part 2',
+              TestTask.speakingPart3 => 'Speaking Part 3',
+              TestTask.writingTask1 => 'Writing Task 1',
+              TestTask.writingTask2 => 'Writing Task 2',
+            }),
+          ),
+          DataCell(Text(item.topics.join(', '))),
+        ],
+      );
+    }).toList();
+  }
 
   @override
   void initState() {
@@ -108,6 +144,16 @@ class _QuestionListViewState extends State<QuestionListView> {
     _debounce.debounce(() async {
       _ctrl.setSearchWord(value.trim(), refreshList: true);
     });
+  }
+
+  /// Called when the row is tapped.
+  void _onTappedRow(QuestionListViewVM row) {
+    // Navigates to the result screen.
+    final path = row.testTask == TestTask.writingTask1
+        ? writingTask1ResultScreenRoutePath
+        : writingTask2ResultScreenRoutePath;
+
+    context.go(path, extra: RouterExtra({'id': row.id}));
   }
 
   @override
@@ -185,7 +231,7 @@ class _QuestionListViewState extends State<QuestionListView> {
                 fixedTopRows: 1, // Set the sticky header
                 isHorizontalScrollBarVisible: false,
                 isVerticalScrollBarVisible: true,
-                rows: _ctrl.rows,
+                rows: _questionListToDataRows,
               ),
             ),
           ],
@@ -197,12 +243,14 @@ class _QuestionListViewState extends State<QuestionListView> {
 
 /// ViewModel representing a UserAnswer for display on Question list.
 class QuestionListViewVM {
+  final int id;
   final String promptText;
   final TestTask testTask;
   final List<String> topics;
   final DateTime datetime;
 
   const QuestionListViewVM({
+    required this.id,
     required this.promptText,
     required this.testTask,
     required this.topics,
