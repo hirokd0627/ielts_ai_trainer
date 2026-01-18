@@ -76,7 +76,10 @@ class HomeQueryService extends DatabaseAccessor<AppDatabase>
     }
 
     return datetimes.length == 2
-        ? DateTimeRange(start: datetimes[0], end: datetimes[1])
+        ? DateTimeRange(
+            start: datetimes[0].toLocal(),
+            end: datetimes[1].toLocal(),
+          )
         : null;
   }
 

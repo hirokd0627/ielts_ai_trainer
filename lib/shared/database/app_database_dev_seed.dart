@@ -6,6 +6,8 @@ import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 
 import 'app_database.dart';
 
+final _seedJsonKey = 'assets_dev/seeds/test_10.json';
+
 /// Seeding utilities for development
 extension AppDatabaseDevSeed on AppDatabase {
   /// Erases all data for development initial state.
@@ -18,22 +20,24 @@ extension AppDatabaseDevSeed on AppDatabase {
   /// Resets all data for development initial state.
   Future<void> resetToDevelopmentData() async {
     await eraseAll();
-    await addWritingTask1AnswerDetail();
+    await addWritingAnswerDetail();
   }
 
   Future<List<Map<String, dynamic>>> _loadJson() async {
-    final jsonStr = await rootBundle.loadString(
-      'assets_dev/seeds/test_100.json',
-    );
+    final jsonStr = await rootBundle.loadString(_seedJsonKey);
     final List<dynamic> data = json.decode(jsonStr);
     return data.cast<Map<String, dynamic>>();
   }
 
-  Future<void> addWritingTask1AnswerDetail() async {
+  Future<void> addWritingAnswerDetail() async {
     List<Map<String, dynamic>> jsonData = await _loadJson();
 
     for (final data in jsonData) {
-      _addWritingTask1HisotryDetail(
+      final testTask = data['testTask'] == 'w1'
+          ? TestTask.writingTask1
+          : TestTask.writingTask2;
+
+      _addWritingAnswerDetail(
         promptText: data['promptText'],
         promptType: data['promptType'],
         answerText: data['answerText'],
@@ -47,12 +51,13 @@ extension AppDatabaseDevSeed on AppDatabase {
         topics: (data['topics'] as List).cast<String>(),
         createdAt: DateTime.parse(data['createdAt']),
         updatedAt: DateTime.parse(data['createdAt']),
+        testTask: testTask,
       );
     }
   }
 
   /// Insert WritingAnswerDetail for Task 1 with associated UserAnswer
-  Future<int> _addWritingTask1HisotryDetail({
+  Future<int> _addWritingAnswerDetail({
     required String promptText,
     required String promptType,
     required String answerText,
@@ -66,12 +71,13 @@ extension AppDatabaseDevSeed on AppDatabase {
     required List<String> topics,
     required DateTime createdAt,
     required DateTime updatedAt,
+    required TestTask testTask,
   }) {
     return transaction<int>(() async {
       // UserAnswer
       final uphId = await into(userAnswersTable).insert(
         UserAnswersTableCompanion(
-          testTask: Value(TestTask.writingTask1),
+          testTask: Value(testTask),
           createdAt: Value(createdAt),
         ),
       );
@@ -90,7 +96,7 @@ extension AppDatabaseDevSeed on AppDatabase {
           : null;
       final dtId = await into(writingAnswerDetailsTable).insert(
         WritingAnswerDetailsTableCompanion(
-          userAnswer: Value(uphId),
+          userAnswerId: Value(uphId),
           promptType: Value(promptType),
           promptText: Value(promptText),
           answerText: Value(answerText),

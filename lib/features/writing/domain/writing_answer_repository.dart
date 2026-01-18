@@ -20,7 +20,7 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
     joins.add(
       leftOuterJoin(
         writingAnswerDetailsTable,
-        writingAnswerDetailsTable.userAnswer.equalsExp(userAnswersTable.id),
+        writingAnswerDetailsTable.userAnswerId.equalsExp(userAnswersTable.id),
       ),
     );
 
@@ -113,7 +113,9 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
       id: answer.detailId != null
           ? Value(answer.detailId!)
           : const Value.absent(),
-      userAnswer: answer.id != null ? Value(answer.id!) : const Value.absent(),
+      userAnswerId: answer.id != null
+          ? Value(answer.id!)
+          : const Value.absent(),
       promptType: Value(answer.promptType.name),
       promptText: Value(answer.promptText),
       answerText: Value(answer.answerText),

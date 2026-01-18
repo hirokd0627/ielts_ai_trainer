@@ -176,6 +176,7 @@ class _QuestionListViewState extends State<QuestionListView> {
       animation: _ctrl,
       builder: (context, _) {
         return Column(
+          mainAxisSize: MainAxisSize.max,
           children: [
             // Search box
             if (widget.searchBarEnabled)
@@ -217,7 +218,7 @@ class _QuestionListViewState extends State<QuestionListView> {
             Expanded(
               // Uses PaginatedDataTable2 for the sticky header
               child: DataTable2(
-                headingRowHeight: 48,
+                headingRowHeight: 45,
                 headingRowColor: WidgetStatePropertyAll(Colors.white),
                 border: TableBorder(
                   top: (widget.searchBarEnabled)

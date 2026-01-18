@@ -93,7 +93,13 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
     }
 
     // Save the answer
-    final id = await _ctrl.saveUserAnswer();
+    int id;
+    try {
+      id = await _ctrl.saveUserAnswer();
+    } catch (e, stackTrace) {
+      showAlertDialog(context, e.toString(), stackTrace.toString());
+      return;
+    }
 
     if (!mounted) {
       // If state has been destroyed, context cannot be used, so return

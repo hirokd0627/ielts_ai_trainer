@@ -57,9 +57,6 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
   /// Whether the generate button is enabled.
   bool get isGenerateButtonEnabled {
-    if (_topics.isEmpty) {
-      return false;
-    }
     return _promptType != null;
   }
 

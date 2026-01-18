@@ -13,8 +13,8 @@ void main() async {
   await windowManager.ensureInitialized();
 
   WindowOptions windowOptions = WindowOptions(
-    size: Size(800, 900),
-    minimumSize: Size(800, 900),
+    size: Size(800, 700),
+    minimumSize: Size(800, 700),
     backgroundColor: Colors.transparent,
     title: _appTitle,
   );

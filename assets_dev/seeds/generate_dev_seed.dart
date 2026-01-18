@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:faker/faker.dart';
-import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
 /// Number of seed data records
-final recordCount = 100;
+final recordCount = 10;
 
 double _roundScore(double value) {
   return (value * 2).round() / 2;
@@ -19,7 +18,7 @@ void main() {
   List<Map<String, dynamic>> data = List.generate(
     recordCount,
     (_) => {
-      'testTask': faker.randomGenerator.element(TestTask.values).name,
+      'testTask': faker.randomGenerator.element(['w1', 'w2']),
       'promptType': faker.randomGenerator
           .element(WritingPromptType.values)
           .name,
@@ -41,7 +40,7 @@ void main() {
       'feedback': faker.lorem.sentences(3).join("\n"),
       'topics': faker.lorem.words(3),
       'createdAt': faker.date
-          .dateTime(minYear: 2024, maxYear: 2026)
+          .dateTime(minYear: 2025, maxYear: 2026)
           .toUtc()
           .toIso8601String(),
     },
