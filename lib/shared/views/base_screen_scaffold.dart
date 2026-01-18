@@ -18,11 +18,13 @@ class BaseScreenScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          if (showHeader) HeaderMenuBar(),
-          Expanded(child: body),
-        ],
+      body: SizedBox.expand(
+        child: Column(
+          children: [
+            if (showHeader) HeaderMenuBar(),
+            Expanded(child: body),
+          ],
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/app/router_extra.dart';
+import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 import 'package:ielts_ai_trainer/features/development/development_route.dart';
 import 'package:ielts_ai_trainer/features/home/home_route.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
@@ -19,81 +20,186 @@ class HeaderMenuBar extends StatefulWidget {
 class _HeaderMenuBarState extends State<HeaderMenuBar> {
   /// Submenu style
   final _subMenuStyle = MenuStyle(
-    elevation: WidgetStateProperty.all(0),
+    elevation: WidgetStatePropertyAll(4),
+    surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
     shape: WidgetStatePropertyAll(
-      RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
+    shadowColor: WidgetStatePropertyAll(AppColors.dropShadow),
+    backgroundColor: WidgetStatePropertyAll(Colors.white),
+    alignment: Alignment.bottomLeft,
   );
 
   /// Builds widgets for MenuBar.
   List<Widget> _buildMenuBarWidgets() {
+    final menuButtonStyle = ButtonStyle(
+      textStyle: WidgetStatePropertyAll(
+        TextStyle(
+          fontWeight: FontWeight.w500,
+          color: AppColors.textColor,
+          height: 1.2,
+        ),
+      ),
+      overlayColor: WidgetStatePropertyAll(
+        Colors.black.withValues(alpha: 0.02),
+      ),
+      padding: WidgetStatePropertyAll(
+        EdgeInsets.only(top: 24, bottom: 24, left: 0, right: 0),
+      ),
+    );
+
+    final subMenuButtonStyle = ButtonStyle(
+      textStyle: WidgetStatePropertyAll(
+        TextStyle(fontWeight: FontWeight.w500, color: AppColors.textColor),
+      ),
+      overlayColor: WidgetStatePropertyAll(
+        Colors.black.withValues(alpha: 0.02),
+      ),
+      padding: WidgetStatePropertyAll(EdgeInsets.all(0)),
+    );
+
+    final menuWidth = 100.0;
+
     return [
+      SizedBox(width: 4),
       // Logo
       MenuItemButton(
         onPressed: () {
           context.go(homeScreenRoutPath);
         },
         style: ButtonStyle(
+          textStyle: WidgetStatePropertyAll(
+            TextStyle(
+              fontWeight: FontWeight.w500,
+              color: AppColors.textColor,
+              height: 1.2,
+            ),
+          ),
           backgroundColor: WidgetStateColor.transparent,
-          overlayColor: WidgetStateColor.transparent,
           shadowColor: WidgetStateColor.transparent,
-          padding: WidgetStatePropertyAll(EdgeInsets.fromLTRB(0, 0, 30, 0)),
+          overlayColor: WidgetStateColor.transparent,
+          padding: WidgetStatePropertyAll(
+            EdgeInsets.only(top: 18, bottom: 6, left: 0, right: 0),
+          ),
         ),
-        child: SizedBox(child: Text('IELTS Trainer')),
+        // child: Text('IELTS Trainer'),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: const [
+            Icon(Icons.smart_toy_outlined, size: 32),
+            SizedBox(width: 6),
+            Text('IELTS AI Trainer'),
+          ],
+        ),
       ),
+
+      SizedBox(width: 30),
 
       // Home
       MenuItemButton(
+        style: menuButtonStyle,
         onPressed: () {
           context.go(homeScreenRoutPath);
         },
-        child: const Text('Home'),
+        child: SizedBox(
+          width: menuWidth,
+          child: const Text('Home', textAlign: TextAlign.center),
+        ),
       ),
 
       // Writing
       SubmenuButton(
+        style: menuButtonStyle,
         menuStyle: _subMenuStyle,
         menuChildren: [
           MenuItemButton(
             onPressed: () {
               context.go(writingTask1QuestionGeneratorScreenRoutePath);
             },
-            child: const Text('Task 1'),
+            style: subMenuButtonStyle,
+            child: SizedBox(
+              width: menuWidth,
+              child: const Text('Task 1', textAlign: TextAlign.center),
+            ),
           ),
           MenuItemButton(
             onPressed: () {
               context.go(writingTask2QuestionGeneratorScreenRoutePath);
             },
-            child: const Text('Task 2'),
+            style: subMenuButtonStyle,
+            child: SizedBox(
+              width: menuWidth,
+              child: const Text('Task 2', textAlign: TextAlign.center),
+            ),
           ),
         ],
-        child: const Text('Writing'),
+        child: SizedBox(
+          width: menuWidth,
+          child: const Text('Writing', textAlign: TextAlign.center),
+        ),
       ),
 
       /// Speaking
       SubmenuButton(
+        style: menuButtonStyle,
         menuStyle: _subMenuStyle,
         menuChildren: [
-          MenuItemButton(onPressed: () {}, child: const Text('Part 1')),
-          MenuItemButton(onPressed: () {}, child: const Text('Part 2')),
-          MenuItemButton(onPressed: () {}, child: const Text('Part 3')),
+          MenuItemButton(
+            onPressed: () {},
+            style: subMenuButtonStyle,
+            child: SizedBox(
+              width: menuWidth,
+              child: const Text('Part 1', textAlign: TextAlign.center),
+            ),
+          ),
+          MenuItemButton(
+            onPressed: () {},
+            style: subMenuButtonStyle,
+            child: SizedBox(
+              width: menuWidth,
+              child: const Text('Part 2', textAlign: TextAlign.center),
+            ),
+          ),
+          MenuItemButton(
+            onPressed: () {},
+            style: subMenuButtonStyle,
+            child: SizedBox(
+              width: menuWidth,
+              child: const Text('Part 3', textAlign: TextAlign.center),
+            ),
+          ),
         ],
-        child: const Text('Speaking'),
+        child: SizedBox(
+          width: menuWidth,
+          child: const Text('Speaking', textAlign: TextAlign.center),
+        ),
       ),
 
       /// Setting
-      MenuItemButton(onPressed: () {}, child: const Text('Setting')),
+      MenuItemButton(
+        style: menuButtonStyle,
+        onPressed: () {},
+        child: SizedBox(
+          width: menuWidth,
+          child: const Text('Setting', textAlign: TextAlign.center),
+        ),
+      ),
 
       // Development
       if (kDebugMode)
         SubmenuButton(
+          style: menuButtonStyle,
           menuStyle: _subMenuStyle,
           menuChildren: [
             MenuItemButton(
               onPressed: () {
                 context.go(developmentScreenRoutePath);
               },
-              child: const Text('Reset DB'),
+              style: subMenuButtonStyle,
+              child: SizedBox(
+                width: menuWidth,
+                child: const Text('Reset DB', textAlign: TextAlign.center),
+              ),
             ),
             MenuItemButton(
               onPressed: () {
@@ -106,7 +212,14 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
                   }),
                 );
               },
-              child: const Text('Writing Task 1 Question Generator'),
+              style: subMenuButtonStyle,
+              child: SizedBox(
+                width: menuWidth,
+                child: const Text(
+                  'Writing Task 1 Question Generator',
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
             MenuItemButton(
               onPressed: () {
@@ -119,13 +232,27 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
                   }),
                 );
               },
-              child: const Text('Writing Task 2 Question Generator'),
+              style: subMenuButtonStyle,
+              child: SizedBox(
+                width: menuWidth,
+                child: const Text(
+                  'Writing Task 2 Question Generator',
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
             MenuItemButton(
               onPressed: () {
                 context.go(writingTask1AnswerInputScreenRoutePath);
               },
-              child: const Text('Writing Task 1 Input'),
+              style: subMenuButtonStyle,
+              child: SizedBox(
+                width: menuWidth,
+                child: const Text(
+                  'Writing Task 1 Input',
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
             MenuItemButton(
               onPressed: () {
@@ -134,10 +261,20 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
                   extra: RouterExtra({'id': 1}),
                 );
               },
-              child: const Text('Writing Task 1 Result'),
+              style: subMenuButtonStyle,
+              child: SizedBox(
+                width: menuWidth,
+                child: const Text(
+                  'Writing Task 1 Result',
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
           ],
-          child: const Text('Development'),
+          child: SizedBox(
+            width: menuWidth,
+            child: const Text('Development', textAlign: TextAlign.center),
+          ),
         ),
     ];
   }
@@ -149,7 +286,19 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
       children: [
         Expanded(
           child: MenuBar(
-            style: MenuStyle(elevation: WidgetStatePropertyAll(0)),
+            style: MenuStyle(
+              // padding: WidgetStatePropertyAll(
+              //   EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              // ),
+              shape: WidgetStatePropertyAll(
+                RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+              ),
+              elevation: WidgetStatePropertyAll(4),
+              backgroundColor: WidgetStatePropertyAll(Colors.white),
+              surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
+              shadowColor: WidgetStatePropertyAll(AppColors.dropShadow),
+            ),
+
             children: _buildMenuBarWidgets(),
           ),
         ),

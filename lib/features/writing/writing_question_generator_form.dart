@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
+import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_question_generator_form_controller.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
@@ -87,7 +89,20 @@ class _WritingQuestionGeneratorFormState
           WritingPromptType.table => 'Table',
           _ => throw ArgumentError('Unsupported prompt type: $t'),
         };
-        entries.add(DropdownMenuEntry(value: t, label: label));
+        entries.add(
+          DropdownMenuEntry(
+            value: t,
+            label: label,
+            style: MenuItemButton.styleFrom(
+              textStyle: TextStyle(color: AppColors.textColor),
+              foregroundColor: AppColors.textColor,
+              backgroundColor: _ctrl.promptType == t
+                  ? Colors.grey.shade200
+                  : null,
+              overlayColor: Colors.grey,
+            ),
+          ),
+        );
       } else if (widget.testTask == TestTask.writingTask2 && t.isTask2) {
         String label = switch (t) {
           WritingPromptType.discussionEssay => 'Discussion Essay',
@@ -98,7 +113,17 @@ class _WritingQuestionGeneratorFormState
             'Advantages and Disadvantages',
           _ => throw ArgumentError('Unsupported prompt type: $t'),
         };
-        entries.add(DropdownMenuEntry(value: t, label: label));
+        entries.add(
+          DropdownMenuEntry(
+            value: t,
+            label: label,
+            style: MenuItemButton.styleFrom(
+              textStyle: TextStyle(color: AppColors.textColor),
+              foregroundColor: AppColors.textColor,
+              backgroundColor: Colors.red,
+            ),
+          ),
+        );
       }
     }
     return entries;
@@ -199,6 +224,9 @@ class _WritingQuestionGeneratorFormState
     widget.onTappedStart(_ctrl.propmtText, _ctrl.usedTopics, _ctrl.promptType!);
   }
 
+  bool _hoveringOnPromptType = false;
+  bool _hoveringOnTopics = false;
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -211,81 +239,130 @@ class _WritingQuestionGeneratorFormState
           children: [
             // Question type
             Container(
-              margin: EdgeInsets.only(bottom: 8),
+              margin: EdgeInsets.only(bottom: 4),
               child: FieldLabel(_promptTypeLabel),
             ),
-            DropdownMenu<WritingPromptType>(
-              width: 250,
-              requestFocusOnTap: false,
-              hintText: _promptTypeHintText,
-              initialSelection: _ctrl.promptType,
-              dropdownMenuEntries: _promptTypeEntries,
-              onSelected: _onSelectedPromptType,
+            MouseRegion(
+              onEnter: (_) => setState(() => _hoveringOnPromptType = true),
+              onExit: (_) => setState(() => _hoveringOnPromptType = false),
+              child: DropdownMenu<WritingPromptType>(
+                textStyle: AppStyles.textFieldStyle(context),
+                inputDecorationTheme: InputDecorationTheme(
+                  hintStyle: AppStyles.placeHolderText,
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 11,
+                    horizontal: 6,
+                  ),
+                  isDense: true,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: _hoveringOnPromptType
+                          ? AppColors.focusColor
+                          : AppColors.borderColor,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                width: 250,
+                requestFocusOnTap: false,
+                hintText: _promptTypeHintText,
+                initialSelection: _ctrl.promptType,
+                dropdownMenuEntries: _promptTypeEntries,
+                onSelected: _onSelectedPromptType,
+              ),
             ),
-            SizedBox(height: 24),
+            SizedBox(height: 20),
             // Topics
             Container(
-              margin: EdgeInsets.only(bottom: 8),
+              margin: EdgeInsets.only(bottom: 4),
               child: FieldLabel('Topics'),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                border: (_topicInputErrorText.isEmpty)
-                    ? Border.all(color: Colors.grey)
-                    : Border.all(color: Theme.of(context).colorScheme.error),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  SizedBox(
-                    width: screenWidth,
-                    child: TextField(
-                      controller: _topicTextEditCtrl,
-                      focusNode: _focusNode,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Enter a topic and press Enter',
-                        isDense: true,
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 4,
+            MouseRegion(
+              onEnter: (_) => setState(() => _hoveringOnTopics = true),
+              onExit: (_) => setState(() => _hoveringOnTopics = false),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  border: (_topicInputErrorText.isEmpty)
+                      ? ((_hoveringOnTopics)
+                            ? Border.all(color: AppColors.focusColor)
+                            : Border.all(color: AppColors.borderColor))
+                      : Border.all(color: AppColors.errorRed),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    SizedBox(
+                      width: screenWidth,
+                      child: TextField(
+                        controller: _topicTextEditCtrl,
+                        focusNode: _focusNode,
+                        style: AppStyles.textFieldStyle(context),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Add tag Enter a topic and press Enter',
+                          hintStyle: AppStyles.placeHolderText,
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 11,
+                            horizontal: 2,
+                          ),
                         ),
+                        onSubmitted: _onSubmittedTopicsText,
                       ),
-                      onSubmitted: _onSubmittedTopicsText,
                     ),
-                  ),
-                  for (var topic in _ctrl.topics)
-                    Chip(
-                      label: Text(topic),
-                      onDeleted: () => _onDeleteChip(topic),
-                    ),
-                ],
+                    for (var topic in _ctrl.topics)
+                      Chip(
+                        label: Text(
+                          topic,
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                        backgroundColor: AppColors.chipBackground,
+                        onDeleted: () => _onDeleteChip(topic),
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        deleteIcon: Icon(Icons.close),
+                        deleteButtonTooltipMessage: 'Remove',
+                      ),
+                  ],
+                ),
               ),
             ),
             if (_topicInputErrorText.isNotEmpty)
               InputErrorText(_topicInputErrorText),
-            SizedBox(height: 24),
+            SizedBox(height: 20),
             FilledButton(
               onPressed: _ctrl.isGenerateButtonEnabled
                   ? _onPressedGenerate
                   : null,
               child: const Text('Generate'),
             ),
-            SizedBox(height: 36),
+            SizedBox(height: 40),
             Container(
               margin: EdgeInsets.only(bottom: 12),
               child: HeadlineText('Question'),
             ),
-            if (_ctrl.isPromptTextNotGenerated)
-              Text('Prompt will display here after entering topics and submit')
-            else if (_ctrl.isPromptTextGenerating)
-              Text('generating...')
-            else if (_ctrl.isPromptTextGenerated)
-              Text(_ctrl.propmtText),
-            SizedBox(height: 24),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                // minHeight: 40,
+                // minWidth: double.infinity,
+              ),
+              child: (_ctrl.isPromptTextNotGenerated)
+                  ? Text(
+                      'Prompt will display here after entering topics and submit',
+                    )
+                  : (_ctrl.isPromptTextGenerating)
+                  ? Text('generating...')
+                  : Text(_ctrl.propmtText),
+            ),
+            SizedBox(height: 20),
             FilledButton(
               onPressed: _ctrl.isStartButtonEnabled ? _onPressedStart : null,
               child: const Text('Start'),

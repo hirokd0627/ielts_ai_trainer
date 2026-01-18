@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_question_generator_form.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
@@ -88,31 +89,43 @@ class _WritingQuestionGeneratorScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Title
-        Container(
-          padding: EdgeInsets.only(top: 20),
-          child: ScreenTitleText(_screenTitle),
+        Padding(
+          padding: EdgeInsetsGeometry.symmetric(
+            horizontal: AppStyles.screenPadding,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 24),
+              // Title
+              ScreenTitleText(_screenTitle),
+              SizedBox(height: 20),
+              // Question Generator Form
+              WritingQuestionGeneratorForm(
+                generatePromptText: widget.generatePromptText,
+                onTappedStart: widget.onTappedStart,
+                testTask: widget.testTask,
+                promptText: widget.promptText,
+                topics: widget.topics,
+                promptType: widget.promptType,
+              ),
+              SizedBox(height: 40),
+            ],
+          ),
         ),
-        SizedBox(height: 24),
-        // Question Generator Form
-        WritingQuestionGeneratorForm(
-          generatePromptText: widget.generatePromptText,
-          onTappedStart: widget.onTappedStart,
-          testTask: widget.testTask,
-          promptText: widget.promptText,
-          topics: widget.topics,
-          promptType: widget.promptType,
-        ),
-        SizedBox(height: 40),
         // Question List
         Expanded(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [HeadlineText("Solved Questions")],
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppStyles.screenPadding,
+                ),
+                child: HeadlineText("Solved Questions"),
               ),
+              SizedBox(height: 20),
               // Question list
               Expanded(
                 child: QuestionListView(

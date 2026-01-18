@@ -3,9 +3,25 @@ import 'package:ielts_ai_trainer/app/router.dart';
 import 'package:ielts_ai_trainer/app/theme/theme.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:provider/provider.dart';
+import 'package:window_manager/window_manager.dart';
 
-void main() {
+final _appTitle = 'IELTS AI Trainer';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await windowManager.ensureInitialized();
+
+  WindowOptions windowOptions = WindowOptions(
+    size: Size(800, 900),
+    minimumSize: Size(800, 900),
+    backgroundColor: Colors.transparent,
+    title: _appTitle,
+  );
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
 
   runApp(
     Provider<AppDatabase>(
@@ -23,7 +39,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Flutter Demo',
+      title: _appTitle,
       theme: themeData,
       routerConfig: appRouter,
     );

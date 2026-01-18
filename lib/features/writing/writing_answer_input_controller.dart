@@ -72,7 +72,7 @@ class WritingAnswerInputController extends ChangeNotifier {
   String get elapsedAsText {
     final m = _elapsed.inMinutes.toString().padLeft(2, '0');
     final s = (_elapsed.inSeconds % 60).toString().padLeft(2, '0');
-    return "$m:$s";
+    return "Time: $m:$s";
   }
 
   /// Returns the current entered word count and recommended word count.
@@ -80,7 +80,7 @@ class WritingAnswerInputController extends ChangeNotifier {
     final recommendedWordCount = testTask == TestTask.writingTask1 ? 150 : 250;
     // Consider apostrophes as part of a word (e.g., "it's" counts as one word).
     final length = RegExp(r"\b[\w']+\b").allMatches(_answerText).length;
-    return "$length / $recommendedWordCount";
+    return "Words: $length / $recommendedWordCount";
   }
 
   set answerText(String value) {

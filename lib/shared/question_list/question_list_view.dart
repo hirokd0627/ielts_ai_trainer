@@ -2,6 +2,8 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/app/router_extra.dart';
+import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
+import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
@@ -56,6 +58,9 @@ class _QuestionListViewState extends State<QuestionListView> {
     final displayDateFormat = DateFormat('MMM d, yyyy');
     return _ctrl.eventList.map((item) {
       return DataRow2(
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: AppColors.borderColor)),
+        ),
         onTap: () => _onTappedRow(item),
         cells: [
           DataCell(
@@ -156,6 +161,15 @@ class _QuestionListViewState extends State<QuestionListView> {
     context.go(path, extra: RouterExtra({'id': row.id}));
   }
 
+  TextStyle _headerTextStyle(bool active) {
+    return active
+        ? TextStyle(color: AppColors.textColor, fontWeight: FontWeight.w700)
+        : TextStyle(
+            color: AppColors.secondaryTextColor,
+            fontWeight: FontWeight.w400,
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -166,25 +180,25 @@ class _QuestionListViewState extends State<QuestionListView> {
             // Search box
             if (widget.searchBarEnabled)
               Container(
+                height: 48,
                 decoration: BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: Colors.grey, width: 1),
-                    bottom: BorderSide(color: Colors.grey, width: 1),
+                    top: BorderSide(color: AppColors.borderColor, width: 1),
+                    bottom: BorderSide(color: AppColors.borderColor, width: 1),
                   ),
                 ),
                 child: Row(
                   children: [
                     Expanded(
                       child: TextField(
+                        style: AppStyles.textFieldStyle(context),
                         controller: _editingController,
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 12.0,
-                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 16.0),
                           hintText: 'Enter word to search...',
-                          prefixIcon: Icon(Icons.search),
+                          hintStyle: AppStyles.placeHolderText,
+                          prefixIcon: Icon(Icons.search, size: 24),
                         ),
                         keyboardType: TextInputType.text,
                         onChanged: _onSearchWordChanged,
@@ -203,26 +217,49 @@ class _QuestionListViewState extends State<QuestionListView> {
             Expanded(
               // Uses PaginatedDataTable2 for the sticky header
               child: DataTable2(
-                // wrapInCard: false, // disable round border
+                headingRowHeight: 48,
+                headingRowColor: WidgetStatePropertyAll(Colors.white),
+                border: TableBorder(
+                  top: (widget.searchBarEnabled)
+                      ? BorderSide.none
+                      : BorderSide(color: AppColors.borderColor),
+                  bottom: BorderSide(color: AppColors.borderColor),
+                ),
                 columns: [
                   DataColumn2(
                     size: ColumnSize.L,
-                    label: const Text('Prompt'),
-                    onSort: _onSort,
-                  ),
-                  DataColumn2(
-                    size: ColumnSize.M,
-                    label: const Text('Date'),
-                    onSort: _onSort,
-                  ),
-                  DataColumn2(
-                    size: ColumnSize.S,
-                    label: const Text('Task'),
+                    isResizable: true,
+                    label: Text(
+                      'Prompt',
+                      style: _headerTextStyle(_ctrl.sortColumnIndex == 0),
+                    ),
                     onSort: _onSort,
                   ),
                   DataColumn2(
                     size: ColumnSize.S,
-                    label: const Text('Topics'),
+                    isResizable: true,
+                    label: Text(
+                      'Date',
+                      style: _headerTextStyle(_ctrl.sortColumnIndex == 1),
+                    ),
+                    onSort: _onSort,
+                  ),
+                  DataColumn2(
+                    size: ColumnSize.S,
+                    isResizable: true,
+                    label: Text(
+                      'Task',
+                      style: _headerTextStyle(_ctrl.sortColumnIndex == 2),
+                    ),
+                    onSort: _onSort,
+                  ),
+                  DataColumn2(
+                    size: ColumnSize.S,
+                    isResizable: true,
+                    label: Text(
+                      'Topics',
+                      style: _headerTextStyle(_ctrl.sortColumnIndex == 3),
+                    ),
                     onSort: _onSort,
                   ),
                 ],

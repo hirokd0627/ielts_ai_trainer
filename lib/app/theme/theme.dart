@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 
 /// PageTransitionsBuilder with no animation
 class _NoTransitionPageBuilder extends PageTransitionsBuilder {
@@ -31,20 +32,53 @@ final _pageTransitionsTheme = const PageTransitionsTheme(
 
 /// Application theme data
 final themeData = ThemeData(
-  colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+  splashFactory: NoSplash.splashFactory, // no ripple effect
+  highlightColor: Colors.transparent,
+  colorScheme: ColorScheme(
+    brightness: Brightness.light,
+    primary: Color(0xFF0F0F0F),
+    onPrimary: Colors.white,
+    secondary: Colors.orange,
+    onSecondary: Colors.white,
+    surface: Colors.white,
+    onSurface: AppColors.textColor,
+    onSurfaceVariant: AppColors.secondaryTextColor,
+    error: Colors.red,
+    onError: Colors.white,
+  ),
   pageTransitionsTheme: _pageTransitionsTheme,
   textTheme: TextTheme(
     headlineLarge: GoogleFonts.roboto(
-      textStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+      textStyle: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w500,
+        color: AppColors.textColor,
+        height: 1.2,
+      ),
     ),
     headlineMedium: GoogleFonts.roboto(
-      textStyle: TextStyle(fontSize: 19, fontWeight: FontWeight.w500),
+      textStyle: TextStyle(
+        fontSize: 19,
+        fontWeight: FontWeight.w500,
+        color: AppColors.textColor,
+        height: 1.2,
+      ),
     ),
     headlineSmall: GoogleFonts.roboto(
-      textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.normal),
+      textStyle: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.normal,
+        color: AppColors.textColor,
+        height: 1.2,
+      ),
     ),
     titleMedium: GoogleFonts.roboto(
-      textStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+      textStyle: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w500,
+        color: AppColors.textColor,
+        height: 1.2,
+      ),
     ),
   ),
 );

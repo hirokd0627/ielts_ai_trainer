@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/app/router_extra.dart';
+import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
+import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer_repository.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_answer_input_controller.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
@@ -138,52 +140,93 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
       body: AnimatedBuilder(
         animation: _ctrl,
         builder: (context, _) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Screen title
-                  ScreenTitleText(_screenTitle),
-                  // Elapsed time
-                  Text(_ctrl.elapsedAsText),
-                ],
+          return SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: AppStyles.screenPadding,
               ),
-              // Prompt text
-              Text(widget.promptText),
-              // Answer Input field
-              TextField(
-                minLines: 5, // always show at least 5 lines
-                maxLines: null, // expands automatically
-                keyboardType: TextInputType.multiline,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter your answer...',
-                ),
-                onChanged: _onChangedAnswerText,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_ctrl.getWordCountAsText(widget.testTask)),
+                  SizedBox(height: 24),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      TextButton(
-                        onPressed: _onPressedCancel,
-                        child: const Text('Cancel'),
+                      // Screen title
+                      ScreenTitleText(_screenTitle),
+                      // Elapsed time
+                      Text(_ctrl.elapsedAsText),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  // Prompt text
+                  Text(widget.promptText),
+                  SizedBox(height: 20),
+                  // Answer Input field
+                  TextField(
+                    minLines: 5, // always show at least 5 lines
+                    maxLines: null, // expands automatically
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      // border: OutlineInputBorder(),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: AppColors.focusColor,
+                          width: 1,
+                        ),
                       ),
-                      FilledButton(
-                        onPressed: _ctrl.isSubmitButtonEnabled
-                            ? _onPressedSubmit
-                            : null,
-                        child: const Text('Submit'),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: AppColors.borderColor,
+                          width: 1,
+                        ),
+                      ),
+                      hintText: 'Enter your answer...',
+                      hintStyle: TextStyle(
+                        color: AppColors.placeholderTextColor,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    style: TextStyle(color: AppColors.textColor),
+                    onChanged: _onChangedAnswerText,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(_ctrl.getWordCountAsText(widget.testTask)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: Row(
+                          children: [
+                            TextButton(
+                              onPressed: _onPressedCancel,
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll(
+                                  AppColors.chipBackground,
+                                ),
+                              ),
+                              child: const Text('Cancel'),
+                            ),
+                            SizedBox(width: 12),
+                            FilledButton(
+                              onPressed: _ctrl.isSubmitButtonEnabled
+                                  ? _onPressedSubmit
+                                  : null,
+                              child: const Text('Submit'),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
+                  SizedBox(height: AppStyles.screenBottomPadding),
                 ],
               ),
-            ],
+            ),
           );
         },
       ),

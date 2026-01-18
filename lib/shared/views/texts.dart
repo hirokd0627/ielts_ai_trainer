@@ -10,7 +10,7 @@ class ScreenTitleText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(0),
-      padding: EdgeInsets.only(top: 0, bottom: 0), // TODO:
+      padding: EdgeInsets.only(top: 0, bottom: 0),
       child: Text(text, style: Theme.of(context).textTheme.headlineLarge),
     );
   }
