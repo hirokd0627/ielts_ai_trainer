@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/app/router_extra.dart';
@@ -186,96 +185,95 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
       ),
 
       // Development
-      if (kDebugMode)
-        SubmenuButton(
-          style: menuButtonStyle,
-          menuStyle: _subMenuStyle,
-          menuChildren: [
-            MenuItemButton(
-              onPressed: () {
-                context.go(developmentScreenRoutePath);
-              },
-              style: subMenuButtonStyle,
-              child: SizedBox(
-                width: menuWidth,
-                child: const Text('Reset DB', textAlign: TextAlign.center),
-              ),
+      SubmenuButton(
+        style: menuButtonStyle,
+        menuStyle: _subMenuStyle,
+        menuChildren: [
+          MenuItemButton(
+            onPressed: () {
+              context.go(developmentScreenRoutePath);
+            },
+            style: subMenuButtonStyle,
+            child: SizedBox(
+              width: menuWidth,
+              child: const Text('Reset DB', textAlign: TextAlign.center),
             ),
-            MenuItemButton(
-              onPressed: () {
-                context.go(
-                  writingTask1QuestionGeneratorScreenRoutePath,
-                  extra: RouterExtra({
-                    'promptTyp': WritingPromptType.graph,
-                    'promptText': 'developer prompt text 1',
-                    'topics': ['topic 1', 'topic 2'],
-                  }),
-                );
-              },
-              style: subMenuButtonStyle,
-              child: SizedBox(
-                width: menuWidth,
-                child: const Text(
-                  'Writing Task 1 Question Generator',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            MenuItemButton(
-              onPressed: () {
-                context.go(
-                  writingTask2QuestionGeneratorScreenRoutePath,
-                  extra: RouterExtra({
-                    'promptType': WritingPromptType.discussionEssay,
-                    'promptText': 'developer prompt text 2',
-                    'topics': ['topic 3', 'topic 4'],
-                  }),
-                );
-              },
-              style: subMenuButtonStyle,
-              child: SizedBox(
-                width: menuWidth,
-                child: const Text(
-                  'Writing Task 2 Question Generator',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            MenuItemButton(
-              onPressed: () {
-                context.go(writingTask1AnswerInputScreenRoutePath);
-              },
-              style: subMenuButtonStyle,
-              child: SizedBox(
-                width: menuWidth,
-                child: const Text(
-                  'Writing Task 1 Input',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            MenuItemButton(
-              onPressed: () {
-                context.go(
-                  writingTask1ResultScreenRoutePath,
-                  extra: RouterExtra({'id': 1}),
-                );
-              },
-              style: subMenuButtonStyle,
-              child: SizedBox(
-                width: menuWidth,
-                child: const Text(
-                  'Writing Task 1 Result',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-          ],
-          child: SizedBox(
-            width: menuWidth,
-            child: const Text('Development', textAlign: TextAlign.center),
           ),
+          MenuItemButton(
+            onPressed: () {
+              context.go(
+                writingTask1QuestionGeneratorScreenRoutePath,
+                extra: RouterExtra({
+                  'promptTyp': WritingPromptType.graph,
+                  'promptText': 'developer prompt text 1',
+                  'topics': ['topic 1', 'topic 2'],
+                }),
+              );
+            },
+            style: subMenuButtonStyle,
+            child: SizedBox(
+              width: menuWidth,
+              child: const Text(
+                'Writing Task 1 Question Generator',
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          MenuItemButton(
+            onPressed: () {
+              context.go(
+                writingTask2QuestionGeneratorScreenRoutePath,
+                extra: RouterExtra({
+                  'promptType': WritingPromptType.discussionEssay,
+                  'promptText': 'developer prompt text 2',
+                  'topics': ['topic 3', 'topic 4'],
+                }),
+              );
+            },
+            style: subMenuButtonStyle,
+            child: SizedBox(
+              width: menuWidth,
+              child: const Text(
+                'Writing Task 2 Question Generator',
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          MenuItemButton(
+            onPressed: () {
+              context.go(writingTask1AnswerInputScreenRoutePath);
+            },
+            style: subMenuButtonStyle,
+            child: SizedBox(
+              width: menuWidth,
+              child: const Text(
+                'Writing Task 1 Input',
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          MenuItemButton(
+            onPressed: () {
+              context.go(
+                writingTask1ResultScreenRoutePath,
+                extra: RouterExtra({'id': 1}),
+              );
+            },
+            style: subMenuButtonStyle,
+            child: SizedBox(
+              width: menuWidth,
+              child: const Text(
+                'Writing Task 1 Result',
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ],
+        child: SizedBox(
+          width: menuWidth,
+          child: const Text('Development', textAlign: TextAlign.center),
         ),
+      ),
     ];
   }
 
