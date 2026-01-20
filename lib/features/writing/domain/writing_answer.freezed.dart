@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$WritingAnswer {
 
- int? get id; int? get detailId; TestTask get testTask; DateTime get createdAt; DateTime get updatedAt; WritingPromptType get promptType; String get promptText; List<String> get topics; String get answerText; int get duration; bool get isGraded; double? get achievement; double? get coherence; double? get lexial; double? get grammatical; double? get score; String? get feedback;
+ int? get id; int? get detailId; TestTask get testTask; DateTime get createdAt; DateTime get updatedAt; WritingPromptType get promptType; String get promptText; List<WritingTopic> get topics; String get answerText; int get duration; bool get isGraded; double? get achievement; double? get coherence; double? get lexial; double? get grammatical; double? get score; String? get feedback;
 /// Create a copy of WritingAnswer
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -45,7 +45,7 @@ abstract mixin class $WritingAnswerCopyWith<$Res>  {
   factory $WritingAnswerCopyWith(WritingAnswer value, $Res Function(WritingAnswer) _then) = _$WritingAnswerCopyWithImpl;
 @useResult
 $Res call({
- int? id, int? detailId, TestTask testTask, DateTime createdAt, DateTime updatedAt, WritingPromptType promptType, String promptText, List<String> topics, String answerText, int duration, bool isGraded, double? achievement, double? coherence, double? lexial, double? grammatical, double? score, String? feedback
+ int? id, int? detailId, TestTask testTask, DateTime createdAt, DateTime updatedAt, WritingPromptType promptType, String promptText, List<WritingTopic> topics, String answerText, int duration, bool isGraded, double? achievement, double? coherence, double? lexial, double? grammatical, double? score, String? feedback
 });
 
 
@@ -72,7 +72,7 @@ as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore
 as DateTime,promptType: null == promptType ? _self.promptType : promptType // ignore: cast_nullable_to_non_nullable
 as WritingPromptType,promptText: null == promptText ? _self.promptText : promptText // ignore: cast_nullable_to_non_nullable
 as String,topics: null == topics ? _self.topics : topics // ignore: cast_nullable_to_non_nullable
-as List<String>,answerText: null == answerText ? _self.answerText : answerText // ignore: cast_nullable_to_non_nullable
+as List<WritingTopic>,answerText: null == answerText ? _self.answerText : answerText // ignore: cast_nullable_to_non_nullable
 as String,duration: null == duration ? _self.duration : duration // ignore: cast_nullable_to_non_nullable
 as int,isGraded: null == isGraded ? _self.isGraded : isGraded // ignore: cast_nullable_to_non_nullable
 as bool,achievement: freezed == achievement ? _self.achievement : achievement // ignore: cast_nullable_to_non_nullable
@@ -166,7 +166,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  int? detailId,  TestTask testTask,  DateTime createdAt,  DateTime updatedAt,  WritingPromptType promptType,  String promptText,  List<String> topics,  String answerText,  int duration,  bool isGraded,  double? achievement,  double? coherence,  double? lexial,  double? grammatical,  double? score,  String? feedback)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  int? detailId,  TestTask testTask,  DateTime createdAt,  DateTime updatedAt,  WritingPromptType promptType,  String promptText,  List<WritingTopic> topics,  String answerText,  int duration,  bool isGraded,  double? achievement,  double? coherence,  double? lexial,  double? grammatical,  double? score,  String? feedback)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WritingAnswer() when $default != null:
 return $default(_that.id,_that.detailId,_that.testTask,_that.createdAt,_that.updatedAt,_that.promptType,_that.promptText,_that.topics,_that.answerText,_that.duration,_that.isGraded,_that.achievement,_that.coherence,_that.lexial,_that.grammatical,_that.score,_that.feedback);case _:
@@ -187,7 +187,7 @@ return $default(_that.id,_that.detailId,_that.testTask,_that.createdAt,_that.upd
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  int? detailId,  TestTask testTask,  DateTime createdAt,  DateTime updatedAt,  WritingPromptType promptType,  String promptText,  List<String> topics,  String answerText,  int duration,  bool isGraded,  double? achievement,  double? coherence,  double? lexial,  double? grammatical,  double? score,  String? feedback)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  int? detailId,  TestTask testTask,  DateTime createdAt,  DateTime updatedAt,  WritingPromptType promptType,  String promptText,  List<WritingTopic> topics,  String answerText,  int duration,  bool isGraded,  double? achievement,  double? coherence,  double? lexial,  double? grammatical,  double? score,  String? feedback)  $default,) {final _that = this;
 switch (_that) {
 case _WritingAnswer():
 return $default(_that.id,_that.detailId,_that.testTask,_that.createdAt,_that.updatedAt,_that.promptType,_that.promptText,_that.topics,_that.answerText,_that.duration,_that.isGraded,_that.achievement,_that.coherence,_that.lexial,_that.grammatical,_that.score,_that.feedback);case _:
@@ -207,7 +207,7 @@ return $default(_that.id,_that.detailId,_that.testTask,_that.createdAt,_that.upd
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  int? detailId,  TestTask testTask,  DateTime createdAt,  DateTime updatedAt,  WritingPromptType promptType,  String promptText,  List<String> topics,  String answerText,  int duration,  bool isGraded,  double? achievement,  double? coherence,  double? lexial,  double? grammatical,  double? score,  String? feedback)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  int? detailId,  TestTask testTask,  DateTime createdAt,  DateTime updatedAt,  WritingPromptType promptType,  String promptText,  List<WritingTopic> topics,  String answerText,  int duration,  bool isGraded,  double? achievement,  double? coherence,  double? lexial,  double? grammatical,  double? score,  String? feedback)?  $default,) {final _that = this;
 switch (_that) {
 case _WritingAnswer() when $default != null:
 return $default(_that.id,_that.detailId,_that.testTask,_that.createdAt,_that.updatedAt,_that.promptType,_that.promptText,_that.topics,_that.answerText,_that.duration,_that.isGraded,_that.achievement,_that.coherence,_that.lexial,_that.grammatical,_that.score,_that.feedback);case _:
@@ -222,7 +222,7 @@ return $default(_that.id,_that.detailId,_that.testTask,_that.createdAt,_that.upd
 
 
 class _WritingAnswer implements WritingAnswer {
-  const _WritingAnswer({this.id, this.detailId, required this.testTask, required this.createdAt, required this.updatedAt, required this.promptType, required this.promptText, required final  List<String> topics, required this.answerText, required this.duration, required this.isGraded, this.achievement, this.coherence, this.lexial, this.grammatical, this.score, this.feedback}): _topics = topics;
+  const _WritingAnswer({this.id, this.detailId, required this.testTask, required this.createdAt, required this.updatedAt, required this.promptType, required this.promptText, required final  List<WritingTopic> topics, required this.answerText, required this.duration, required this.isGraded, this.achievement, this.coherence, this.lexial, this.grammatical, this.score, this.feedback}): _topics = topics;
   
 
 @override final  int? id;
@@ -232,8 +232,8 @@ class _WritingAnswer implements WritingAnswer {
 @override final  DateTime updatedAt;
 @override final  WritingPromptType promptType;
 @override final  String promptText;
- final  List<String> _topics;
-@override List<String> get topics {
+ final  List<WritingTopic> _topics;
+@override List<WritingTopic> get topics {
   if (_topics is EqualUnmodifiableListView) return _topics;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_topics);
@@ -279,7 +279,7 @@ abstract mixin class _$WritingAnswerCopyWith<$Res> implements $WritingAnswerCopy
   factory _$WritingAnswerCopyWith(_WritingAnswer value, $Res Function(_WritingAnswer) _then) = __$WritingAnswerCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, int? detailId, TestTask testTask, DateTime createdAt, DateTime updatedAt, WritingPromptType promptType, String promptText, List<String> topics, String answerText, int duration, bool isGraded, double? achievement, double? coherence, double? lexial, double? grammatical, double? score, String? feedback
+ int? id, int? detailId, TestTask testTask, DateTime createdAt, DateTime updatedAt, WritingPromptType promptType, String promptText, List<WritingTopic> topics, String answerText, int duration, bool isGraded, double? achievement, double? coherence, double? lexial, double? grammatical, double? score, String? feedback
 });
 
 
@@ -306,7 +306,7 @@ as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore
 as DateTime,promptType: null == promptType ? _self.promptType : promptType // ignore: cast_nullable_to_non_nullable
 as WritingPromptType,promptText: null == promptText ? _self.promptText : promptText // ignore: cast_nullable_to_non_nullable
 as String,topics: null == topics ? _self._topics : topics // ignore: cast_nullable_to_non_nullable
-as List<String>,answerText: null == answerText ? _self.answerText : answerText // ignore: cast_nullable_to_non_nullable
+as List<WritingTopic>,answerText: null == answerText ? _self.answerText : answerText // ignore: cast_nullable_to_non_nullable
 as String,duration: null == duration ? _self.duration : duration // ignore: cast_nullable_to_non_nullable
 as int,isGraded: null == isGraded ? _self.isGraded : isGraded // ignore: cast_nullable_to_non_nullable
 as bool,achievement: freezed == achievement ? _self.achievement : achievement // ignore: cast_nullable_to_non_nullable
