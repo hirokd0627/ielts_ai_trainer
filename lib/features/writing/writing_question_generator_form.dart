@@ -120,7 +120,10 @@ class _WritingQuestionGeneratorFormState
             style: MenuItemButton.styleFrom(
               textStyle: TextStyle(color: AppColors.textColor),
               foregroundColor: AppColors.textColor,
-              backgroundColor: Colors.red,
+              backgroundColor: _ctrl.promptType == t
+                  ? Colors.grey.shade200
+                  : null,
+              overlayColor: Colors.grey,
             ),
           ),
         );

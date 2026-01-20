@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer.dart';
+import 'package:ielts_ai_trainer/features/writing/domain/writing_topic.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
@@ -20,7 +21,7 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
     joins.add(
       leftOuterJoin(
         writingAnswerDetailsTable,
-        writingAnswerDetailsTable.userAnswer.equalsExp(userAnswersTable.id),
+        writingAnswerDetailsTable.userAnswerId.equalsExp(userAnswersTable.id),
       ),
     );
 
@@ -41,7 +42,11 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
                 (t) => OrderingTerm.asc(t.order),
               ]))
             .get();
-    final topics = topicsRows.map((row) => row.title).toList();
+    final topics = topicsRows
+        .map(
+          (row) => WritingTopic(id: row.id, order: row.order, title: row.title),
+        )
+        .toList();
 
     /// Converts a database query row into a WritingAnswer.
     final userAnswer = row.readTable(userAnswersTable);
@@ -86,7 +91,7 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
       // Topics
       for (var i = 0; i < answer.topics.length; i++) {
         await into(promptTopicsTable).insert(
-          _toPromptTopicsTableCompanion(upId, i, answer.topics[i]),
+          _toPromptTopicsTableCompanion(upId, answer.topics[i]),
 
           mode: InsertMode.insertOrReplace,
         );
@@ -113,7 +118,9 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
       id: answer.detailId != null
           ? Value(answer.detailId!)
           : const Value.absent(),
-      userAnswer: answer.id != null ? Value(answer.id!) : const Value.absent(),
+      userAnswerId: answer.id != null
+          ? Value(answer.id!)
+          : const Value.absent(),
       promptType: Value(answer.promptType.name),
       promptText: Value(answer.promptText),
       answerText: Value(answer.answerText),
@@ -132,13 +139,13 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
   // Creates PromptTopicsTableCompanion.
   PromptTopicsTableCompanion _toPromptTopicsTableCompanion(
     int answerId,
-    int order,
-    String topic,
+    WritingTopic topic,
   ) {
     return PromptTopicsTableCompanion(
+      id: topic.id != null ? Value(topic.id!) : const Value.absent(),
       userAnswer: Value(answerId),
-      order: Value(order),
-      title: Value(topic),
+      order: Value(topic.order),
+      title: Value(topic.title),
     );
   }
 }

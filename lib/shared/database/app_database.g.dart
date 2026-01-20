@@ -284,12 +284,12 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _userAnswerMeta = const VerificationMeta(
-    'userAnswer',
+  static const VerificationMeta _userAnswerIdMeta = const VerificationMeta(
+    'userAnswerId',
   );
   @override
-  late final GeneratedColumn<int> userAnswer = GeneratedColumn<int>(
-    'user_answer',
+  late final GeneratedColumn<int> userAnswerId = GeneratedColumn<int>(
+    'user_answer_id',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -438,7 +438,7 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    userAnswer,
+    userAnswerId,
     promptType,
     promptText,
     answerText,
@@ -467,13 +467,16 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('user_answer')) {
+    if (data.containsKey('user_answer_id')) {
       context.handle(
-        _userAnswerMeta,
-        userAnswer.isAcceptableOrUnknown(data['user_answer']!, _userAnswerMeta),
+        _userAnswerIdMeta,
+        userAnswerId.isAcceptableOrUnknown(
+          data['user_answer_id']!,
+          _userAnswerIdMeta,
+        ),
       );
     } else if (isInserting) {
-      context.missing(_userAnswerMeta);
+      context.missing(_userAnswerIdMeta);
     }
     if (data.containsKey('prompt_type')) {
       context.handle(
@@ -585,9 +588,9 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      userAnswer: attachedDatabase.typeMapping.read(
+      userAnswerId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}user_answer'],
+        data['${effectivePrefix}user_answer_id'],
       )!,
       promptType: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -649,7 +652,7 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
 class WritingAnswerDetailsTableData extends DataClass
     implements Insertable<WritingAnswerDetailsTableData> {
   final int id;
-  final int userAnswer;
+  final int userAnswerId;
   final String promptType;
   final String promptText;
   final String answerText;
@@ -664,7 +667,7 @@ class WritingAnswerDetailsTableData extends DataClass
   final DateTime updatedAt;
   const WritingAnswerDetailsTableData({
     required this.id,
-    required this.userAnswer,
+    required this.userAnswerId,
     required this.promptType,
     required this.promptText,
     required this.answerText,
@@ -682,7 +685,7 @@ class WritingAnswerDetailsTableData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['user_answer'] = Variable<int>(userAnswer);
+    map['user_answer_id'] = Variable<int>(userAnswerId);
     map['prompt_type'] = Variable<String>(promptType);
     map['prompt_text'] = Variable<String>(promptText);
     map['answer_text'] = Variable<String>(answerText);
@@ -713,7 +716,7 @@ class WritingAnswerDetailsTableData extends DataClass
   WritingAnswerDetailsTableCompanion toCompanion(bool nullToAbsent) {
     return WritingAnswerDetailsTableCompanion(
       id: Value(id),
-      userAnswer: Value(userAnswer),
+      userAnswerId: Value(userAnswerId),
       promptType: Value(promptType),
       promptText: Value(promptText),
       answerText: Value(answerText),
@@ -748,7 +751,7 @@ class WritingAnswerDetailsTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return WritingAnswerDetailsTableData(
       id: serializer.fromJson<int>(json['id']),
-      userAnswer: serializer.fromJson<int>(json['userAnswer']),
+      userAnswerId: serializer.fromJson<int>(json['userAnswerId']),
       promptType: serializer.fromJson<String>(json['promptType']),
       promptText: serializer.fromJson<String>(json['promptText']),
       answerText: serializer.fromJson<String>(json['answerText']),
@@ -768,7 +771,7 @@ class WritingAnswerDetailsTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'userAnswer': serializer.toJson<int>(userAnswer),
+      'userAnswerId': serializer.toJson<int>(userAnswerId),
       'promptType': serializer.toJson<String>(promptType),
       'promptText': serializer.toJson<String>(promptText),
       'answerText': serializer.toJson<String>(answerText),
@@ -786,7 +789,7 @@ class WritingAnswerDetailsTableData extends DataClass
 
   WritingAnswerDetailsTableData copyWith({
     int? id,
-    int? userAnswer,
+    int? userAnswerId,
     String? promptType,
     String? promptText,
     String? answerText,
@@ -801,7 +804,7 @@ class WritingAnswerDetailsTableData extends DataClass
     DateTime? updatedAt,
   }) => WritingAnswerDetailsTableData(
     id: id ?? this.id,
-    userAnswer: userAnswer ?? this.userAnswer,
+    userAnswerId: userAnswerId ?? this.userAnswerId,
     promptType: promptType ?? this.promptType,
     promptText: promptText ?? this.promptText,
     answerText: answerText ?? this.answerText,
@@ -826,9 +829,9 @@ class WritingAnswerDetailsTableData extends DataClass
   ) {
     return WritingAnswerDetailsTableData(
       id: data.id.present ? data.id.value : this.id,
-      userAnswer: data.userAnswer.present
-          ? data.userAnswer.value
-          : this.userAnswer,
+      userAnswerId: data.userAnswerId.present
+          ? data.userAnswerId.value
+          : this.userAnswerId,
       promptType: data.promptType.present
           ? data.promptType.value
           : this.promptType,
@@ -862,7 +865,7 @@ class WritingAnswerDetailsTableData extends DataClass
   String toString() {
     return (StringBuffer('WritingAnswerDetailsTableData(')
           ..write('id: $id, ')
-          ..write('userAnswer: $userAnswer, ')
+          ..write('userAnswerId: $userAnswerId, ')
           ..write('promptType: $promptType, ')
           ..write('promptText: $promptText, ')
           ..write('answerText: $answerText, ')
@@ -882,7 +885,7 @@ class WritingAnswerDetailsTableData extends DataClass
   @override
   int get hashCode => Object.hash(
     id,
-    userAnswer,
+    userAnswerId,
     promptType,
     promptText,
     answerText,
@@ -901,7 +904,7 @@ class WritingAnswerDetailsTableData extends DataClass
       identical(this, other) ||
       (other is WritingAnswerDetailsTableData &&
           other.id == this.id &&
-          other.userAnswer == this.userAnswer &&
+          other.userAnswerId == this.userAnswerId &&
           other.promptType == this.promptType &&
           other.promptText == this.promptText &&
           other.answerText == this.answerText &&
@@ -919,7 +922,7 @@ class WritingAnswerDetailsTableData extends DataClass
 class WritingAnswerDetailsTableCompanion
     extends UpdateCompanion<WritingAnswerDetailsTableData> {
   final Value<int> id;
-  final Value<int> userAnswer;
+  final Value<int> userAnswerId;
   final Value<String> promptType;
   final Value<String> promptText;
   final Value<String> answerText;
@@ -934,7 +937,7 @@ class WritingAnswerDetailsTableCompanion
   final Value<DateTime> updatedAt;
   const WritingAnswerDetailsTableCompanion({
     this.id = const Value.absent(),
-    this.userAnswer = const Value.absent(),
+    this.userAnswerId = const Value.absent(),
     this.promptType = const Value.absent(),
     this.promptText = const Value.absent(),
     this.answerText = const Value.absent(),
@@ -950,7 +953,7 @@ class WritingAnswerDetailsTableCompanion
   });
   WritingAnswerDetailsTableCompanion.insert({
     this.id = const Value.absent(),
-    required int userAnswer,
+    required int userAnswerId,
     required String promptType,
     required String promptText,
     required String answerText,
@@ -963,7 +966,7 @@ class WritingAnswerDetailsTableCompanion
     required bool isGraded,
     this.feedback = const Value.absent(),
     this.updatedAt = const Value.absent(),
-  }) : userAnswer = Value(userAnswer),
+  }) : userAnswerId = Value(userAnswerId),
        promptType = Value(promptType),
        promptText = Value(promptText),
        answerText = Value(answerText),
@@ -971,7 +974,7 @@ class WritingAnswerDetailsTableCompanion
        isGraded = Value(isGraded);
   static Insertable<WritingAnswerDetailsTableData> custom({
     Expression<int>? id,
-    Expression<int>? userAnswer,
+    Expression<int>? userAnswerId,
     Expression<String>? promptType,
     Expression<String>? promptText,
     Expression<String>? answerText,
@@ -987,7 +990,7 @@ class WritingAnswerDetailsTableCompanion
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (userAnswer != null) 'user_answer': userAnswer,
+      if (userAnswerId != null) 'user_answer_id': userAnswerId,
       if (promptType != null) 'prompt_type': promptType,
       if (promptText != null) 'prompt_text': promptText,
       if (answerText != null) 'answer_text': answerText,
@@ -1005,7 +1008,7 @@ class WritingAnswerDetailsTableCompanion
 
   WritingAnswerDetailsTableCompanion copyWith({
     Value<int>? id,
-    Value<int>? userAnswer,
+    Value<int>? userAnswerId,
     Value<String>? promptType,
     Value<String>? promptText,
     Value<String>? answerText,
@@ -1021,7 +1024,7 @@ class WritingAnswerDetailsTableCompanion
   }) {
     return WritingAnswerDetailsTableCompanion(
       id: id ?? this.id,
-      userAnswer: userAnswer ?? this.userAnswer,
+      userAnswerId: userAnswerId ?? this.userAnswerId,
       promptType: promptType ?? this.promptType,
       promptText: promptText ?? this.promptText,
       answerText: answerText ?? this.answerText,
@@ -1043,8 +1046,8 @@ class WritingAnswerDetailsTableCompanion
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (userAnswer.present) {
-      map['user_answer'] = Variable<int>(userAnswer.value);
+    if (userAnswerId.present) {
+      map['user_answer_id'] = Variable<int>(userAnswerId.value);
     }
     if (promptType.present) {
       map['prompt_type'] = Variable<String>(promptType.value);
@@ -1089,7 +1092,7 @@ class WritingAnswerDetailsTableCompanion
   String toString() {
     return (StringBuffer('WritingAnswerDetailsTableCompanion(')
           ..write('id: $id, ')
-          ..write('userAnswer: $userAnswer, ')
+          ..write('userAnswerId: $userAnswerId, ')
           ..write('promptType: $promptType, ')
           ..write('promptText: $promptText, ')
           ..write('answerText: $answerText, ')
@@ -1470,7 +1473,7 @@ final class $$UserAnswersTableTableReferences
         db.writingAnswerDetailsTable,
         aliasName: $_aliasNameGenerator(
           db.userAnswersTable.id,
-          db.writingAnswerDetailsTable.userAnswer,
+          db.writingAnswerDetailsTable.userAnswerId,
         ),
       );
 
@@ -1479,7 +1482,7 @@ final class $$UserAnswersTableTableReferences
     final manager = $$WritingAnswerDetailsTableTableTableManager(
       $_db,
       $_db.writingAnswerDetailsTable,
-    ).filter((f) => f.userAnswer.id.sqlEquals($_itemColumn<int>('id')!));
+    ).filter((f) => f.userAnswerId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(
       _writingAnswerDetailsTableRefsTable($_db),
@@ -1551,7 +1554,7 @@ class $$UserAnswersTableTableFilterComposer
           composer: this,
           getCurrentColumn: (t) => t.id,
           referencedTable: $db.writingAnswerDetailsTable,
-          getReferencedColumn: (t) => t.userAnswer,
+          getReferencedColumn: (t) => t.userAnswerId,
           builder:
               (
                 joinBuilder, {
@@ -1647,7 +1650,7 @@ class $$UserAnswersTableTableAnnotationComposer
           composer: this,
           getCurrentColumn: (t) => t.id,
           referencedTable: $db.writingAnswerDetailsTable,
-          getReferencedColumn: (t) => t.userAnswer,
+          getReferencedColumn: (t) => t.userAnswerId,
           builder:
               (
                 joinBuilder, {
@@ -1783,7 +1786,7 @@ class $$UserAnswersTableTableTableManager
                               ).writingAnswerDetailsTableRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
-                                (e) => e.userAnswer == item.id,
+                                (e) => e.userAnswerId == item.id,
                               ),
                           typedResults: items,
                         ),
@@ -1836,7 +1839,7 @@ typedef $$UserAnswersTableTableProcessedTableManager =
 typedef $$WritingAnswerDetailsTableTableCreateCompanionBuilder =
     WritingAnswerDetailsTableCompanion Function({
       Value<int> id,
-      required int userAnswer,
+      required int userAnswerId,
       required String promptType,
       required String promptText,
       required String answerText,
@@ -1853,7 +1856,7 @@ typedef $$WritingAnswerDetailsTableTableCreateCompanionBuilder =
 typedef $$WritingAnswerDetailsTableTableUpdateCompanionBuilder =
     WritingAnswerDetailsTableCompanion Function({
       Value<int> id,
-      Value<int> userAnswer,
+      Value<int> userAnswerId,
       Value<String> promptType,
       Value<String> promptText,
       Value<String> answerText,
@@ -1881,22 +1884,22 @@ final class $$WritingAnswerDetailsTableTableReferences
     super.$_typedResult,
   );
 
-  static $UserAnswersTableTable _userAnswerTable(_$AppDatabase db) =>
+  static $UserAnswersTableTable _userAnswerIdTable(_$AppDatabase db) =>
       db.userAnswersTable.createAlias(
         $_aliasNameGenerator(
-          db.writingAnswerDetailsTable.userAnswer,
+          db.writingAnswerDetailsTable.userAnswerId,
           db.userAnswersTable.id,
         ),
       );
 
-  $$UserAnswersTableTableProcessedTableManager get userAnswer {
-    final $_column = $_itemColumn<int>('user_answer')!;
+  $$UserAnswersTableTableProcessedTableManager get userAnswerId {
+    final $_column = $_itemColumn<int>('user_answer_id')!;
 
     final manager = $$UserAnswersTableTableTableManager(
       $_db,
       $_db.userAnswersTable,
     ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_userAnswerTable($_db));
+    final item = $_typedResult.readTableOrNull(_userAnswerIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -1978,10 +1981,10 @@ class $$WritingAnswerDetailsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  $$UserAnswersTableTableFilterComposer get userAnswer {
+  $$UserAnswersTableTableFilterComposer get userAnswerId {
     final $$UserAnswersTableTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.userAnswer,
+      getCurrentColumn: (t) => t.userAnswerId,
       referencedTable: $db.userAnswersTable,
       getReferencedColumn: (t) => t.id,
       builder:
@@ -2076,10 +2079,10 @@ class $$WritingAnswerDetailsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$UserAnswersTableTableOrderingComposer get userAnswer {
+  $$UserAnswersTableTableOrderingComposer get userAnswerId {
     final $$UserAnswersTableTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.userAnswer,
+      getCurrentColumn: (t) => t.userAnswerId,
       referencedTable: $db.userAnswersTable,
       getReferencedColumn: (t) => t.id,
       builder:
@@ -2162,10 +2165,10 @@ class $$WritingAnswerDetailsTableTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  $$UserAnswersTableTableAnnotationComposer get userAnswer {
+  $$UserAnswersTableTableAnnotationComposer get userAnswerId {
     final $$UserAnswersTableTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.userAnswer,
+      getCurrentColumn: (t) => t.userAnswerId,
       referencedTable: $db.userAnswersTable,
       getReferencedColumn: (t) => t.id,
       builder:
@@ -2202,7 +2205,7 @@ class $$WritingAnswerDetailsTableTableTableManager
             $$WritingAnswerDetailsTableTableReferences,
           ),
           WritingAnswerDetailsTableData,
-          PrefetchHooks Function({bool userAnswer})
+          PrefetchHooks Function({bool userAnswerId})
         > {
   $$WritingAnswerDetailsTableTableTableManager(
     _$AppDatabase db,
@@ -2229,7 +2232,7 @@ class $$WritingAnswerDetailsTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int> userAnswer = const Value.absent(),
+                Value<int> userAnswerId = const Value.absent(),
                 Value<String> promptType = const Value.absent(),
                 Value<String> promptText = const Value.absent(),
                 Value<String> answerText = const Value.absent(),
@@ -2244,7 +2247,7 @@ class $$WritingAnswerDetailsTableTableTableManager
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => WritingAnswerDetailsTableCompanion(
                 id: id,
-                userAnswer: userAnswer,
+                userAnswerId: userAnswerId,
                 promptType: promptType,
                 promptText: promptText,
                 answerText: answerText,
@@ -2261,7 +2264,7 @@ class $$WritingAnswerDetailsTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required int userAnswer,
+                required int userAnswerId,
                 required String promptType,
                 required String promptText,
                 required String answerText,
@@ -2276,7 +2279,7 @@ class $$WritingAnswerDetailsTableTableTableManager
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => WritingAnswerDetailsTableCompanion.insert(
                 id: id,
-                userAnswer: userAnswer,
+                userAnswerId: userAnswerId,
                 promptType: promptType,
                 promptText: promptText,
                 answerText: answerText,
@@ -2298,7 +2301,7 @@ class $$WritingAnswerDetailsTableTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({userAnswer = false}) {
+          prefetchHooksCallback: ({userAnswerId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -2318,17 +2321,17 @@ class $$WritingAnswerDetailsTableTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (userAnswer) {
+                    if (userAnswerId) {
                       state =
                           state.withJoin(
                                 currentTable: table,
-                                currentColumn: table.userAnswer,
+                                currentColumn: table.userAnswerId,
                                 referencedTable:
                                     $$WritingAnswerDetailsTableTableReferences
-                                        ._userAnswerTable(db),
+                                        ._userAnswerIdTable(db),
                                 referencedColumn:
                                     $$WritingAnswerDetailsTableTableReferences
-                                        ._userAnswerTable(db)
+                                        ._userAnswerIdTable(db)
                                         .id,
                               )
                               as T;
@@ -2360,7 +2363,7 @@ typedef $$WritingAnswerDetailsTableTableProcessedTableManager =
         $$WritingAnswerDetailsTableTableReferences,
       ),
       WritingAnswerDetailsTableData,
-      PrefetchHooks Function({bool userAnswer})
+      PrefetchHooks Function({bool userAnswerId})
     >;
 typedef $$PromptTopicsTableTableCreateCompanionBuilder =
     PromptTopicsTableCompanion Function({

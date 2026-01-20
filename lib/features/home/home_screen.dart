@@ -56,8 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       _calendarVisibleDateRange = dr;
-      _selectedDate = _calendarVisibleDateRange.end;
       _currentMonthEvents = calEvents;
+      _selectedDate = _calendarVisibleDateRange.end;
     });
   }
 

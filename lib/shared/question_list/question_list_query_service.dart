@@ -31,7 +31,7 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
       joins.add(
         leftOuterJoin(
           writingAnswerDetailsTable,
-          writingAnswerDetailsTable.userAnswer.equalsExp(userAnswersTable.id),
+          writingAnswerDetailsTable.userAnswerId.equalsExp(userAnswersTable.id),
         ),
       );
     }
@@ -44,11 +44,11 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
 
     // Where
     if (date != null) {
-      final from = DateTime(date.year, date.month, date.day);
+      final from = DateTime(date.year, date.month, date.day).toUtc();
       final to = from.add(const Duration(days: 1));
       joinedQuery.where(
-        userAnswersTable.createdAt.isBiggerOrEqualValue(from.toUtc()) &
-            userAnswersTable.createdAt.isSmallerThanValue(to.toUtc()),
+        userAnswersTable.createdAt.isBiggerOrEqualValue(from) &
+            userAnswersTable.createdAt.isSmallerThanValue(to),
       );
     }
 
@@ -127,7 +127,7 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
           id: ua.id,
           promptText: wa?.promptText ?? '',
           testTask: ua.testTask,
-          datetime: ua.createdAt,
+          datetime: ua.createdAt.toLocal(),
           topics: topicsMap[ua.id] ?? [],
         ),
       );

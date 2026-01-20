@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer_repository.dart';
+import 'package:ielts_ai_trainer/features/writing/domain/writing_topic.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
@@ -107,6 +108,11 @@ class WritingAnswerInputController extends ChangeNotifier {
   Future<int> saveUserAnswer() async {
     final now = DateTime.now();
 
+    final topics = <WritingTopic>[];
+    for (var i = 0; i < _topics.length; i++) {
+      topics.add(WritingTopic(order: (i + 1), title: _topics[i]));
+    }
+
     final answer = WritingAnswer(
       testTask: _testTask,
       createdAt: now,
@@ -114,7 +120,7 @@ class WritingAnswerInputController extends ChangeNotifier {
       answerText: _answerText,
       isGraded: false,
       duration: _elapsedDuration.inSeconds,
-      topics: _topics,
+      topics: topics,
       promptType: _promptType,
       updatedAt: now,
     );

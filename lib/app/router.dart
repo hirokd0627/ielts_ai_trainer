@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/features/development/development_route.dart';
 import 'package:ielts_ai_trainer/features/home/home_route.dart';
@@ -14,6 +13,6 @@ final GoRouter appRouter = GoRouter(
     // Writing screens
     ...writingRoutes,
     // Development screen
-    if (kDebugMode) developmentRoute,
+    developmentRoute,
   ],
 );

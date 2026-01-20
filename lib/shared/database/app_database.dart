@@ -1,6 +1,5 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:flutter/foundation.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -22,12 +21,8 @@ class AppDatabase extends _$AppDatabase {
     return driftDatabase(
       name: 'db',
       native: const DriftNativeOptions(
-        // databaseDirectory: getApplicationSupportDirectory,
-        databaseDirectory: kDebugMode
-            // macos: Library/Containers/com.example.ieltsAiTrainer/Data/Documents/db.sql
-            ? getApplicationDocumentsDirectory
-            // macos: Library/Containers/ielts_ai_trainer/Data/Library/com.example.ieltsAiTrainer/db.sql
-            : getApplicationSupportDirectory,
+        // macos: Library/Containers/com.example.ieltsAiTrainer/Data/Documents/db.sql
+        databaseDirectory: getApplicationDocumentsDirectory,
       ),
     );
   }
@@ -49,7 +44,7 @@ class WritingAnswerDetailsTable extends Table {
   String get tableName => 'writing_answer_details';
 
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get userAnswer => integer().references(UserAnswersTable, #id)();
+  IntColumn get userAnswerId => integer().references(UserAnswersTable, #id)();
   TextColumn get promptType => text().withLength(min: 1)();
   TextColumn get promptText => text().withLength(min: 1)();
   TextColumn get answerText => text().withLength(min: 1)();

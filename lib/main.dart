@@ -13,10 +13,11 @@ void main() async {
   await windowManager.ensureInitialized();
 
   WindowOptions windowOptions = WindowOptions(
-    size: Size(800, 900),
-    minimumSize: Size(800, 900),
+    size: Size(800, 800),
+    minimumSize: Size(800, 800),
     backgroundColor: Colors.transparent,
     title: _appTitle,
+    center: false,
   );
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.show();
