@@ -4,6 +4,7 @@ import 'package:ielts_ai_trainer/app/router_extra.dart';
 import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 import 'package:ielts_ai_trainer/features/development/development_route.dart';
 import 'package:ielts_ai_trainer/features/home/home_route.dart';
+import 'package:ielts_ai_trainer/features/speaking/speaking_routes.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
@@ -144,7 +145,9 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
         menuStyle: _subMenuStyle,
         menuChildren: [
           MenuItemButton(
-            onPressed: () {},
+            onPressed: () {
+              context.go(speakingTopic1QuestionGeneratorScreenRoutePath);
+            },
             style: subMenuButtonStyle,
             child: SizedBox(
               width: menuWidth,
@@ -152,7 +155,9 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
             ),
           ),
           MenuItemButton(
-            onPressed: () {},
+            onPressed: () {
+              context.go(speakingTopic2QuestionGeneratorScreenRoutePath);
+            },
             style: subMenuButtonStyle,
             child: SizedBox(
               width: menuWidth,
@@ -160,7 +165,9 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
             ),
           ),
           MenuItemButton(
-            onPressed: () {},
+            onPressed: () {
+              context.go(speakingTopic3QuestionGeneratorScreenRoutePath);
+            },
             style: subMenuButtonStyle,
             child: SizedBox(
               width: menuWidth,
@@ -202,9 +209,8 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
           MenuItemButton(
             onPressed: () {
               context.go(
-                writingTask1QuestionGeneratorScreenRoutePath,
+                speakingTopic1QuestionGeneratorScreenRoutePath,
                 extra: RouterExtra({
-                  'promptTyp': WritingPromptType.graph,
                   'promptText': 'developer prompt text 1',
                   'topics': ['topic 1', 'topic 2'],
                 }),
@@ -214,56 +220,7 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
             child: SizedBox(
               width: menuWidth,
               child: const Text(
-                'Writing Task 1 Question Generator',
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-          MenuItemButton(
-            onPressed: () {
-              context.go(
-                writingTask2QuestionGeneratorScreenRoutePath,
-                extra: RouterExtra({
-                  'promptType': WritingPromptType.discussionEssay,
-                  'promptText': 'developer prompt text 2',
-                  'topics': ['topic 3', 'topic 4'],
-                }),
-              );
-            },
-            style: subMenuButtonStyle,
-            child: SizedBox(
-              width: menuWidth,
-              child: const Text(
-                'Writing Task 2 Question Generator',
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-          MenuItemButton(
-            onPressed: () {
-              context.go(writingTask1AnswerInputScreenRoutePath);
-            },
-            style: subMenuButtonStyle,
-            child: SizedBox(
-              width: menuWidth,
-              child: const Text(
-                'Writing Task 1 Input',
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-          MenuItemButton(
-            onPressed: () {
-              context.go(
-                writingTask1ResultScreenRoutePath,
-                extra: RouterExtra({'id': 1}),
-              );
-            },
-            style: subMenuButtonStyle,
-            child: SizedBox(
-              width: menuWidth,
-              child: const Text(
-                'Writing Task 1 Result',
+                'Speaking Topic 1',
                 textAlign: TextAlign.center,
               ),
             ),
