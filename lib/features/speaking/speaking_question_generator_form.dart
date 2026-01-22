@@ -1,35 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
-import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
-import 'package:ielts_ai_trainer/features/writing/writing_question_generator_form_controller.dart';
+import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
+import 'package:ielts_ai_trainer/features/speaking/speaking_question_generator_form_controller.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 
-/// Question Generator Form for Writing Tasks.
-class WritingQuestionGeneratorForm extends StatefulWidget {
-  /// Called when generation button is tapped.
-  final Future<String> Function(
-    WritingPromptType promptType,
+/// Question Generator Form for Speaking Tasks.
+class SpeakingQuestionGeneratorForm extends StatefulWidget {
+  /// Function to generate a prompt text.
+  /// Called when the Generate button is tapped.
+  /// Returns a record containing a prompt text and a topics used.
+  final Future<({List<String> topics, String promptText})> Function(
+    int topicCount,
     List<String> topics,
   )
   generatePromptText;
 
-  /// Called when start button is tapped.
-  final void Function(
-    String promptText,
-    List<String> topics,
-    WritingPromptType promptType,
-  )
-  onTappedStart;
+  /// Called when the Start button is tapped.
+  final void Function(String promptText, List<String> topics) onTappedStart;
 
   /// The task type.
   final TestTask testTask;
-
-  /// The prompt type to display initially, if set.
-  final WritingPromptType? promptType;
 
   /// The prompt text to display initially, if set.
   final String? promptText;
@@ -37,26 +30,25 @@ class WritingQuestionGeneratorForm extends StatefulWidget {
   /// The topics to display initially, if set.
   final List<String>? topics;
 
-  const WritingQuestionGeneratorForm({
+  const SpeakingQuestionGeneratorForm({
     super.key,
     required this.generatePromptText,
     required this.onTappedStart,
     required this.testTask,
     this.promptText,
     this.topics,
-    this.promptType,
   });
 
   @override
-  State<WritingQuestionGeneratorForm> createState() =>
-      _WritingQuestionGeneratorFormState();
+  State<SpeakingQuestionGeneratorForm> createState() =>
+      _SpeakingQuestionGeneratorFormState();
 }
 
-/// State for WritingTaskQuestionGeneratorForm.
-class _WritingQuestionGeneratorFormState
-    extends State<WritingQuestionGeneratorForm> {
-  /// Controller for WritingQuestionGeneratorForm.
-  late final WritingQuestionGeneratorFormController _ctrl;
+/// State for SpeakingQuestionGeneratorForm.
+class _SpeakingQuestionGeneratorFormState
+    extends State<SpeakingQuestionGeneratorForm> {
+  /// Controller for SpeakingQuestionGeneratorForm.
+  late final SpeakingQuestionGeneratorFormController _ctrl;
 
   /// Controller for topic text field.
   final TextEditingController _topicTextEditCtrl = TextEditingController();
@@ -68,94 +60,19 @@ class _WritingQuestionGeneratorFormState
   /// Input error text for topics.
   String _topicInputErrorText = '';
 
-  /// Whether the mouse is on the prompt type area.
-  bool _hoveringOnPromptType = false;
-
   /// Whether the mouse is on the topics area.
   bool _hoveringOnTopics = false;
-
-  /// Returns the label for the prompt type based on the test task.
-  String get _promptTypeLabel {
-    if (widget.testTask == TestTask.writingTask1) {
-      return 'Question Type';
-    }
-    return 'Essay Type';
-  }
-
-  /// Options for prompt type.
-  List<DropdownMenuEntry<WritingPromptType>> get _promptTypeEntries {
-    final entries = <DropdownMenuEntry<WritingPromptType>>[];
-    for (final t in WritingPromptType.values) {
-      if (widget.testTask == TestTask.writingTask1 && t.isTask1) {
-        String label = switch (t) {
-          WritingPromptType.chart => 'Chart',
-          WritingPromptType.graph => 'Graph',
-          WritingPromptType.map => 'Map',
-          WritingPromptType.process => 'Process',
-          WritingPromptType.table => 'Table',
-          _ => throw ArgumentError('Unsupported prompt type: $t'),
-        };
-        entries.add(
-          DropdownMenuEntry(
-            value: t,
-            label: label,
-            style: MenuItemButton.styleFrom(
-              textStyle: TextStyle(color: AppColors.textColor),
-              foregroundColor: AppColors.textColor,
-              backgroundColor: _ctrl.promptType == t
-                  ? Colors.grey.shade200
-                  : null,
-              overlayColor: Colors.grey,
-            ),
-          ),
-        );
-      } else if (widget.testTask == TestTask.writingTask2 && t.isTask2) {
-        String label = switch (t) {
-          WritingPromptType.discussionEssay => 'Discussion Essay',
-          WritingPromptType.problemAndSolution => 'Problem and Solution',
-          WritingPromptType.opinionEssay => 'Opinion Essay (Agree or Disagree)',
-          WritingPromptType.twoPartQuestionEssay => 'Two-part Question Essay',
-          WritingPromptType.advantagesAndDisadvantages =>
-            'Advantages and Disadvantages',
-          _ => throw ArgumentError('Unsupported prompt type: $t'),
-        };
-        entries.add(
-          DropdownMenuEntry(
-            value: t,
-            label: label,
-            style: MenuItemButton.styleFrom(
-              textStyle: TextStyle(color: AppColors.textColor),
-              foregroundColor: AppColors.textColor,
-              backgroundColor: _ctrl.promptType == t
-                  ? Colors.grey.shade200
-                  : null,
-              overlayColor: Colors.grey,
-            ),
-          ),
-        );
-      }
-    }
-    return entries;
-  }
-
-  /// Hint text for prompt type.
-  String get _promptTypeHintText {
-    return widget.testTask == TestTask.writingTask1
-        ? 'Select question type'
-        : 'Select essay type';
-  }
 
   @override
   void initState() {
     super.initState();
 
-    _ctrl = WritingQuestionGeneratorFormController(
+    _ctrl = SpeakingQuestionGeneratorFormController(
       testTask: widget.testTask,
-      apiSrv: WritingApiService(),
+      apiSrv: SpeakingApiService(),
       generatePromptText: widget.generatePromptText,
       promptText: widget.promptText,
       topics: widget.topics,
-      promptType: widget.promptType,
     );
   }
 
@@ -167,10 +84,14 @@ class _WritingQuestionGeneratorFormState
     super.dispose();
   }
 
-  /// Called when the prompt type is changed.
-  void _onSelectedPromptType(WritingPromptType? value) {
+  /// Called when the number of topics is changed.
+  void _onChangedTopicCount(int? value) {
     if (value != null) {
-      _ctrl.promptType = value;
+      _ctrl.topicCount = value;
+    }
+
+    if (!_validateTopics()) {
+      return;
     }
   }
 
@@ -181,20 +102,13 @@ class _WritingQuestionGeneratorFormState
     if (value.isEmpty) {
       return;
     }
-    final error = _ctrl.validateTopics(value);
-    if (error.isNotEmpty) {
-      setState(() {
-        _topicInputErrorText = error;
-      });
+
+    if (!_validateTopics(newValue: value)) {
       return;
     }
-    setState(() {
-      _topicInputErrorText = '';
-    });
 
     _ctrl.addTopic(value);
     _topicTextEditCtrl.clear();
-    // _focusNode.requestFocus(); // keep focus on text field
   }
 
   /// Called when the topic is deleted.
@@ -205,7 +119,7 @@ class _WritingQuestionGeneratorFormState
     _ctrl.removeTopic(topic);
   }
 
-  /// Called when the generate button is tapped.
+  /// Called when the Generate button is tapped.
   void _onPressedGenerate() async {
     setState(() {
       _topicInputErrorText = '';
@@ -213,7 +127,7 @@ class _WritingQuestionGeneratorFormState
     await _ctrl.generatePromptText();
   }
 
-  /// Called when the start button is tapped.
+  /// Called when the Start button is tapped.
   void _onPressedStart() async {
     // Confirm whether to start practicing.
     final confirmed = await showConfirmDialog(
@@ -230,7 +144,17 @@ class _WritingQuestionGeneratorFormState
       return;
     }
 
-    widget.onTappedStart(_ctrl.propmtText, _ctrl.usedTopics, _ctrl.promptType!);
+    widget.onTappedStart(_ctrl.promptText, _ctrl.usedTopics);
+  }
+
+  /// Validates the entered topics, optionally including a new value.
+  /// Returns true if the topics are valid, false otherwise.
+  bool _validateTopics({String? newValue}) {
+    final error = _ctrl.validateTopics(newValue);
+    setState(() {
+      _topicInputErrorText = error.isEmpty ? '' : error;
+    });
+    return error.isEmpty;
   }
 
   @override
@@ -243,42 +167,44 @@ class _WritingQuestionGeneratorFormState
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Question type
-            Container(
-              margin: EdgeInsets.only(bottom: 4),
-              child: FieldLabel(_promptTypeLabel),
-            ),
-            MouseRegion(
-              onEnter: (_) => setState(() => _hoveringOnPromptType = true),
-              onExit: (_) => setState(() => _hoveringOnPromptType = false),
-              child: DropdownMenu<WritingPromptType>(
-                textStyle: AppStyles.textFieldStyle(context),
-                inputDecorationTheme: InputDecorationTheme(
-                  hintStyle: AppStyles.placeHolderText,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 11,
-                    horizontal: 6,
+            // Number of Topics
+            if (widget.testTask == TestTask.speakingPart1)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(bottom: 4),
+                    child: FieldLabel('Number of Topics'),
                   ),
-                  isDense: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: _hoveringOnPromptType
-                          ? AppColors.focusColor
-                          : AppColors.borderColor,
+                  SizedBox(height: 4),
+                  RadioGroup<int>(
+                    groupValue: _ctrl.topicCount,
+                    onChanged: _onChangedTopicCount,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [1, 2, 3].map((int num) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Radio<int>(
+                              value: num,
+                              enabled: !_ctrl.isPromptTextGenerating,
+                            ),
+                            Text("$num"),
+                            SizedBox(width: 20),
+                          ],
+                        );
+                      }).toList(),
                     ),
-                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                width: 250,
-                requestFocusOnTap: false,
-                hintText: _promptTypeHintText,
-                initialSelection: _ctrl.promptType,
-                dropdownMenuEntries: _promptTypeEntries,
-                onSelected: _onSelectedPromptType,
+                  SizedBox(height: 20),
+                ],
               ),
-            ),
-            SizedBox(height: 20),
             // Topics
+            // For Part 2 and Part 3, use the provided topics.
+            // If none are specified, one topic is generated at random.
             Container(
               margin: EdgeInsets.only(bottom: 4),
               child: FieldLabel('Topics'),
@@ -303,6 +229,7 @@ class _WritingQuestionGeneratorFormState
                     SizedBox(
                       width: screenWidth,
                       child: TextField(
+                        enabled: !_ctrl.isPromptTextGenerating,
                         controller: _topicTextEditCtrl,
                         focusNode: _focusNode,
                         style: AppStyles.textFieldStyle(context),
@@ -329,7 +256,9 @@ class _WritingQuestionGeneratorFormState
                           ),
                         ),
                         backgroundColor: AppColors.chipBackground,
-                        onDeleted: () => _onDeleteChip(topic),
+                        onDeleted: _ctrl.isPromptTextGenerating
+                            ? null
+                            : () => _onDeleteChip(topic),
                         side: BorderSide.none,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -366,7 +295,7 @@ class _WritingQuestionGeneratorFormState
                     )
                   : (_ctrl.isPromptTextGenerating)
                   ? Text('generating...')
-                  : Text(_ctrl.propmtText),
+                  : Text(_ctrl.promptText),
             ),
             SizedBox(height: 20),
             FilledButton(
