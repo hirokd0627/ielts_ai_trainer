@@ -1,30 +1,28 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
-import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
-part 'writing_answer.freezed.dart';
+part 'speaking_speech_answer.freezed.dart';
 
-/// User's answer entity for the Writing Tasks.
+/// User's answer entity for the Speaking Part 2.
 @freezed
-abstract class WritingAnswer with _$WritingAnswer {
-  const factory WritingAnswer({
+abstract class SpeakingSpeechAnswer with _$SpeakingSpeechAnswer {
+  const factory SpeakingSpeechAnswer({
     int? id,
     int? detailId,
-    required TestTask testTask,
+    int? utteranceId,
     required DateTime createdAt,
     required DateTime updatedAt,
-    required WritingPromptType promptType,
     required String promptText,
     required List<PromptTopic> topics,
     required String answerText,
     required int duration,
     required bool isGraded,
-    double? achievement,
+    String? note,
     double? coherence,
     double? lexial,
     double? grammatical,
+    double? fluency,
     double? score,
     String? feedback,
-  }) = _WritingAnswer;
+  }) = _SpeakingSpeechAnswer;
 }

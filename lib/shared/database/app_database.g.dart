@@ -1116,25 +1116,12 @@ class $PromptTopicsTableTable extends PromptTopicsTable
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $PromptTopicsTableTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _userAnswerMeta = const VerificationMeta(
-    'userAnswer',
+  static const VerificationMeta _userAnswerIdMeta = const VerificationMeta(
+    'userAnswerId',
   );
   @override
-  late final GeneratedColumn<int> userAnswer = GeneratedColumn<int>(
-    'user_answer',
+  late final GeneratedColumn<int> userAnswerId = GeneratedColumn<int>(
+    'user_answer_id',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -1163,7 +1150,7 @@ class $PromptTopicsTableTable extends PromptTopicsTable
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [id, userAnswer, order, title];
+  List<GeneratedColumn> get $columns => [userAnswerId, order, title];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1176,16 +1163,16 @@ class $PromptTopicsTableTable extends PromptTopicsTable
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('user_answer')) {
+    if (data.containsKey('user_answer_id')) {
       context.handle(
-        _userAnswerMeta,
-        userAnswer.isAcceptableOrUnknown(data['user_answer']!, _userAnswerMeta),
+        _userAnswerIdMeta,
+        userAnswerId.isAcceptableOrUnknown(
+          data['user_answer_id']!,
+          _userAnswerIdMeta,
+        ),
       );
     } else if (isInserting) {
-      context.missing(_userAnswerMeta);
+      context.missing(_userAnswerIdMeta);
     }
     if (data.containsKey('order')) {
       context.handle(
@@ -1207,18 +1194,14 @@ class $PromptTopicsTableTable extends PromptTopicsTable
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {userAnswerId, order};
   @override
   PromptTopicsTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return PromptTopicsTableData(
-      id: attachedDatabase.typeMapping.read(
+      userAnswerId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      userAnswer: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}user_answer'],
+        data['${effectivePrefix}user_answer_id'],
       )!,
       order: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -1239,21 +1222,18 @@ class $PromptTopicsTableTable extends PromptTopicsTable
 
 class PromptTopicsTableData extends DataClass
     implements Insertable<PromptTopicsTableData> {
-  final int id;
-  final int userAnswer;
+  final int userAnswerId;
   final int order;
   final String title;
   const PromptTopicsTableData({
-    required this.id,
-    required this.userAnswer,
+    required this.userAnswerId,
     required this.order,
     required this.title,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['user_answer'] = Variable<int>(userAnswer);
+    map['user_answer_id'] = Variable<int>(userAnswerId);
     map['order'] = Variable<int>(order);
     map['title'] = Variable<String>(title);
     return map;
@@ -1261,8 +1241,7 @@ class PromptTopicsTableData extends DataClass
 
   PromptTopicsTableCompanion toCompanion(bool nullToAbsent) {
     return PromptTopicsTableCompanion(
-      id: Value(id),
-      userAnswer: Value(userAnswer),
+      userAnswerId: Value(userAnswerId),
       order: Value(order),
       title: Value(title),
     );
@@ -1274,8 +1253,7 @@ class PromptTopicsTableData extends DataClass
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return PromptTopicsTableData(
-      id: serializer.fromJson<int>(json['id']),
-      userAnswer: serializer.fromJson<int>(json['userAnswer']),
+      userAnswerId: serializer.fromJson<int>(json['userAnswerId']),
       order: serializer.fromJson<int>(json['order']),
       title: serializer.fromJson<String>(json['title']),
     );
@@ -1284,30 +1262,26 @@ class PromptTopicsTableData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'userAnswer': serializer.toJson<int>(userAnswer),
+      'userAnswerId': serializer.toJson<int>(userAnswerId),
       'order': serializer.toJson<int>(order),
       'title': serializer.toJson<String>(title),
     };
   }
 
   PromptTopicsTableData copyWith({
-    int? id,
-    int? userAnswer,
+    int? userAnswerId,
     int? order,
     String? title,
   }) => PromptTopicsTableData(
-    id: id ?? this.id,
-    userAnswer: userAnswer ?? this.userAnswer,
+    userAnswerId: userAnswerId ?? this.userAnswerId,
     order: order ?? this.order,
     title: title ?? this.title,
   );
   PromptTopicsTableData copyWithCompanion(PromptTopicsTableCompanion data) {
     return PromptTopicsTableData(
-      id: data.id.present ? data.id.value : this.id,
-      userAnswer: data.userAnswer.present
-          ? data.userAnswer.value
-          : this.userAnswer,
+      userAnswerId: data.userAnswerId.present
+          ? data.userAnswerId.value
+          : this.userAnswerId,
       order: data.order.present ? data.order.value : this.order,
       title: data.title.present ? data.title.value : this.title,
     );
@@ -1316,8 +1290,7 @@ class PromptTopicsTableData extends DataClass
   @override
   String toString() {
     return (StringBuffer('PromptTopicsTableData(')
-          ..write('id: $id, ')
-          ..write('userAnswer: $userAnswer, ')
+          ..write('userAnswerId: $userAnswerId, ')
           ..write('order: $order, ')
           ..write('title: $title')
           ..write(')'))
@@ -1325,62 +1298,768 @@ class PromptTopicsTableData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, userAnswer, order, title);
+  int get hashCode => Object.hash(userAnswerId, order, title);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is PromptTopicsTableData &&
-          other.id == this.id &&
-          other.userAnswer == this.userAnswer &&
+          other.userAnswerId == this.userAnswerId &&
           other.order == this.order &&
           other.title == this.title);
 }
 
 class PromptTopicsTableCompanion
     extends UpdateCompanion<PromptTopicsTableData> {
-  final Value<int> id;
-  final Value<int> userAnswer;
+  final Value<int> userAnswerId;
   final Value<int> order;
   final Value<String> title;
+  final Value<int> rowid;
   const PromptTopicsTableCompanion({
-    this.id = const Value.absent(),
-    this.userAnswer = const Value.absent(),
+    this.userAnswerId = const Value.absent(),
     this.order = const Value.absent(),
     this.title = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   PromptTopicsTableCompanion.insert({
-    this.id = const Value.absent(),
-    required int userAnswer,
+    required int userAnswerId,
     required int order,
     required String title,
-  }) : userAnswer = Value(userAnswer),
+    this.rowid = const Value.absent(),
+  }) : userAnswerId = Value(userAnswerId),
        order = Value(order),
        title = Value(title);
   static Insertable<PromptTopicsTableData> custom({
-    Expression<int>? id,
-    Expression<int>? userAnswer,
+    Expression<int>? userAnswerId,
     Expression<int>? order,
     Expression<String>? title,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (userAnswer != null) 'user_answer': userAnswer,
+      if (userAnswerId != null) 'user_answer_id': userAnswerId,
       if (order != null) 'order': order,
       if (title != null) 'title': title,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
   PromptTopicsTableCompanion copyWith({
-    Value<int>? id,
-    Value<int>? userAnswer,
+    Value<int>? userAnswerId,
     Value<int>? order,
     Value<String>? title,
+    Value<int>? rowid,
   }) {
     return PromptTopicsTableCompanion(
-      id: id ?? this.id,
-      userAnswer: userAnswer ?? this.userAnswer,
+      userAnswerId: userAnswerId ?? this.userAnswerId,
       order: order ?? this.order,
       title: title ?? this.title,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userAnswerId.present) {
+      map['user_answer_id'] = Variable<int>(userAnswerId.value);
+    }
+    if (order.present) {
+      map['order'] = Variable<int>(order.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PromptTopicsTableCompanion(')
+          ..write('userAnswerId: $userAnswerId, ')
+          ..write('order: $order, ')
+          ..write('title: $title, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
+    with
+        TableInfo<
+          $SpeakingAnswerDetailsTableTable,
+          SpeakingAnswerDetailsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SpeakingAnswerDetailsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _userAnswerIdMeta = const VerificationMeta(
+    'userAnswerId',
+  );
+  @override
+  late final GeneratedColumn<int> userAnswerId = GeneratedColumn<int>(
+    'user_answer_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES user_answers (id)',
+    ),
+  );
+  static const VerificationMeta _durationMeta = const VerificationMeta(
+    'duration',
+  );
+  @override
+  late final GeneratedColumn<int> duration = GeneratedColumn<int>(
+    'duration',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _scoreMeta = const VerificationMeta('score');
+  @override
+  late final GeneratedColumn<double> score = GeneratedColumn<double>(
+    'score',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _coherenceScoreMeta = const VerificationMeta(
+    'coherenceScore',
+  );
+  @override
+  late final GeneratedColumn<double> coherenceScore = GeneratedColumn<double>(
+    'coherence_score',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lexialScoreMeta = const VerificationMeta(
+    'lexialScore',
+  );
+  @override
+  late final GeneratedColumn<double> lexialScore = GeneratedColumn<double>(
+    'lexial_score',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _grammaticalScoreMeta = const VerificationMeta(
+    'grammaticalScore',
+  );
+  @override
+  late final GeneratedColumn<double> grammaticalScore = GeneratedColumn<double>(
+    'grammatical_score',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fluencyScoreMeta = const VerificationMeta(
+    'fluencyScore',
+  );
+  @override
+  late final GeneratedColumn<double> fluencyScore = GeneratedColumn<double>(
+    'fluency_score',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isGradedMeta = const VerificationMeta(
+    'isGraded',
+  );
+  @override
+  late final GeneratedColumn<bool> isGraded = GeneratedColumn<bool>(
+    'is_graded',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_graded" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _feedbackMeta = const VerificationMeta(
+    'feedback',
+  );
+  @override
+  late final GeneratedColumn<String> feedback = GeneratedColumn<String>(
+    'feedback',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    userAnswerId,
+    duration,
+    score,
+    coherenceScore,
+    lexialScore,
+    grammaticalScore,
+    fluencyScore,
+    isGraded,
+    feedback,
+    note,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'speaking_answer_details';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SpeakingAnswerDetailsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user_answer_id')) {
+      context.handle(
+        _userAnswerIdMeta,
+        userAnswerId.isAcceptableOrUnknown(
+          data['user_answer_id']!,
+          _userAnswerIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_userAnswerIdMeta);
+    }
+    if (data.containsKey('duration')) {
+      context.handle(
+        _durationMeta,
+        duration.isAcceptableOrUnknown(data['duration']!, _durationMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_durationMeta);
+    }
+    if (data.containsKey('score')) {
+      context.handle(
+        _scoreMeta,
+        score.isAcceptableOrUnknown(data['score']!, _scoreMeta),
+      );
+    }
+    if (data.containsKey('coherence_score')) {
+      context.handle(
+        _coherenceScoreMeta,
+        coherenceScore.isAcceptableOrUnknown(
+          data['coherence_score']!,
+          _coherenceScoreMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lexial_score')) {
+      context.handle(
+        _lexialScoreMeta,
+        lexialScore.isAcceptableOrUnknown(
+          data['lexial_score']!,
+          _lexialScoreMeta,
+        ),
+      );
+    }
+    if (data.containsKey('grammatical_score')) {
+      context.handle(
+        _grammaticalScoreMeta,
+        grammaticalScore.isAcceptableOrUnknown(
+          data['grammatical_score']!,
+          _grammaticalScoreMeta,
+        ),
+      );
+    }
+    if (data.containsKey('fluency_score')) {
+      context.handle(
+        _fluencyScoreMeta,
+        fluencyScore.isAcceptableOrUnknown(
+          data['fluency_score']!,
+          _fluencyScoreMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_graded')) {
+      context.handle(
+        _isGradedMeta,
+        isGraded.isAcceptableOrUnknown(data['is_graded']!, _isGradedMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_isGradedMeta);
+    }
+    if (data.containsKey('feedback')) {
+      context.handle(
+        _feedbackMeta,
+        feedback.isAcceptableOrUnknown(data['feedback']!, _feedbackMeta),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SpeakingAnswerDetailsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SpeakingAnswerDetailsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      userAnswerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_answer_id'],
+      )!,
+      duration: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duration'],
+      )!,
+      score: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}score'],
+      ),
+      coherenceScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}coherence_score'],
+      ),
+      lexialScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}lexial_score'],
+      ),
+      grammaticalScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}grammatical_score'],
+      ),
+      fluencyScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fluency_score'],
+      ),
+      isGraded: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_graded'],
+      )!,
+      feedback: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}feedback'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SpeakingAnswerDetailsTableTable createAlias(String alias) {
+    return $SpeakingAnswerDetailsTableTable(attachedDatabase, alias);
+  }
+}
+
+class SpeakingAnswerDetailsTableData extends DataClass
+    implements Insertable<SpeakingAnswerDetailsTableData> {
+  final int id;
+  final int userAnswerId;
+  final int duration;
+  final double? score;
+  final double? coherenceScore;
+  final double? lexialScore;
+  final double? grammaticalScore;
+  final double? fluencyScore;
+  final bool isGraded;
+  final String? feedback;
+  final String? note;
+  final DateTime updatedAt;
+  const SpeakingAnswerDetailsTableData({
+    required this.id,
+    required this.userAnswerId,
+    required this.duration,
+    this.score,
+    this.coherenceScore,
+    this.lexialScore,
+    this.grammaticalScore,
+    this.fluencyScore,
+    required this.isGraded,
+    this.feedback,
+    this.note,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['user_answer_id'] = Variable<int>(userAnswerId);
+    map['duration'] = Variable<int>(duration);
+    if (!nullToAbsent || score != null) {
+      map['score'] = Variable<double>(score);
+    }
+    if (!nullToAbsent || coherenceScore != null) {
+      map['coherence_score'] = Variable<double>(coherenceScore);
+    }
+    if (!nullToAbsent || lexialScore != null) {
+      map['lexial_score'] = Variable<double>(lexialScore);
+    }
+    if (!nullToAbsent || grammaticalScore != null) {
+      map['grammatical_score'] = Variable<double>(grammaticalScore);
+    }
+    if (!nullToAbsent || fluencyScore != null) {
+      map['fluency_score'] = Variable<double>(fluencyScore);
+    }
+    map['is_graded'] = Variable<bool>(isGraded);
+    if (!nullToAbsent || feedback != null) {
+      map['feedback'] = Variable<String>(feedback);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  SpeakingAnswerDetailsTableCompanion toCompanion(bool nullToAbsent) {
+    return SpeakingAnswerDetailsTableCompanion(
+      id: Value(id),
+      userAnswerId: Value(userAnswerId),
+      duration: Value(duration),
+      score: score == null && nullToAbsent
+          ? const Value.absent()
+          : Value(score),
+      coherenceScore: coherenceScore == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coherenceScore),
+      lexialScore: lexialScore == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lexialScore),
+      grammaticalScore: grammaticalScore == null && nullToAbsent
+          ? const Value.absent()
+          : Value(grammaticalScore),
+      fluencyScore: fluencyScore == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fluencyScore),
+      isGraded: Value(isGraded),
+      feedback: feedback == null && nullToAbsent
+          ? const Value.absent()
+          : Value(feedback),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory SpeakingAnswerDetailsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SpeakingAnswerDetailsTableData(
+      id: serializer.fromJson<int>(json['id']),
+      userAnswerId: serializer.fromJson<int>(json['userAnswerId']),
+      duration: serializer.fromJson<int>(json['duration']),
+      score: serializer.fromJson<double?>(json['score']),
+      coherenceScore: serializer.fromJson<double?>(json['coherenceScore']),
+      lexialScore: serializer.fromJson<double?>(json['lexialScore']),
+      grammaticalScore: serializer.fromJson<double?>(json['grammaticalScore']),
+      fluencyScore: serializer.fromJson<double?>(json['fluencyScore']),
+      isGraded: serializer.fromJson<bool>(json['isGraded']),
+      feedback: serializer.fromJson<String?>(json['feedback']),
+      note: serializer.fromJson<String?>(json['note']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'userAnswerId': serializer.toJson<int>(userAnswerId),
+      'duration': serializer.toJson<int>(duration),
+      'score': serializer.toJson<double?>(score),
+      'coherenceScore': serializer.toJson<double?>(coherenceScore),
+      'lexialScore': serializer.toJson<double?>(lexialScore),
+      'grammaticalScore': serializer.toJson<double?>(grammaticalScore),
+      'fluencyScore': serializer.toJson<double?>(fluencyScore),
+      'isGraded': serializer.toJson<bool>(isGraded),
+      'feedback': serializer.toJson<String?>(feedback),
+      'note': serializer.toJson<String?>(note),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  SpeakingAnswerDetailsTableData copyWith({
+    int? id,
+    int? userAnswerId,
+    int? duration,
+    Value<double?> score = const Value.absent(),
+    Value<double?> coherenceScore = const Value.absent(),
+    Value<double?> lexialScore = const Value.absent(),
+    Value<double?> grammaticalScore = const Value.absent(),
+    Value<double?> fluencyScore = const Value.absent(),
+    bool? isGraded,
+    Value<String?> feedback = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+    DateTime? updatedAt,
+  }) => SpeakingAnswerDetailsTableData(
+    id: id ?? this.id,
+    userAnswerId: userAnswerId ?? this.userAnswerId,
+    duration: duration ?? this.duration,
+    score: score.present ? score.value : this.score,
+    coherenceScore: coherenceScore.present
+        ? coherenceScore.value
+        : this.coherenceScore,
+    lexialScore: lexialScore.present ? lexialScore.value : this.lexialScore,
+    grammaticalScore: grammaticalScore.present
+        ? grammaticalScore.value
+        : this.grammaticalScore,
+    fluencyScore: fluencyScore.present ? fluencyScore.value : this.fluencyScore,
+    isGraded: isGraded ?? this.isGraded,
+    feedback: feedback.present ? feedback.value : this.feedback,
+    note: note.present ? note.value : this.note,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  SpeakingAnswerDetailsTableData copyWithCompanion(
+    SpeakingAnswerDetailsTableCompanion data,
+  ) {
+    return SpeakingAnswerDetailsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      userAnswerId: data.userAnswerId.present
+          ? data.userAnswerId.value
+          : this.userAnswerId,
+      duration: data.duration.present ? data.duration.value : this.duration,
+      score: data.score.present ? data.score.value : this.score,
+      coherenceScore: data.coherenceScore.present
+          ? data.coherenceScore.value
+          : this.coherenceScore,
+      lexialScore: data.lexialScore.present
+          ? data.lexialScore.value
+          : this.lexialScore,
+      grammaticalScore: data.grammaticalScore.present
+          ? data.grammaticalScore.value
+          : this.grammaticalScore,
+      fluencyScore: data.fluencyScore.present
+          ? data.fluencyScore.value
+          : this.fluencyScore,
+      isGraded: data.isGraded.present ? data.isGraded.value : this.isGraded,
+      feedback: data.feedback.present ? data.feedback.value : this.feedback,
+      note: data.note.present ? data.note.value : this.note,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SpeakingAnswerDetailsTableData(')
+          ..write('id: $id, ')
+          ..write('userAnswerId: $userAnswerId, ')
+          ..write('duration: $duration, ')
+          ..write('score: $score, ')
+          ..write('coherenceScore: $coherenceScore, ')
+          ..write('lexialScore: $lexialScore, ')
+          ..write('grammaticalScore: $grammaticalScore, ')
+          ..write('fluencyScore: $fluencyScore, ')
+          ..write('isGraded: $isGraded, ')
+          ..write('feedback: $feedback, ')
+          ..write('note: $note, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    userAnswerId,
+    duration,
+    score,
+    coherenceScore,
+    lexialScore,
+    grammaticalScore,
+    fluencyScore,
+    isGraded,
+    feedback,
+    note,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SpeakingAnswerDetailsTableData &&
+          other.id == this.id &&
+          other.userAnswerId == this.userAnswerId &&
+          other.duration == this.duration &&
+          other.score == this.score &&
+          other.coherenceScore == this.coherenceScore &&
+          other.lexialScore == this.lexialScore &&
+          other.grammaticalScore == this.grammaticalScore &&
+          other.fluencyScore == this.fluencyScore &&
+          other.isGraded == this.isGraded &&
+          other.feedback == this.feedback &&
+          other.note == this.note &&
+          other.updatedAt == this.updatedAt);
+}
+
+class SpeakingAnswerDetailsTableCompanion
+    extends UpdateCompanion<SpeakingAnswerDetailsTableData> {
+  final Value<int> id;
+  final Value<int> userAnswerId;
+  final Value<int> duration;
+  final Value<double?> score;
+  final Value<double?> coherenceScore;
+  final Value<double?> lexialScore;
+  final Value<double?> grammaticalScore;
+  final Value<double?> fluencyScore;
+  final Value<bool> isGraded;
+  final Value<String?> feedback;
+  final Value<String?> note;
+  final Value<DateTime> updatedAt;
+  const SpeakingAnswerDetailsTableCompanion({
+    this.id = const Value.absent(),
+    this.userAnswerId = const Value.absent(),
+    this.duration = const Value.absent(),
+    this.score = const Value.absent(),
+    this.coherenceScore = const Value.absent(),
+    this.lexialScore = const Value.absent(),
+    this.grammaticalScore = const Value.absent(),
+    this.fluencyScore = const Value.absent(),
+    this.isGraded = const Value.absent(),
+    this.feedback = const Value.absent(),
+    this.note = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  SpeakingAnswerDetailsTableCompanion.insert({
+    this.id = const Value.absent(),
+    required int userAnswerId,
+    required int duration,
+    this.score = const Value.absent(),
+    this.coherenceScore = const Value.absent(),
+    this.lexialScore = const Value.absent(),
+    this.grammaticalScore = const Value.absent(),
+    this.fluencyScore = const Value.absent(),
+    required bool isGraded,
+    this.feedback = const Value.absent(),
+    this.note = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : userAnswerId = Value(userAnswerId),
+       duration = Value(duration),
+       isGraded = Value(isGraded);
+  static Insertable<SpeakingAnswerDetailsTableData> custom({
+    Expression<int>? id,
+    Expression<int>? userAnswerId,
+    Expression<int>? duration,
+    Expression<double>? score,
+    Expression<double>? coherenceScore,
+    Expression<double>? lexialScore,
+    Expression<double>? grammaticalScore,
+    Expression<double>? fluencyScore,
+    Expression<bool>? isGraded,
+    Expression<String>? feedback,
+    Expression<String>? note,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userAnswerId != null) 'user_answer_id': userAnswerId,
+      if (duration != null) 'duration': duration,
+      if (score != null) 'score': score,
+      if (coherenceScore != null) 'coherence_score': coherenceScore,
+      if (lexialScore != null) 'lexial_score': lexialScore,
+      if (grammaticalScore != null) 'grammatical_score': grammaticalScore,
+      if (fluencyScore != null) 'fluency_score': fluencyScore,
+      if (isGraded != null) 'is_graded': isGraded,
+      if (feedback != null) 'feedback': feedback,
+      if (note != null) 'note': note,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  SpeakingAnswerDetailsTableCompanion copyWith({
+    Value<int>? id,
+    Value<int>? userAnswerId,
+    Value<int>? duration,
+    Value<double?>? score,
+    Value<double?>? coherenceScore,
+    Value<double?>? lexialScore,
+    Value<double?>? grammaticalScore,
+    Value<double?>? fluencyScore,
+    Value<bool>? isGraded,
+    Value<String?>? feedback,
+    Value<String?>? note,
+    Value<DateTime>? updatedAt,
+  }) {
+    return SpeakingAnswerDetailsTableCompanion(
+      id: id ?? this.id,
+      userAnswerId: userAnswerId ?? this.userAnswerId,
+      duration: duration ?? this.duration,
+      score: score ?? this.score,
+      coherenceScore: coherenceScore ?? this.coherenceScore,
+      lexialScore: lexialScore ?? this.lexialScore,
+      grammaticalScore: grammaticalScore ?? this.grammaticalScore,
+      fluencyScore: fluencyScore ?? this.fluencyScore,
+      isGraded: isGraded ?? this.isGraded,
+      feedback: feedback ?? this.feedback,
+      note: note ?? this.note,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -1390,25 +2069,496 @@ class PromptTopicsTableCompanion
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (userAnswer.present) {
-      map['user_answer'] = Variable<int>(userAnswer.value);
+    if (userAnswerId.present) {
+      map['user_answer_id'] = Variable<int>(userAnswerId.value);
     }
-    if (order.present) {
-      map['order'] = Variable<int>(order.value);
+    if (duration.present) {
+      map['duration'] = Variable<int>(duration.value);
     }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
+    if (score.present) {
+      map['score'] = Variable<double>(score.value);
+    }
+    if (coherenceScore.present) {
+      map['coherence_score'] = Variable<double>(coherenceScore.value);
+    }
+    if (lexialScore.present) {
+      map['lexial_score'] = Variable<double>(lexialScore.value);
+    }
+    if (grammaticalScore.present) {
+      map['grammatical_score'] = Variable<double>(grammaticalScore.value);
+    }
+    if (fluencyScore.present) {
+      map['fluency_score'] = Variable<double>(fluencyScore.value);
+    }
+    if (isGraded.present) {
+      map['is_graded'] = Variable<bool>(isGraded.value);
+    }
+    if (feedback.present) {
+      map['feedback'] = Variable<String>(feedback.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('PromptTopicsTableCompanion(')
+    return (StringBuffer('SpeakingAnswerDetailsTableCompanion(')
           ..write('id: $id, ')
-          ..write('userAnswer: $userAnswer, ')
+          ..write('userAnswerId: $userAnswerId, ')
+          ..write('duration: $duration, ')
+          ..write('score: $score, ')
+          ..write('coherenceScore: $coherenceScore, ')
+          ..write('lexialScore: $lexialScore, ')
+          ..write('grammaticalScore: $grammaticalScore, ')
+          ..write('fluencyScore: $fluencyScore, ')
+          ..write('isGraded: $isGraded, ')
+          ..write('feedback: $feedback, ')
+          ..write('note: $note, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
+    with TableInfo<$SpeakingUtterancesTableTable, SpeakingUtterancesTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SpeakingUtterancesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userAnswerIdMeta = const VerificationMeta(
+    'userAnswerId',
+  );
+  @override
+  late final GeneratedColumn<int> userAnswerId = GeneratedColumn<int>(
+    'user_answer_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES user_answers (id)',
+    ),
+  );
+  static const VerificationMeta _orderMeta = const VerificationMeta('order');
+  @override
+  late final GeneratedColumn<int> order = GeneratedColumn<int>(
+    'order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isUserMeta = const VerificationMeta('isUser');
+  @override
+  late final GeneratedColumn<bool> isUser = GeneratedColumn<bool>(
+    'is_user',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_user" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _messageMeta = const VerificationMeta(
+    'message',
+  );
+  @override
+  late final GeneratedColumn<String> message = GeneratedColumn<String>(
+    'message',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fluencyScoreMeta = const VerificationMeta(
+    'fluencyScore',
+  );
+  @override
+  late final GeneratedColumn<double> fluencyScore = GeneratedColumn<double>(
+    'fluency_score',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    userAnswerId,
+    order,
+    isUser,
+    message,
+    fluencyScore,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'speaking_utterances';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SpeakingUtterancesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_answer_id')) {
+      context.handle(
+        _userAnswerIdMeta,
+        userAnswerId.isAcceptableOrUnknown(
+          data['user_answer_id']!,
+          _userAnswerIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_userAnswerIdMeta);
+    }
+    if (data.containsKey('order')) {
+      context.handle(
+        _orderMeta,
+        order.isAcceptableOrUnknown(data['order']!, _orderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_orderMeta);
+    }
+    if (data.containsKey('is_user')) {
+      context.handle(
+        _isUserMeta,
+        isUser.isAcceptableOrUnknown(data['is_user']!, _isUserMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_isUserMeta);
+    }
+    if (data.containsKey('message')) {
+      context.handle(
+        _messageMeta,
+        message.isAcceptableOrUnknown(data['message']!, _messageMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_messageMeta);
+    }
+    if (data.containsKey('fluency_score')) {
+      context.handle(
+        _fluencyScoreMeta,
+        fluencyScore.isAcceptableOrUnknown(
+          data['fluency_score']!,
+          _fluencyScoreMeta,
+        ),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userAnswerId, order};
+  @override
+  SpeakingUtterancesTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SpeakingUtterancesTableData(
+      userAnswerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_answer_id'],
+      )!,
+      order: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order'],
+      )!,
+      isUser: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_user'],
+      )!,
+      message: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}message'],
+      )!,
+      fluencyScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fluency_score'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SpeakingUtterancesTableTable createAlias(String alias) {
+    return $SpeakingUtterancesTableTable(attachedDatabase, alias);
+  }
+}
+
+class SpeakingUtterancesTableData extends DataClass
+    implements Insertable<SpeakingUtterancesTableData> {
+  final int userAnswerId;
+  final int order;
+  final bool isUser;
+  final String message;
+  final double? fluencyScore;
+  final DateTime updatedAt;
+  const SpeakingUtterancesTableData({
+    required this.userAnswerId,
+    required this.order,
+    required this.isUser,
+    required this.message,
+    this.fluencyScore,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_answer_id'] = Variable<int>(userAnswerId);
+    map['order'] = Variable<int>(order);
+    map['is_user'] = Variable<bool>(isUser);
+    map['message'] = Variable<String>(message);
+    if (!nullToAbsent || fluencyScore != null) {
+      map['fluency_score'] = Variable<double>(fluencyScore);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  SpeakingUtterancesTableCompanion toCompanion(bool nullToAbsent) {
+    return SpeakingUtterancesTableCompanion(
+      userAnswerId: Value(userAnswerId),
+      order: Value(order),
+      isUser: Value(isUser),
+      message: Value(message),
+      fluencyScore: fluencyScore == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fluencyScore),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory SpeakingUtterancesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SpeakingUtterancesTableData(
+      userAnswerId: serializer.fromJson<int>(json['userAnswerId']),
+      order: serializer.fromJson<int>(json['order']),
+      isUser: serializer.fromJson<bool>(json['isUser']),
+      message: serializer.fromJson<String>(json['message']),
+      fluencyScore: serializer.fromJson<double?>(json['fluencyScore']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userAnswerId': serializer.toJson<int>(userAnswerId),
+      'order': serializer.toJson<int>(order),
+      'isUser': serializer.toJson<bool>(isUser),
+      'message': serializer.toJson<String>(message),
+      'fluencyScore': serializer.toJson<double?>(fluencyScore),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  SpeakingUtterancesTableData copyWith({
+    int? userAnswerId,
+    int? order,
+    bool? isUser,
+    String? message,
+    Value<double?> fluencyScore = const Value.absent(),
+    DateTime? updatedAt,
+  }) => SpeakingUtterancesTableData(
+    userAnswerId: userAnswerId ?? this.userAnswerId,
+    order: order ?? this.order,
+    isUser: isUser ?? this.isUser,
+    message: message ?? this.message,
+    fluencyScore: fluencyScore.present ? fluencyScore.value : this.fluencyScore,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  SpeakingUtterancesTableData copyWithCompanion(
+    SpeakingUtterancesTableCompanion data,
+  ) {
+    return SpeakingUtterancesTableData(
+      userAnswerId: data.userAnswerId.present
+          ? data.userAnswerId.value
+          : this.userAnswerId,
+      order: data.order.present ? data.order.value : this.order,
+      isUser: data.isUser.present ? data.isUser.value : this.isUser,
+      message: data.message.present ? data.message.value : this.message,
+      fluencyScore: data.fluencyScore.present
+          ? data.fluencyScore.value
+          : this.fluencyScore,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SpeakingUtterancesTableData(')
+          ..write('userAnswerId: $userAnswerId, ')
           ..write('order: $order, ')
-          ..write('title: $title')
+          ..write('isUser: $isUser, ')
+          ..write('message: $message, ')
+          ..write('fluencyScore: $fluencyScore, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    userAnswerId,
+    order,
+    isUser,
+    message,
+    fluencyScore,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SpeakingUtterancesTableData &&
+          other.userAnswerId == this.userAnswerId &&
+          other.order == this.order &&
+          other.isUser == this.isUser &&
+          other.message == this.message &&
+          other.fluencyScore == this.fluencyScore &&
+          other.updatedAt == this.updatedAt);
+}
+
+class SpeakingUtterancesTableCompanion
+    extends UpdateCompanion<SpeakingUtterancesTableData> {
+  final Value<int> userAnswerId;
+  final Value<int> order;
+  final Value<bool> isUser;
+  final Value<String> message;
+  final Value<double?> fluencyScore;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const SpeakingUtterancesTableCompanion({
+    this.userAnswerId = const Value.absent(),
+    this.order = const Value.absent(),
+    this.isUser = const Value.absent(),
+    this.message = const Value.absent(),
+    this.fluencyScore = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SpeakingUtterancesTableCompanion.insert({
+    required int userAnswerId,
+    required int order,
+    required bool isUser,
+    required String message,
+    this.fluencyScore = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : userAnswerId = Value(userAnswerId),
+       order = Value(order),
+       isUser = Value(isUser),
+       message = Value(message);
+  static Insertable<SpeakingUtterancesTableData> custom({
+    Expression<int>? userAnswerId,
+    Expression<int>? order,
+    Expression<bool>? isUser,
+    Expression<String>? message,
+    Expression<double>? fluencyScore,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userAnswerId != null) 'user_answer_id': userAnswerId,
+      if (order != null) 'order': order,
+      if (isUser != null) 'is_user': isUser,
+      if (message != null) 'message': message,
+      if (fluencyScore != null) 'fluency_score': fluencyScore,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SpeakingUtterancesTableCompanion copyWith({
+    Value<int>? userAnswerId,
+    Value<int>? order,
+    Value<bool>? isUser,
+    Value<String>? message,
+    Value<double?>? fluencyScore,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return SpeakingUtterancesTableCompanion(
+      userAnswerId: userAnswerId ?? this.userAnswerId,
+      order: order ?? this.order,
+      isUser: isUser ?? this.isUser,
+      message: message ?? this.message,
+      fluencyScore: fluencyScore ?? this.fluencyScore,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userAnswerId.present) {
+      map['user_answer_id'] = Variable<int>(userAnswerId.value);
+    }
+    if (order.present) {
+      map['order'] = Variable<int>(order.value);
+    }
+    if (isUser.present) {
+      map['is_user'] = Variable<bool>(isUser.value);
+    }
+    if (message.present) {
+      map['message'] = Variable<String>(message.value);
+    }
+    if (fluencyScore.present) {
+      map['fluency_score'] = Variable<double>(fluencyScore.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SpeakingUtterancesTableCompanion(')
+          ..write('userAnswerId: $userAnswerId, ')
+          ..write('order: $order, ')
+          ..write('isUser: $isUser, ')
+          ..write('message: $message, ')
+          ..write('fluencyScore: $fluencyScore, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -1424,6 +2574,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $WritingAnswerDetailsTableTable(this);
   late final $PromptTopicsTableTable promptTopicsTable =
       $PromptTopicsTableTable(this);
+  late final $SpeakingAnswerDetailsTableTable speakingAnswerDetailsTable =
+      $SpeakingAnswerDetailsTableTable(this);
+  late final $SpeakingUtterancesTableTable speakingUtterancesTable =
+      $SpeakingUtterancesTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1432,6 +2586,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userAnswersTable,
     writingAnswerDetailsTable,
     promptTopicsTable,
+    speakingAnswerDetailsTable,
+    speakingUtterancesTable,
   ];
   @override
   DriftDatabaseOptions get options =>
@@ -1501,7 +2657,7 @@ final class $$UserAnswersTableTableReferences
         db.promptTopicsTable,
         aliasName: $_aliasNameGenerator(
           db.userAnswersTable.id,
-          db.promptTopicsTable.userAnswer,
+          db.promptTopicsTable.userAnswerId,
         ),
       );
 
@@ -1509,10 +2665,66 @@ final class $$UserAnswersTableTableReferences
     final manager = $$PromptTopicsTableTableTableManager(
       $_db,
       $_db.promptTopicsTable,
-    ).filter((f) => f.userAnswer.id.sqlEquals($_itemColumn<int>('id')!));
+    ).filter((f) => f.userAnswerId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(
       _promptTopicsTableRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $SpeakingAnswerDetailsTableTable,
+    List<SpeakingAnswerDetailsTableData>
+  >
+  _speakingAnswerDetailsTableRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.speakingAnswerDetailsTable,
+        aliasName: $_aliasNameGenerator(
+          db.userAnswersTable.id,
+          db.speakingAnswerDetailsTable.userAnswerId,
+        ),
+      );
+
+  $$SpeakingAnswerDetailsTableTableProcessedTableManager
+  get speakingAnswerDetailsTableRefs {
+    final manager = $$SpeakingAnswerDetailsTableTableTableManager(
+      $_db,
+      $_db.speakingAnswerDetailsTable,
+    ).filter((f) => f.userAnswerId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _speakingAnswerDetailsTableRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $SpeakingUtterancesTableTable,
+    List<SpeakingUtterancesTableData>
+  >
+  _speakingUtterancesTableRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.speakingUtterancesTable,
+        aliasName: $_aliasNameGenerator(
+          db.userAnswersTable.id,
+          db.speakingUtterancesTable.userAnswerId,
+        ),
+      );
+
+  $$SpeakingUtterancesTableTableProcessedTableManager
+  get speakingUtterancesTableRefs {
+    final manager = $$SpeakingUtterancesTableTableTableManager(
+      $_db,
+      $_db.speakingUtterancesTable,
+    ).filter((f) => f.userAnswerId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _speakingUtterancesTableRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -1579,7 +2791,7 @@ class $$UserAnswersTableTableFilterComposer
       composer: this,
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.promptTopicsTable,
-      getReferencedColumn: (t) => t.userAnswer,
+      getReferencedColumn: (t) => t.userAnswerId,
       builder:
           (
             joinBuilder, {
@@ -1594,6 +2806,59 @@ class $$UserAnswersTableTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> speakingAnswerDetailsTableRefs(
+    Expression<bool> Function($$SpeakingAnswerDetailsTableTableFilterComposer f)
+    f,
+  ) {
+    final $$SpeakingAnswerDetailsTableTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.speakingAnswerDetailsTable,
+          getReferencedColumn: (t) => t.userAnswerId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$SpeakingAnswerDetailsTableTableFilterComposer(
+                $db: $db,
+                $table: $db.speakingAnswerDetailsTable,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> speakingUtterancesTableRefs(
+    Expression<bool> Function($$SpeakingUtterancesTableTableFilterComposer f) f,
+  ) {
+    final $$SpeakingUtterancesTableTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.speakingUtterancesTable,
+          getReferencedColumn: (t) => t.userAnswerId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$SpeakingUtterancesTableTableFilterComposer(
+                $db: $db,
+                $table: $db.speakingUtterancesTable,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -1676,7 +2941,7 @@ class $$UserAnswersTableTableAnnotationComposer
           composer: this,
           getCurrentColumn: (t) => t.id,
           referencedTable: $db.promptTopicsTable,
-          getReferencedColumn: (t) => t.userAnswer,
+          getReferencedColumn: (t) => t.userAnswerId,
           builder:
               (
                 joinBuilder, {
@@ -1685,6 +2950,62 @@ class $$UserAnswersTableTableAnnotationComposer
               }) => $$PromptTopicsTableTableAnnotationComposer(
                 $db: $db,
                 $table: $db.promptTopicsTable,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> speakingAnswerDetailsTableRefs<T extends Object>(
+    Expression<T> Function(
+      $$SpeakingAnswerDetailsTableTableAnnotationComposer a,
+    )
+    f,
+  ) {
+    final $$SpeakingAnswerDetailsTableTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.speakingAnswerDetailsTable,
+          getReferencedColumn: (t) => t.userAnswerId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$SpeakingAnswerDetailsTableTableAnnotationComposer(
+                $db: $db,
+                $table: $db.speakingAnswerDetailsTable,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> speakingUtterancesTableRefs<T extends Object>(
+    Expression<T> Function($$SpeakingUtterancesTableTableAnnotationComposer a)
+    f,
+  ) {
+    final $$SpeakingUtterancesTableTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.speakingUtterancesTable,
+          getReferencedColumn: (t) => t.userAnswerId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$SpeakingUtterancesTableTableAnnotationComposer(
+                $db: $db,
+                $table: $db.speakingUtterancesTable,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -1711,6 +3032,8 @@ class $$UserAnswersTableTableTableManager
           PrefetchHooks Function({
             bool writingAnswerDetailsTableRefs,
             bool promptTopicsTableRefs,
+            bool speakingAnswerDetailsTableRefs,
+            bool speakingUtterancesTableRefs,
           })
         > {
   $$UserAnswersTableTableTableManager(
@@ -1758,6 +3081,8 @@ class $$UserAnswersTableTableTableManager
               ({
                 writingAnswerDetailsTableRefs = false,
                 promptTopicsTableRefs = false,
+                speakingAnswerDetailsTableRefs = false,
+                speakingUtterancesTableRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -1765,6 +3090,9 @@ class $$UserAnswersTableTableTableManager
                     if (writingAnswerDetailsTableRefs)
                       db.writingAnswerDetailsTable,
                     if (promptTopicsTableRefs) db.promptTopicsTable,
+                    if (speakingAnswerDetailsTableRefs)
+                      db.speakingAnswerDetailsTable,
+                    if (speakingUtterancesTableRefs) db.speakingUtterancesTable,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -1807,7 +3135,49 @@ class $$UserAnswersTableTableTableManager
                               ).promptTopicsTableRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
-                                (e) => e.userAnswer == item.id,
+                                (e) => e.userAnswerId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (speakingAnswerDetailsTableRefs)
+                        await $_getPrefetchedData<
+                          UserAnswersTableData,
+                          $UserAnswersTableTable,
+                          SpeakingAnswerDetailsTableData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UserAnswersTableTableReferences
+                              ._speakingAnswerDetailsTableRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UserAnswersTableTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).speakingAnswerDetailsTableRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userAnswerId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (speakingUtterancesTableRefs)
+                        await $_getPrefetchedData<
+                          UserAnswersTableData,
+                          $UserAnswersTableTable,
+                          SpeakingUtterancesTableData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UserAnswersTableTableReferences
+                              ._speakingUtterancesTableRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UserAnswersTableTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).speakingUtterancesTableRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userAnswerId == item.id,
                               ),
                           typedResults: items,
                         ),
@@ -1834,6 +3204,8 @@ typedef $$UserAnswersTableTableProcessedTableManager =
       PrefetchHooks Function({
         bool writingAnswerDetailsTableRefs,
         bool promptTopicsTableRefs,
+        bool speakingAnswerDetailsTableRefs,
+        bool speakingUtterancesTableRefs,
       })
     >;
 typedef $$WritingAnswerDetailsTableTableCreateCompanionBuilder =
@@ -2367,17 +3739,17 @@ typedef $$WritingAnswerDetailsTableTableProcessedTableManager =
     >;
 typedef $$PromptTopicsTableTableCreateCompanionBuilder =
     PromptTopicsTableCompanion Function({
-      Value<int> id,
-      required int userAnswer,
+      required int userAnswerId,
       required int order,
       required String title,
+      Value<int> rowid,
     });
 typedef $$PromptTopicsTableTableUpdateCompanionBuilder =
     PromptTopicsTableCompanion Function({
-      Value<int> id,
-      Value<int> userAnswer,
+      Value<int> userAnswerId,
       Value<int> order,
       Value<String> title,
+      Value<int> rowid,
     });
 
 final class $$PromptTopicsTableTableReferences
@@ -2393,22 +3765,22 @@ final class $$PromptTopicsTableTableReferences
     super.$_typedResult,
   );
 
-  static $UserAnswersTableTable _userAnswerTable(_$AppDatabase db) =>
+  static $UserAnswersTableTable _userAnswerIdTable(_$AppDatabase db) =>
       db.userAnswersTable.createAlias(
         $_aliasNameGenerator(
-          db.promptTopicsTable.userAnswer,
+          db.promptTopicsTable.userAnswerId,
           db.userAnswersTable.id,
         ),
       );
 
-  $$UserAnswersTableTableProcessedTableManager get userAnswer {
-    final $_column = $_itemColumn<int>('user_answer')!;
+  $$UserAnswersTableTableProcessedTableManager get userAnswerId {
+    final $_column = $_itemColumn<int>('user_answer_id')!;
 
     final manager = $$UserAnswersTableTableTableManager(
       $_db,
       $_db.userAnswersTable,
     ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_userAnswerTable($_db));
+    final item = $_typedResult.readTableOrNull(_userAnswerIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -2425,11 +3797,6 @@ class $$PromptTopicsTableTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<int> get order => $composableBuilder(
     column: $table.order,
     builder: (column) => ColumnFilters(column),
@@ -2440,10 +3807,10 @@ class $$PromptTopicsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  $$UserAnswersTableTableFilterComposer get userAnswer {
+  $$UserAnswersTableTableFilterComposer get userAnswerId {
     final $$UserAnswersTableTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.userAnswer,
+      getCurrentColumn: (t) => t.userAnswerId,
       referencedTable: $db.userAnswersTable,
       getReferencedColumn: (t) => t.id,
       builder:
@@ -2473,11 +3840,6 @@ class $$PromptTopicsTableTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<int> get order => $composableBuilder(
     column: $table.order,
     builder: (column) => ColumnOrderings(column),
@@ -2488,10 +3850,10 @@ class $$PromptTopicsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$UserAnswersTableTableOrderingComposer get userAnswer {
+  $$UserAnswersTableTableOrderingComposer get userAnswerId {
     final $$UserAnswersTableTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.userAnswer,
+      getCurrentColumn: (t) => t.userAnswerId,
       referencedTable: $db.userAnswersTable,
       getReferencedColumn: (t) => t.id,
       builder:
@@ -2521,19 +3883,16 @@ class $$PromptTopicsTableTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
   GeneratedColumn<int> get order =>
       $composableBuilder(column: $table.order, builder: (column) => column);
 
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
-  $$UserAnswersTableTableAnnotationComposer get userAnswer {
+  $$UserAnswersTableTableAnnotationComposer get userAnswerId {
     final $$UserAnswersTableTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.userAnswer,
+      getCurrentColumn: (t) => t.userAnswerId,
       referencedTable: $db.userAnswersTable,
       getReferencedColumn: (t) => t.id,
       builder:
@@ -2567,7 +3926,7 @@ class $$PromptTopicsTableTableTableManager
           $$PromptTopicsTableTableUpdateCompanionBuilder,
           (PromptTopicsTableData, $$PromptTopicsTableTableReferences),
           PromptTopicsTableData,
-          PrefetchHooks Function({bool userAnswer})
+          PrefetchHooks Function({bool userAnswerId})
         > {
   $$PromptTopicsTableTableTableManager(
     _$AppDatabase db,
@@ -2587,27 +3946,27 @@ class $$PromptTopicsTableTableTableManager
               ),
           updateCompanionCallback:
               ({
-                Value<int> id = const Value.absent(),
-                Value<int> userAnswer = const Value.absent(),
+                Value<int> userAnswerId = const Value.absent(),
                 Value<int> order = const Value.absent(),
                 Value<String> title = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
               }) => PromptTopicsTableCompanion(
-                id: id,
-                userAnswer: userAnswer,
+                userAnswerId: userAnswerId,
                 order: order,
                 title: title,
+                rowid: rowid,
               ),
           createCompanionCallback:
               ({
-                Value<int> id = const Value.absent(),
-                required int userAnswer,
+                required int userAnswerId,
                 required int order,
                 required String title,
+                Value<int> rowid = const Value.absent(),
               }) => PromptTopicsTableCompanion.insert(
-                id: id,
-                userAnswer: userAnswer,
+                userAnswerId: userAnswerId,
                 order: order,
                 title: title,
+                rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -2617,7 +3976,7 @@ class $$PromptTopicsTableTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({userAnswer = false}) {
+          prefetchHooksCallback: ({userAnswerId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -2637,17 +3996,17 @@ class $$PromptTopicsTableTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (userAnswer) {
+                    if (userAnswerId) {
                       state =
                           state.withJoin(
                                 currentTable: table,
-                                currentColumn: table.userAnswer,
+                                currentColumn: table.userAnswerId,
                                 referencedTable:
                                     $$PromptTopicsTableTableReferences
-                                        ._userAnswerTable(db),
+                                        ._userAnswerIdTable(db),
                                 referencedColumn:
                                     $$PromptTopicsTableTableReferences
-                                        ._userAnswerTable(db)
+                                        ._userAnswerIdTable(db)
                                         .id,
                               )
                               as T;
@@ -2676,7 +4035,860 @@ typedef $$PromptTopicsTableTableProcessedTableManager =
       $$PromptTopicsTableTableUpdateCompanionBuilder,
       (PromptTopicsTableData, $$PromptTopicsTableTableReferences),
       PromptTopicsTableData,
-      PrefetchHooks Function({bool userAnswer})
+      PrefetchHooks Function({bool userAnswerId})
+    >;
+typedef $$SpeakingAnswerDetailsTableTableCreateCompanionBuilder =
+    SpeakingAnswerDetailsTableCompanion Function({
+      Value<int> id,
+      required int userAnswerId,
+      required int duration,
+      Value<double?> score,
+      Value<double?> coherenceScore,
+      Value<double?> lexialScore,
+      Value<double?> grammaticalScore,
+      Value<double?> fluencyScore,
+      required bool isGraded,
+      Value<String?> feedback,
+      Value<String?> note,
+      Value<DateTime> updatedAt,
+    });
+typedef $$SpeakingAnswerDetailsTableTableUpdateCompanionBuilder =
+    SpeakingAnswerDetailsTableCompanion Function({
+      Value<int> id,
+      Value<int> userAnswerId,
+      Value<int> duration,
+      Value<double?> score,
+      Value<double?> coherenceScore,
+      Value<double?> lexialScore,
+      Value<double?> grammaticalScore,
+      Value<double?> fluencyScore,
+      Value<bool> isGraded,
+      Value<String?> feedback,
+      Value<String?> note,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$SpeakingAnswerDetailsTableTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $SpeakingAnswerDetailsTableTable,
+          SpeakingAnswerDetailsTableData
+        > {
+  $$SpeakingAnswerDetailsTableTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $UserAnswersTableTable _userAnswerIdTable(_$AppDatabase db) =>
+      db.userAnswersTable.createAlias(
+        $_aliasNameGenerator(
+          db.speakingAnswerDetailsTable.userAnswerId,
+          db.userAnswersTable.id,
+        ),
+      );
+
+  $$UserAnswersTableTableProcessedTableManager get userAnswerId {
+    final $_column = $_itemColumn<int>('user_answer_id')!;
+
+    final manager = $$UserAnswersTableTableTableManager(
+      $_db,
+      $_db.userAnswersTable,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userAnswerIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$SpeakingAnswerDetailsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $SpeakingAnswerDetailsTableTable> {
+  $$SpeakingAnswerDetailsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get duration => $composableBuilder(
+    column: $table.duration,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get score => $composableBuilder(
+    column: $table.score,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get coherenceScore => $composableBuilder(
+    column: $table.coherenceScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get lexialScore => $composableBuilder(
+    column: $table.lexialScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get grammaticalScore => $composableBuilder(
+    column: $table.grammaticalScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fluencyScore => $composableBuilder(
+    column: $table.fluencyScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isGraded => $composableBuilder(
+    column: $table.isGraded,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get feedback => $composableBuilder(
+    column: $table.feedback,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UserAnswersTableTableFilterComposer get userAnswerId {
+    final $$UserAnswersTableTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userAnswerId,
+      referencedTable: $db.userAnswersTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserAnswersTableTableFilterComposer(
+            $db: $db,
+            $table: $db.userAnswersTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SpeakingAnswerDetailsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $SpeakingAnswerDetailsTableTable> {
+  $$SpeakingAnswerDetailsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get duration => $composableBuilder(
+    column: $table.duration,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get score => $composableBuilder(
+    column: $table.score,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get coherenceScore => $composableBuilder(
+    column: $table.coherenceScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get lexialScore => $composableBuilder(
+    column: $table.lexialScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get grammaticalScore => $composableBuilder(
+    column: $table.grammaticalScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fluencyScore => $composableBuilder(
+    column: $table.fluencyScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isGraded => $composableBuilder(
+    column: $table.isGraded,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get feedback => $composableBuilder(
+    column: $table.feedback,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UserAnswersTableTableOrderingComposer get userAnswerId {
+    final $$UserAnswersTableTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userAnswerId,
+      referencedTable: $db.userAnswersTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserAnswersTableTableOrderingComposer(
+            $db: $db,
+            $table: $db.userAnswersTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SpeakingAnswerDetailsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SpeakingAnswerDetailsTableTable> {
+  $$SpeakingAnswerDetailsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get duration =>
+      $composableBuilder(column: $table.duration, builder: (column) => column);
+
+  GeneratedColumn<double> get score =>
+      $composableBuilder(column: $table.score, builder: (column) => column);
+
+  GeneratedColumn<double> get coherenceScore => $composableBuilder(
+    column: $table.coherenceScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get lexialScore => $composableBuilder(
+    column: $table.lexialScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get grammaticalScore => $composableBuilder(
+    column: $table.grammaticalScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get fluencyScore => $composableBuilder(
+    column: $table.fluencyScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isGraded =>
+      $composableBuilder(column: $table.isGraded, builder: (column) => column);
+
+  GeneratedColumn<String> get feedback =>
+      $composableBuilder(column: $table.feedback, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$UserAnswersTableTableAnnotationComposer get userAnswerId {
+    final $$UserAnswersTableTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userAnswerId,
+      referencedTable: $db.userAnswersTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserAnswersTableTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userAnswersTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SpeakingAnswerDetailsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SpeakingAnswerDetailsTableTable,
+          SpeakingAnswerDetailsTableData,
+          $$SpeakingAnswerDetailsTableTableFilterComposer,
+          $$SpeakingAnswerDetailsTableTableOrderingComposer,
+          $$SpeakingAnswerDetailsTableTableAnnotationComposer,
+          $$SpeakingAnswerDetailsTableTableCreateCompanionBuilder,
+          $$SpeakingAnswerDetailsTableTableUpdateCompanionBuilder,
+          (
+            SpeakingAnswerDetailsTableData,
+            $$SpeakingAnswerDetailsTableTableReferences,
+          ),
+          SpeakingAnswerDetailsTableData,
+          PrefetchHooks Function({bool userAnswerId})
+        > {
+  $$SpeakingAnswerDetailsTableTableTableManager(
+    _$AppDatabase db,
+    $SpeakingAnswerDetailsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SpeakingAnswerDetailsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$SpeakingAnswerDetailsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SpeakingAnswerDetailsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> userAnswerId = const Value.absent(),
+                Value<int> duration = const Value.absent(),
+                Value<double?> score = const Value.absent(),
+                Value<double?> coherenceScore = const Value.absent(),
+                Value<double?> lexialScore = const Value.absent(),
+                Value<double?> grammaticalScore = const Value.absent(),
+                Value<double?> fluencyScore = const Value.absent(),
+                Value<bool> isGraded = const Value.absent(),
+                Value<String?> feedback = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => SpeakingAnswerDetailsTableCompanion(
+                id: id,
+                userAnswerId: userAnswerId,
+                duration: duration,
+                score: score,
+                coherenceScore: coherenceScore,
+                lexialScore: lexialScore,
+                grammaticalScore: grammaticalScore,
+                fluencyScore: fluencyScore,
+                isGraded: isGraded,
+                feedback: feedback,
+                note: note,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int userAnswerId,
+                required int duration,
+                Value<double?> score = const Value.absent(),
+                Value<double?> coherenceScore = const Value.absent(),
+                Value<double?> lexialScore = const Value.absent(),
+                Value<double?> grammaticalScore = const Value.absent(),
+                Value<double?> fluencyScore = const Value.absent(),
+                required bool isGraded,
+                Value<String?> feedback = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => SpeakingAnswerDetailsTableCompanion.insert(
+                id: id,
+                userAnswerId: userAnswerId,
+                duration: duration,
+                score: score,
+                coherenceScore: coherenceScore,
+                lexialScore: lexialScore,
+                grammaticalScore: grammaticalScore,
+                fluencyScore: fluencyScore,
+                isGraded: isGraded,
+                feedback: feedback,
+                note: note,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$SpeakingAnswerDetailsTableTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userAnswerId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userAnswerId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.userAnswerId,
+                                referencedTable:
+                                    $$SpeakingAnswerDetailsTableTableReferences
+                                        ._userAnswerIdTable(db),
+                                referencedColumn:
+                                    $$SpeakingAnswerDetailsTableTableReferences
+                                        ._userAnswerIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$SpeakingAnswerDetailsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SpeakingAnswerDetailsTableTable,
+      SpeakingAnswerDetailsTableData,
+      $$SpeakingAnswerDetailsTableTableFilterComposer,
+      $$SpeakingAnswerDetailsTableTableOrderingComposer,
+      $$SpeakingAnswerDetailsTableTableAnnotationComposer,
+      $$SpeakingAnswerDetailsTableTableCreateCompanionBuilder,
+      $$SpeakingAnswerDetailsTableTableUpdateCompanionBuilder,
+      (
+        SpeakingAnswerDetailsTableData,
+        $$SpeakingAnswerDetailsTableTableReferences,
+      ),
+      SpeakingAnswerDetailsTableData,
+      PrefetchHooks Function({bool userAnswerId})
+    >;
+typedef $$SpeakingUtterancesTableTableCreateCompanionBuilder =
+    SpeakingUtterancesTableCompanion Function({
+      required int userAnswerId,
+      required int order,
+      required bool isUser,
+      required String message,
+      Value<double?> fluencyScore,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$SpeakingUtterancesTableTableUpdateCompanionBuilder =
+    SpeakingUtterancesTableCompanion Function({
+      Value<int> userAnswerId,
+      Value<int> order,
+      Value<bool> isUser,
+      Value<String> message,
+      Value<double?> fluencyScore,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$SpeakingUtterancesTableTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $SpeakingUtterancesTableTable,
+          SpeakingUtterancesTableData
+        > {
+  $$SpeakingUtterancesTableTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $UserAnswersTableTable _userAnswerIdTable(_$AppDatabase db) =>
+      db.userAnswersTable.createAlias(
+        $_aliasNameGenerator(
+          db.speakingUtterancesTable.userAnswerId,
+          db.userAnswersTable.id,
+        ),
+      );
+
+  $$UserAnswersTableTableProcessedTableManager get userAnswerId {
+    final $_column = $_itemColumn<int>('user_answer_id')!;
+
+    final manager = $$UserAnswersTableTableTableManager(
+      $_db,
+      $_db.userAnswersTable,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userAnswerIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$SpeakingUtterancesTableTableFilterComposer
+    extends Composer<_$AppDatabase, $SpeakingUtterancesTableTable> {
+  $$SpeakingUtterancesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get order => $composableBuilder(
+    column: $table.order,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isUser => $composableBuilder(
+    column: $table.isUser,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get message => $composableBuilder(
+    column: $table.message,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fluencyScore => $composableBuilder(
+    column: $table.fluencyScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UserAnswersTableTableFilterComposer get userAnswerId {
+    final $$UserAnswersTableTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userAnswerId,
+      referencedTable: $db.userAnswersTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserAnswersTableTableFilterComposer(
+            $db: $db,
+            $table: $db.userAnswersTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SpeakingUtterancesTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $SpeakingUtterancesTableTable> {
+  $$SpeakingUtterancesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get order => $composableBuilder(
+    column: $table.order,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isUser => $composableBuilder(
+    column: $table.isUser,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get message => $composableBuilder(
+    column: $table.message,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fluencyScore => $composableBuilder(
+    column: $table.fluencyScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UserAnswersTableTableOrderingComposer get userAnswerId {
+    final $$UserAnswersTableTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userAnswerId,
+      referencedTable: $db.userAnswersTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserAnswersTableTableOrderingComposer(
+            $db: $db,
+            $table: $db.userAnswersTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SpeakingUtterancesTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SpeakingUtterancesTableTable> {
+  $$SpeakingUtterancesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get order =>
+      $composableBuilder(column: $table.order, builder: (column) => column);
+
+  GeneratedColumn<bool> get isUser =>
+      $composableBuilder(column: $table.isUser, builder: (column) => column);
+
+  GeneratedColumn<String> get message =>
+      $composableBuilder(column: $table.message, builder: (column) => column);
+
+  GeneratedColumn<double> get fluencyScore => $composableBuilder(
+    column: $table.fluencyScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$UserAnswersTableTableAnnotationComposer get userAnswerId {
+    final $$UserAnswersTableTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userAnswerId,
+      referencedTable: $db.userAnswersTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserAnswersTableTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userAnswersTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SpeakingUtterancesTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SpeakingUtterancesTableTable,
+          SpeakingUtterancesTableData,
+          $$SpeakingUtterancesTableTableFilterComposer,
+          $$SpeakingUtterancesTableTableOrderingComposer,
+          $$SpeakingUtterancesTableTableAnnotationComposer,
+          $$SpeakingUtterancesTableTableCreateCompanionBuilder,
+          $$SpeakingUtterancesTableTableUpdateCompanionBuilder,
+          (
+            SpeakingUtterancesTableData,
+            $$SpeakingUtterancesTableTableReferences,
+          ),
+          SpeakingUtterancesTableData,
+          PrefetchHooks Function({bool userAnswerId})
+        > {
+  $$SpeakingUtterancesTableTableTableManager(
+    _$AppDatabase db,
+    $SpeakingUtterancesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SpeakingUtterancesTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$SpeakingUtterancesTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SpeakingUtterancesTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> userAnswerId = const Value.absent(),
+                Value<int> order = const Value.absent(),
+                Value<bool> isUser = const Value.absent(),
+                Value<String> message = const Value.absent(),
+                Value<double?> fluencyScore = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SpeakingUtterancesTableCompanion(
+                userAnswerId: userAnswerId,
+                order: order,
+                isUser: isUser,
+                message: message,
+                fluencyScore: fluencyScore,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int userAnswerId,
+                required int order,
+                required bool isUser,
+                required String message,
+                Value<double?> fluencyScore = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SpeakingUtterancesTableCompanion.insert(
+                userAnswerId: userAnswerId,
+                order: order,
+                isUser: isUser,
+                message: message,
+                fluencyScore: fluencyScore,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$SpeakingUtterancesTableTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userAnswerId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userAnswerId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.userAnswerId,
+                                referencedTable:
+                                    $$SpeakingUtterancesTableTableReferences
+                                        ._userAnswerIdTable(db),
+                                referencedColumn:
+                                    $$SpeakingUtterancesTableTableReferences
+                                        ._userAnswerIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$SpeakingUtterancesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SpeakingUtterancesTableTable,
+      SpeakingUtterancesTableData,
+      $$SpeakingUtterancesTableTableFilterComposer,
+      $$SpeakingUtterancesTableTableOrderingComposer,
+      $$SpeakingUtterancesTableTableAnnotationComposer,
+      $$SpeakingUtterancesTableTableCreateCompanionBuilder,
+      $$SpeakingUtterancesTableTableUpdateCompanionBuilder,
+      (SpeakingUtterancesTableData, $$SpeakingUtterancesTableTableReferences),
+      SpeakingUtterancesTableData,
+      PrefetchHooks Function({bool userAnswerId})
     >;
 
 class $AppDatabaseManager {
@@ -2691,4 +4903,15 @@ class $AppDatabaseManager {
       );
   $$PromptTopicsTableTableTableManager get promptTopicsTable =>
       $$PromptTopicsTableTableTableManager(_db, _db.promptTopicsTable);
+  $$SpeakingAnswerDetailsTableTableTableManager
+  get speakingAnswerDetailsTable =>
+      $$SpeakingAnswerDetailsTableTableTableManager(
+        _db,
+        _db.speakingAnswerDetailsTable,
+      );
+  $$SpeakingUtterancesTableTableTableManager get speakingUtterancesTable =>
+      $$SpeakingUtterancesTableTableTableManager(
+        _db,
+        _db.speakingUtterancesTable,
+      );
 }

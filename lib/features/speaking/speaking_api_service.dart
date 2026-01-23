@@ -1,16 +1,15 @@
 import 'package:faker/faker.dart';
 
-/// API service for Speaking Topic screens.
+/// API service for the Speaking screens, generating prompts and evaluating answers.
 class SpeakingApiService {
-  /// Generates a writing prompt text beased on the given topics.
+  /// Generates prompt text based on the given topics.
   Future<SpeakingPromptResponse> generatePromptText(
     int topicCount,
     List<String> topics,
   ) async {
     // TODO: dummy data
 
-    // TODO: if the number of topics is less than topicCount, generates topics to fill the gap.
-
+    // If the number of topics is less than topicCount, generates topics to fill the gap.
     var usedTopics = [...topics];
     if (topicCount > topics.length) {
       final faker = Faker();
@@ -26,27 +25,12 @@ class SpeakingApiService {
     );
   }
 
-  /// Grades the given writing answer.
-  //   Future<SpeakingGradingResponse> gradeAnswer({
-  //     required TestTask testTask,
-  //     required WritingPromptType promptType,
-  //     required String promptText,
-  //     required String answerText,
-  //   }) async {
-  //     // TODO: dummy data
-  //     await Future.delayed(const Duration(seconds: 2));
-  //     return SpeakingGradingResponse(
-  //       achievement:
-  //           (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-  //       coherence:
-  //           (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-  //       lexial: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-  //       grammatical:
-  //           (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-  //       score: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-  //       feedback: faker.lorem.sentences(3).join("\n"),
-  //     );
-  //   }
+  /// Generates a reply message used in Speaking Part 1 & 3.
+  Future<SpeakingReplyResponse> generateChatReply(String userMessage) async {
+    // TODO: dummy data
+    await Future.delayed(const Duration(seconds: 2));
+    return SpeakingReplyResponse(message: faker.lorem.sentences(2).join("\n"));
+  }
 }
 
 /// Response for speaking prompt generation.
@@ -54,7 +38,7 @@ class SpeakingPromptResponse {
   /// Generated prompt text.
   final String promptText;
 
-  /// Topics used to gnerate the prompt text.
+  /// Topics used to generate the prompt text.
   final List<String> topics;
 
   const SpeakingPromptResponse({
@@ -63,21 +47,10 @@ class SpeakingPromptResponse {
   });
 }
 
-// /// Response of the result of grading a writing answer.
-// class SpeakingGradingResponse {
-//   final double achievement;
-//   final double coherence;
-//   final double lexial;
-//   final double grammatical;
-//   final double score;
-//   final String feedback;
+/// Response for speaking reply generation.
+class SpeakingReplyResponse {
+  /// Generated reply message.
+  final String message;
 
-//   const SpeakingGradingResponse({
-//     required this.achievement,
-//     required this.coherence,
-//     required this.lexial,
-//     required this.grammatical,
-//     required this.score,
-//     required this.feedback,
-//   });
-// }
+  const SpeakingReplyResponse({required this.message});
+}

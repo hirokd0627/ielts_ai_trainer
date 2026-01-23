@@ -13,8 +13,8 @@ final homeScreenRoutPath = '/';
 final homeRoute = GoRoute(
   path: homeScreenRoutPath,
   builder: (BuildContext context, GoRouterState state) {
-    return Provider<HomeContoller>(
-      create: (_) => HomeContoller(
+    return Provider<HomeController>(
+      create: (_) => HomeController(
         queryService: HomeQueryService(context.read<AppDatabase>()),
       ),
       child: const HomeScreen(),

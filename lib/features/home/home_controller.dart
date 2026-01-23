@@ -7,10 +7,10 @@ import 'package:ielts_ai_trainer/shared/utils/datetime_utils.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 /// Controller for Home screen
-class HomeContoller {
+class HomeController {
   final HomeQueryService _querySrv;
 
-  HomeContoller({required HomeQueryService queryService})
+  HomeController({required HomeQueryService queryService})
     : _querySrv = queryService;
 
   /// Returns true if there are any events in the month before the given year and month.

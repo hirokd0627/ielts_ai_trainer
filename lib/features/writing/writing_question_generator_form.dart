@@ -167,7 +167,7 @@ class _WritingQuestionGeneratorFormState
     super.dispose();
   }
 
-  /// Called when the prompt type is changed.
+  /// Called when the prompt type changes.
   void _onSelectedPromptType(WritingPromptType? value) {
     if (value != null) {
       _ctrl.promptType = value;

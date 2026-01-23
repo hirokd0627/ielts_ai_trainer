@@ -106,6 +106,7 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
       return;
     }
 
+    // TODO: bug fix
     // Navigates to the result screen.
     context.go(
       writingTask1ResultScreenRoutePath,

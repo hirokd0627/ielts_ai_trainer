@@ -11,9 +11,9 @@ import 'package:provider/provider.dart';
 
 /// Question Generator Screen for Part 1, Part 2, and Part 3.
 class SpeakingQuestionGeneratorScreen extends StatefulWidget {
-  /// Function to generate a prompt text.
+  /// Function to generate prompt text.
   /// Called when the Generate button is tapped.
-  /// Returns a record containing a prompt text and a topics used.
+  /// Returns a record containing prompt text and a topics used.
   final Future<({List<String> topics, String promptText})> Function(
     int topicCount,
     List<String> topics,

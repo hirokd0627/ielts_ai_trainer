@@ -6,7 +6,6 @@ import 'package:ielts_ai_trainer/features/development/development_route.dart';
 import 'package:ielts_ai_trainer/features/home/home_route.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_routes.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
-import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
 /// Common header for screens
 class HeaderMenuBar extends StatefulWidget {
@@ -146,7 +145,7 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
         menuChildren: [
           MenuItemButton(
             onPressed: () {
-              context.go(speakingTopic1QuestionGeneratorScreenRoutePath);
+              context.go(speakingPart1QuestionGeneratorScreenRoutePath);
             },
             style: subMenuButtonStyle,
             child: SizedBox(
@@ -156,7 +155,7 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
           ),
           MenuItemButton(
             onPressed: () {
-              context.go(speakingTopic2QuestionGeneratorScreenRoutePath);
+              context.go(speakingPart2QuestionGeneratorScreenRoutePath);
             },
             style: subMenuButtonStyle,
             child: SizedBox(
@@ -166,7 +165,7 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
           ),
           MenuItemButton(
             onPressed: () {
-              context.go(speakingTopic3QuestionGeneratorScreenRoutePath);
+              context.go(speakingPart3QuestionGeneratorScreenRoutePath);
             },
             style: subMenuButtonStyle,
             child: SizedBox(
@@ -209,7 +208,7 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
           MenuItemButton(
             onPressed: () {
               context.go(
-                speakingTopic1QuestionGeneratorScreenRoutePath,
+                speakingPart1QuestionGeneratorScreenRoutePath,
                 extra: RouterExtra({
                   'promptText': 'developer prompt text 1',
                   'topics': ['topic 1', 'topic 2'],
@@ -220,7 +219,45 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
             child: SizedBox(
               width: menuWidth,
               child: const Text(
-                'Speaking Topic 1',
+                'Speaking Topic 1 Q Gen',
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          MenuItemButton(
+            onPressed: () {
+              context.go(
+                speakingPart1AnswerInputScreenRoutePath,
+                extra: RouterExtra({
+                  'initialPromptText': 'developer prompt text 1',
+                  'topics': ['topic 1', 'topic 2'],
+                }),
+              );
+            },
+            style: subMenuButtonStyle,
+            child: SizedBox(
+              width: menuWidth,
+              child: const Text(
+                'Speaking Part 1 Input',
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          MenuItemButton(
+            onPressed: () {
+              context.go(
+                speakingPart3AnswerInputScreenRoutePath,
+                extra: RouterExtra({
+                  'initialPromptText': 'developer prompt text 3',
+                  'topics': ['topic 3', 'topic 4'],
+                }),
+              );
+            },
+            style: subMenuButtonStyle,
+            child: SizedBox(
+              width: menuWidth,
+              child: const Text(
+                'Speaking Part 3 Input',
                 textAlign: TextAlign.center,
               ),
             ),

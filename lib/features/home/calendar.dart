@@ -25,7 +25,7 @@ class Calendar extends StatefulWidget {
   /// Called when day selections is cleared.
   final void Function() onDaySelectionCleared;
 
-  /// Called when a month is changed.
+  /// Called when a month changes.
   final void Function(int nextYear, int nextMonth) onMonthChanged;
 
   const Calendar({
@@ -149,7 +149,7 @@ class _CalendarState extends State<Calendar> {
     return focusedDate;
   }
 
-  /// Handles the event when the selected month is changed.
+  /// Handles the event when the selected month changes.
   ///
   /// If next is true, moves to the next month. otherwise, moves to the previous month.
   void _onPressedMonthChange(bool next) {

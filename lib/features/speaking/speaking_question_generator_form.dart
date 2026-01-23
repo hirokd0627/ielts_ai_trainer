@@ -9,9 +9,9 @@ import 'package:ielts_ai_trainer/shared/views/texts.dart';
 
 /// Question Generator Form for Speaking Tasks.
 class SpeakingQuestionGeneratorForm extends StatefulWidget {
-  /// Function to generate a prompt text.
+  /// Function to generate prompt text.
   /// Called when the Generate button is tapped.
-  /// Returns a record containing a prompt text and a topics used.
+  /// Returns a record containing prompt text and a topics used.
   final Future<({List<String> topics, String promptText})> Function(
     int topicCount,
     List<String> topics,
@@ -84,7 +84,7 @@ class _SpeakingQuestionGeneratorFormState
     super.dispose();
   }
 
-  /// Called when the number of topics is changed.
+  /// Called when the number of topics changes.
   void _onChangedTopicCount(int? value) {
     if (value != null) {
       _ctrl.topicCount = value;
