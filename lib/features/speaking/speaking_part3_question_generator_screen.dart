@@ -1,36 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ielts_ai_trainer/app/router_extra.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_question_generator_screen.dart';
+import 'package:ielts_ai_trainer/features/speaking/speaking_routes.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
 
-/// Speaking Topic 2 Question Generator Screen.
-class SpeakingTopic2QuestionGeneratorScreen extends StatefulWidget {
-  /// The prompt text to display initially, if set.
+/// Speaking Part 3 Question Generator Screen.
+class SpeakingPart3QuestionGeneratorScreen extends StatefulWidget {
+  /// The prompt text to display initially.
   final String? promptText;
 
-  /// The topics to display initially, if set.
+  /// The topics to display initially.
   final List<String>? topics;
 
-  const SpeakingTopic2QuestionGeneratorScreen({
+  const SpeakingPart3QuestionGeneratorScreen({
     super.key,
     this.promptText,
     this.topics,
   });
 
   @override
-  State<SpeakingTopic2QuestionGeneratorScreen> createState() =>
-      _SpeakingTopic2QuestionGeneratorScreenState();
+  State<SpeakingPart3QuestionGeneratorScreen> createState() =>
+      _SpeakingPart3QuestionGeneratorScreenState();
 }
 
-/// State for SpeakingTopic2QuestionGeneratorScreen
-class _SpeakingTopic2QuestionGeneratorScreenState
-    extends State<SpeakingTopic2QuestionGeneratorScreen> {
+/// State for SpeakingPart3QuestionGeneratorScreen
+class _SpeakingPart3QuestionGeneratorScreenState
+    extends State<SpeakingPart3QuestionGeneratorScreen> {
   /// API service to generate prompt text
   final SpeakingApiService _apiSrv = SpeakingApiService();
 
-  /// Called when the Generate button is tapped.
-  /// Generates a prompt text using the given topics.
+  /// Called when the Generate button is pressed.
+  /// Generates prompt text using the given topics.
   /// Returns a record containing the generated prompt text and the topics used.
   Future<({List<String> topics, String promptText})> _generatePromptText(
     int topicCount,
@@ -41,9 +44,12 @@ class _SpeakingTopic2QuestionGeneratorScreenState
     return (topics: resp.topics, promptText: resp.promptText);
   }
 
-  /// Called when the Start button is tapped.
+  /// Called when the Start button is pressed.
   void _onTappedStart(String promptText, List<String> topics) {
-    // TODO: navigate to answer input screen
+    context.go(
+      speakingPart3AnswerInputScreenRoutePath,
+      extra: RouterExtra({'initialPromptText': promptText, 'topics': topics}),
+    );
   }
 
   @override
@@ -52,7 +58,7 @@ class _SpeakingTopic2QuestionGeneratorScreenState
       body: SpeakingQuestionGeneratorScreen(
         generatePromptText: _generatePromptText,
         onTappedStart: _onTappedStart,
-        testTask: TestTask.speakingPart2,
+        testTask: TestTask.speakingPart3,
         promptText: widget.promptText,
         topics: widget.topics,
       ),

@@ -6,7 +6,7 @@ erDiagram
     user_answers ||--|{ prompt_topics : "has: 1..N"
     user_answers ||--|| writing_answer_details : "has: 1..1"
     user_answers ||--|| speaking_answer_details : "has: 1..1"
-    user_answers ||--|{ speaking_conversation_histories : "has: 1..N"
+    user_answers ||--|{ speaking_utterances : "has: 1..N"
 
     user_answers {
         INTEGER id PK
@@ -15,50 +15,49 @@ erDiagram
     }
 
     prompt_topics {
-        INTEGER id PK
-        INTEGER user_answer_id FK
-        INT order
+        INTEGER user_answer_id PK,FK
+        INTEGER order PK
         TEXT title 
     }
 
     writing_answer_details {
         INTEGER id PK
         INTEGER user_answer_id FK
-        INT prompt_type
+        TEXT prompt_type
         TEXT prompt_text
         TEXT answer_text
-        INT duration
+        INTEGER duration
         REAL score
         REAL achievement_score
         REAL coherence_score
         REAL lexial_score
         REAL grammatical_score
-        INT isGraded
-        INT feedback
-        TEXT updatedAt
+        INTEGER is_graded
+        TEXT feedback
+        TEXT updated_at
     }
 
     speaking_answer_details {
         INTEGER id PK
         INTEGER user_answer_id FK
-        INT duration
+        INTEGER duration
         REAL score
         REAL coherence_score
         REAL lexial_score
         REAL grammatical_score
         REAL fluency_score
-        INT isGraded
-        INT feedback
-        TEXT updatedAt
+        INTEGER isGraded
+        TEXT feedback
+        TEXT note
+        TEXT updated_at
     }
 
-    speaking_conversation_histories {
-        INTEGER id PK
-        INTEGER user_answer_id FK
-        int order
-        int role
-        TEXT text
+    speaking_utterances {
+        INTEGER user_answer_id PK,FK
+        INTEGER order PK
+        INTEGER is_user
+        TEXT message
         REAL fluency_score
-        INTEGER created_at
+        TEXT updated_at
     }
 ```

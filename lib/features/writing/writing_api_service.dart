@@ -4,7 +4,7 @@ import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
 /// API service for Writing Task screens.
 class WritingApiService {
-  /// Generates a writing prompt text beased on the given topics.
+  /// Generates prompt text based on the given topics.
   Future<WritingPromptResponse> generatePromptText(List<String> topics) async {
     // TODO: dummy data
     await Future.delayed(const Duration(seconds: 2));

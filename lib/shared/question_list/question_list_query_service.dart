@@ -105,15 +105,15 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
         .toList();
     final topicsRows =
         await (select(promptTopicsTable)
-              ..where((t) => t.userAnswer.isIn(userAnswerIds))
+              ..where((t) => t.userAnswerId.isIn(userAnswerIds))
               ..orderBy([
-                (t) => OrderingTerm.asc(t.userAnswer),
+                (t) => OrderingTerm.asc(t.userAnswerId),
                 (t) => OrderingTerm.asc(t.order),
               ]))
             .get();
     final topicsMap = <int, List<String>>{};
     for (final row in topicsRows) {
-      topicsMap.putIfAbsent(row.userAnswer, () => []).add(row.title);
+      topicsMap.putIfAbsent(row.userAnswerId, () => []).add(row.title);
     }
 
     /// Converts a database query row into a QuestionListViewVM.

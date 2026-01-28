@@ -10,8 +10,8 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
   /// Topics used when generating the prompt text.
   final List<String> _usedTopics;
 
-  /// Function to generate a prompt text.
-  /// Returns a record containing a prompt text and a topics used.
+  /// Function to generate prompt text.
+  /// Returns a record containing prompt text and a topics used.
   final Future<({List<String> topics, String promptText})> Function(
     int topicCount,
     List<String> topics,
@@ -60,8 +60,10 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
   /// Whether the Generate button is enabled.
   bool get isGenerateButtonEnabled {
     if (_testTask == TestTask.speakingPart1) {
-      // Part 1 requires the number of topics.
-      return _topics.length <= _topicCount && !isPromptTextGenerating;
+      // Part 1 requires the number of topics to be selected.
+      return _topicCount > 0 &&
+          _topics.length <= _topicCount &&
+          !isPromptTextGenerating;
     }
     // Part 2 and Part 3 can generate prompt text without specifying the number of topics.
     return !isPromptTextGenerating;
@@ -127,7 +129,7 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
     return '';
   }
 
-  /// Generates a prompt text using the entered topics.
+  /// Generates prompt text using the entered topics.
   Future<void> generatePromptText() async {
     // TODO: dummy data
     _promptTextState = 1;

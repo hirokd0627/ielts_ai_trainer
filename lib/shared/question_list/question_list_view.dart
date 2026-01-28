@@ -143,7 +143,7 @@ class _QuestionListViewState extends State<QuestionListView> {
     _ctrl.setSearchWord("", refreshList: true);
   }
 
-  /// Called when a search word is changed.
+  /// Called when a search word changes.
   Future<void> _onSearchWordChanged(String value) async {
     // Search questions a short time after search word is entered.
     _debounce.debounce(() async {
@@ -279,7 +279,7 @@ class _QuestionListViewState extends State<QuestionListView> {
   }
 }
 
-/// ViewModel representing a UserAnswer for display on Question list.
+/// ViewModel that represents a UserAnswer for display on Question list.
 class QuestionListViewVM {
   final int id;
   final String promptText;

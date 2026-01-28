@@ -22,7 +22,7 @@ class HomeScreen extends StatefulWidget {
 /// State for HomeScreen
 class _HomeScreenState extends State<HomeScreen> {
   /// Controller
-  late final HomeContoller _ctrl;
+  late final HomeController _ctrl;
 
   /// The date range currently visible in the calendar
   DateTimeRange _calendarVisibleDateRange = DateTimeRange(
@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-    _ctrl = context.read<HomeContoller>();
+    _ctrl = context.read<HomeController>();
 
     _loadInitialData();
   }
@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  /// Called when a month is changed in calendar.
+  /// Called when a month changes in calendar.
   void _onMonthChanged(int year, int month) async {
     final events = await _ctrl.getDailyUserAnswerInMonth(year, month);
     setState(() {

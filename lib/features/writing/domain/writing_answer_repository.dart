@@ -1,12 +1,12 @@
 import 'package:drift/drift.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer.dart';
-import 'package:ielts_ai_trainer/features/writing/domain/writing_topic.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
+import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
 part 'writing_answer_repository.g.dart';
 
-/// Repository for UserAnswersTable
+/// Repository for the writing UserAnswersTable.
 @DriftAccessor(
   tables: [UserAnswersTable, WritingAnswerDetailsTable, PromptTopicsTable],
 )
@@ -14,7 +14,7 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
     with _$WritingAnswerRepositoryMixin {
   WritingAnswerRepository(super.attachedDatabase);
 
-  /// Selects the answer by id.
+  /// Selects the answer for the given id.
   Future<WritingAnswer> selectAnswerById(int id) async {
     // Join
     final joins = <Join<HasResultSet, dynamic>>[];
@@ -36,16 +36,14 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
     // Topics
     final topicsRows =
         await (select(promptTopicsTable)
-              ..where((t) => t.userAnswer.equals(id))
+              ..where((t) => t.userAnswerId.equals(id))
               ..orderBy([
-                (t) => OrderingTerm.asc(t.userAnswer),
+                (t) => OrderingTerm.asc(t.userAnswerId),
                 (t) => OrderingTerm.asc(t.order),
               ]))
             .get();
     final topics = topicsRows
-        .map(
-          (row) => WritingTopic(id: row.id, order: row.order, title: row.title),
-        )
+        .map((row) => PromptTopic(order: row.order, title: row.title))
         .toList();
 
     /// Converts a database query row into a WritingAnswer.
@@ -72,7 +70,7 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
     );
   }
 
-  /// Saves the user's answer of writing task.
+  /// Saves a user's answer for writing task.
   Future<int> saveUserAnswerWriting(WritingAnswer answer) async {
     return transaction<int>(() async {
       // UserAnswer
@@ -110,7 +108,7 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
     );
   }
 
-  /// Converts WritingAnswer into WritingAnswerDetailsTableCompanion .
+  /// Converts WritingAnswer into WritingAnswerDetailsTableCompanion.
   WritingAnswerDetailsTableCompanion _toWritingAnswerDetailsTableCompanion(
     WritingAnswer answer,
   ) {
@@ -136,14 +134,13 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
     );
   }
 
-  // Creates PromptTopicsTableCompanion.
+  // Creates a PromptTopicsTableCompanion for the given answer id and topic.
   PromptTopicsTableCompanion _toPromptTopicsTableCompanion(
     int answerId,
-    WritingTopic topic,
+    PromptTopic topic,
   ) {
     return PromptTopicsTableCompanion(
-      id: topic.id != null ? Value(topic.id!) : const Value.absent(),
-      userAnswer: Value(answerId),
+      userAnswerId: Value(answerId),
       order: Value(topic.order),
       title: Value(topic.title),
     );

@@ -116,7 +116,7 @@ extension AppDatabaseDevSeed on AppDatabase {
       for (int i = 0; i < topics.length; i++) {
         await into(promptTopicsTable).insert(
           PromptTopicsTableCompanion(
-            userAnswer: Value(uphId),
+            userAnswerId: Value(uphId),
             order: Value(i + 1), // 1-base
             title: Value(topics[i]),
           ),

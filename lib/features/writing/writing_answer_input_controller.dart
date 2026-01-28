@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer_repository.dart';
-import 'package:ielts_ai_trainer/features/writing/domain/writing_topic.dart';
+import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
@@ -69,7 +69,7 @@ class WritingAnswerInputController extends ChangeNotifier {
     return Duration(milliseconds: msec);
   }
 
-  /// Returns the current word count and the recommended word count.
+  /// Returns the elapsed time for display.
   String get elapsedAsText {
     final m = _elapsed.inMinutes.toString().padLeft(2, '0');
     final s = (_elapsed.inSeconds % 60).toString().padLeft(2, '0');
@@ -108,9 +108,9 @@ class WritingAnswerInputController extends ChangeNotifier {
   Future<int> saveUserAnswer() async {
     final now = DateTime.now();
 
-    final topics = <WritingTopic>[];
+    final topics = <PromptTopic>[];
     for (var i = 0; i < _topics.length; i++) {
-      topics.add(WritingTopic(order: (i + 1), title: _topics[i]));
+      topics.add(PromptTopic(order: (i + 1), title: _topics[i]));
     }
 
     final answer = WritingAnswer(
