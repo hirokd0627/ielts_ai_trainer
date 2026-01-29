@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/app/router_extra.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_part1_answer_input_screen.dart';
+import 'package:ielts_ai_trainer/features/speaking/speaking_part1_result_screen.dart';
+import 'package:ielts_ai_trainer/features/speaking/speaking_part2_result_screen.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_part3_answer_input_screen.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_part2_answer_input_screen.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_part1_question_generator_screen.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_part2_question_generator_screen.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_part3_question_generator_screen.dart';
+import 'package:ielts_ai_trainer/features/speaking/speaking_part3_result_screen.dart';
 
 /// Route path for Speaking Part1 Question Generator screen.
 final speakingPart1QuestionGeneratorScreenRoutePath =
@@ -64,6 +67,13 @@ final speakingRoutes = [
       );
     },
   ),
+  GoRoute(
+    path: speakingPart1ResultScreenRoutePath,
+    builder: (BuildContext context, GoRouterState state) {
+      final extra = RouterExtra.validate(state, ['id']);
+      return SpeakingPart1ResultScreen(userAnswerId: extra.getValue('id'));
+    },
+  ),
 
   // Part2
   GoRoute(
@@ -85,6 +95,13 @@ final speakingRoutes = [
         promptText: extra.getValue('promptText'),
         topics: extra.getValue('topics'),
       );
+    },
+  ),
+  GoRoute(
+    path: speakingPart2ResultScreenRoutePath,
+    builder: (BuildContext context, GoRouterState state) {
+      final extra = RouterExtra.validate(state, ['id']);
+      return SpeakingPart2ResultScreen(userAnswerId: extra.getValue('id'));
     },
   ),
 
@@ -110,6 +127,13 @@ final speakingRoutes = [
         initialPromptText: extra.getValue('initialPromptText'),
         topics: extra.getValue('topics'),
       );
+    },
+  ),
+  GoRoute(
+    path: speakingPart3ResultScreenRoutePath,
+    builder: (BuildContext context, GoRouterState state) {
+      final extra = RouterExtra.validate(state, ['id']);
+      return SpeakingPart3ResultScreen(userAnswerId: extra.getValue('id'));
     },
   ),
 ];

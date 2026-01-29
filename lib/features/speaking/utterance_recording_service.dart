@@ -118,9 +118,24 @@ class UtteranceRecordingService {
     await _audioPlayer.resume();
   }
 
+  /// Starts playing the audio file for the given utterance id.
+  Future<void> playAudioById(SpeakingUtteranceIdVO utteranceId) async {
+    await _audioPlayer.setSource(
+      DeviceFileSource(await getPersistentFilePath(utteranceId)),
+    );
+    await _audioPlayer.resume();
+  }
+
   /// Stops the currently playing.
   Future<void> stopAudio() async {
     await _audioPlayer.stop();
+  }
+
+  /// Returns true if a recording file exists for the given utterance id.
+  Future<bool> recordingFileExists(SpeakingUtteranceIdVO utteranceId) async {
+    final path = await getPersistentFilePath(utteranceId);
+    final file = File(path);
+    return await file.exists();
   }
 
   Future<bool> _isEncoderSupported(AudioEncoder encoder) async {

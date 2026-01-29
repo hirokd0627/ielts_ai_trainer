@@ -208,18 +208,15 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
           MenuItemButton(
             onPressed: () {
               context.go(
-                speakingPart1QuestionGeneratorScreenRoutePath,
-                extra: RouterExtra({
-                  'promptText': 'developer prompt text 1',
-                  'topics': ['topic 1', 'topic 2'],
-                }),
+                speakingPart1ResultScreenRoutePath,
+                extra: RouterExtra({'id': 13}),
               );
             },
             style: subMenuButtonStyle,
             child: SizedBox(
               width: menuWidth,
               child: const Text(
-                'Speaking Topic 1 Q Gen',
+                'Speaking Part 1 Result',
                 textAlign: TextAlign.center,
               ),
             ),
@@ -227,18 +224,15 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
           MenuItemButton(
             onPressed: () {
               context.go(
-                speakingPart1AnswerInputScreenRoutePath,
-                extra: RouterExtra({
-                  'initialPromptText': 'developer prompt text 1',
-                  'topics': ['topic 1', 'topic 2'],
-                }),
+                speakingPart2ResultScreenRoutePath,
+                extra: RouterExtra({'id': 15}),
               );
             },
             style: subMenuButtonStyle,
             child: SizedBox(
               width: menuWidth,
               child: const Text(
-                'Speaking Part 1 Input',
+                'Speaking Part 2 Result',
                 textAlign: TextAlign.center,
               ),
             ),
@@ -246,18 +240,15 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
           MenuItemButton(
             onPressed: () {
               context.go(
-                speakingPart3AnswerInputScreenRoutePath,
-                extra: RouterExtra({
-                  'initialPromptText': 'developer prompt text 3',
-                  'topics': ['topic 3', 'topic 4'],
-                }),
+                speakingPart3ResultScreenRoutePath,
+                extra: RouterExtra({'id': 14}),
               );
             },
             style: subMenuButtonStyle,
             child: SizedBox(
               width: menuWidth,
               child: const Text(
-                'Speaking Part 3 Input',
+                'Speaking Part 3 Result',
                 textAlign: TextAlign.center,
               ),
             ),

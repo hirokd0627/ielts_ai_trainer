@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_answer_repository.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_speech_answer.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_id_vo.dart';
+import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_vo.dart';
 import 'package:ielts_ai_trainer/features/speaking/utterance_recording_service.dart';
 import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
 
@@ -181,8 +182,8 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
 
     final answer = SpeakingSpeechAnswer(
       createdAt: now,
-      promptText: _promptText,
-      answerText: _answerText,
+      prompt: SpeakingUtteranceVO(order: 1, isUser: false, text: _promptText),
+      answer: SpeakingUtteranceVO(order: 2, isUser: true, text: _answerText),
       isGraded: false,
       duration: _elapsedDuration.inSeconds,
       topics: topics,

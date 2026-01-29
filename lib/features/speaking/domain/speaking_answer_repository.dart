@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_chat_answer.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_speech_answer.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_id_vo.dart';
+import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_vo.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
@@ -21,7 +22,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
     with _$SpeakingAnswerRepositoryMixin {
   SpeakingAnswerRepository(super.attachedDatabase);
 
-  /// Selects the answer for the given id.
+  /// Selects an answer in Part 2 for the given id.
   Future<SpeakingSpeechAnswer> selectPart2AnswerById(int id) async {
     // Join
     final joins = <Join<HasResultSet, dynamic>>[];
@@ -29,10 +30,6 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
       leftOuterJoin(
         speakingAnswerDetailsTable,
         speakingAnswerDetailsTable.userAnswerId.equalsExp(userAnswersTable.id),
-      ),
-      leftOuterJoin(
-        speakingUtterancesTable,
-        speakingUtterancesTable.userAnswerId.equalsExp(userAnswersTable.id),
       ),
     ]);
 
@@ -85,15 +82,86 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
       coherence: detail.coherenceScore,
       lexial: detail.lexialScore,
       grammatical: detail.grammaticalScore,
+      fluency: detail.fluencyScore,
       score: detail.score,
       feedback: detail.feedback,
-      promptText: promptText,
-      answerText: answerText,
+      prompt: SpeakingUtteranceVO(order: 1, isUser: false, text: promptText),
+      answer: SpeakingUtteranceVO(order: 2, isUser: true, text: answerText),
       note: detail.note,
     );
   }
 
-  /// Saves a user's answer for speaking part 1 & 3.
+  /// Selects an answer in Part 1 or Part 3 for the given id.
+  Future<SpeakingChatAnswer> selectPart13AnswerById(int id) async {
+    // Join
+    final joins = <Join<HasResultSet, dynamic>>[];
+    joins.addAll([
+      leftOuterJoin(
+        speakingAnswerDetailsTable,
+        speakingAnswerDetailsTable.userAnswerId.equalsExp(userAnswersTable.id),
+      ),
+    ]);
+
+    final joinedQuery = select(userAnswersTable).join(joins);
+
+    // Where
+    joinedQuery.where(userAnswersTable.id.equals(id));
+
+    // UserAnswers and Details
+    final row = await joinedQuery.getSingle();
+
+    // Topics
+    final topicsRows =
+        await (select(promptTopicsTable)
+              ..where((t) => t.userAnswerId.equals(id))
+              ..orderBy([
+                (t) => OrderingTerm.asc(t.userAnswerId),
+                (t) => OrderingTerm.asc(t.order),
+              ]))
+            .get();
+    final topics = topicsRows
+        .map((row) => PromptTopic(order: row.order, title: row.title))
+        .toList();
+
+    // Utterances
+    final utteranceRows = await (select(
+      speakingUtterancesTable,
+    )..where((u) => u.userAnswerId.equals(id))).get();
+    final utterances = <SpeakingUtteranceVO>[];
+    for (final row in utteranceRows) {
+      utterances.add(
+        SpeakingUtteranceVO(
+          order: row.order,
+          isUser: row.isUser,
+          text: row.message,
+          fluency: row.fluencyScore,
+        ),
+      );
+    }
+
+    /// Converts a database query row into a SpeakingAnswer.
+    final userAnswer = row.readTable(userAnswersTable);
+    final detail = row.readTable(speakingAnswerDetailsTable);
+    return SpeakingChatAnswer(
+      id: userAnswer.id,
+      detailId: detail.id,
+      utterances: utterances,
+      createdAt: userAnswer.createdAt,
+      updatedAt: detail.updatedAt,
+      topics: topics,
+      duration: detail.duration,
+      isGraded: detail.isGraded,
+      testTask: userAnswer.testTask,
+      coherence: detail.coherenceScore,
+      lexial: detail.lexialScore,
+      grammatical: detail.grammaticalScore,
+      fluency: detail.fluencyScore,
+      score: detail.score,
+      feedback: detail.feedback,
+    );
+  }
+
+  /// Saves a user's answer for speaking part 1 or Part 3.
   Future<({int id, List<SpeakingUtteranceIdVO> utteranceIds})>
   saveSpeakingChatAnswer(SpeakingChatAnswer answer) async {
     return await transaction<
@@ -108,7 +176,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
       // Details
       // SpeakingTask1HistoryDetails
       await into(speakingAnswerDetailsTable).insert(
-        _convertChatAnswerintoSpeakingAnswerDetailsTableCompanion(
+        _convertChatAnswerIntoSpeakingAnswerDetailsTableCompanion(
           answer.copyWith(id: upId),
         ),
         mode: InsertMode.insertOrReplace,
@@ -163,7 +231,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
         // Details
         // SpeakingTask1HistoryDetails
         await into(speakingAnswerDetailsTable).insert(
-          _convertSpeechAnswerintoSpeakingAnswerDetailsTableCompanion(
+          _convertSpeechAnswerIntoSpeakingAnswerDetailsTableCompanion(
             answer.copyWith(id: upId),
           ),
           mode: InsertMode.insertOrReplace,
@@ -183,7 +251,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
             userAnswerId: Value(upId),
             order: Value(1),
             isUser: Value(false),
-            message: Value(answer.promptText),
+            message: Value(answer.prompt.text),
           ),
           mode: InsertMode.insertOrReplace,
         );
@@ -193,7 +261,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
             userAnswerId: Value(upId),
             order: Value(2),
             isUser: Value(true),
-            message: Value(answer.answerText),
+            message: Value(answer.answer.text),
           ),
           mode: InsertMode.insertOrReplace,
         );
@@ -206,7 +274,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
     );
   }
 
-  /// Deletes the user's answer for speaking part.
+  /// Deletes a user's answer for speaking part.
   Future<void> deleteSpeakingUserAnswer(int id) async {
     await transaction<void>(() async {
       // UserAnswer
@@ -253,7 +321,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
 
   /// Converts SpeakingChatAnswer into SpeakingAnswerDetailsTableCompanion.
   SpeakingAnswerDetailsTableCompanion
-  _convertChatAnswerintoSpeakingAnswerDetailsTableCompanion(
+  _convertChatAnswerIntoSpeakingAnswerDetailsTableCompanion(
     SpeakingChatAnswer answer,
   ) {
     return SpeakingAnswerDetailsTableCompanion(
@@ -277,7 +345,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
 
   /// Converts SpeakingSpeechAnswer into SpeakingAnswerDetailsTableCompanion.
   SpeakingAnswerDetailsTableCompanion
-  _convertSpeechAnswerintoSpeakingAnswerDetailsTableCompanion(
+  _convertSpeechAnswerIntoSpeakingAnswerDetailsTableCompanion(
     SpeakingSpeechAnswer answer,
   ) {
     return SpeakingAnswerDetailsTableCompanion(
