@@ -1,4 +1,6 @@
 import 'package:faker/faker.dart';
+import 'package:ielts_ai_trainer/features/speaking/domain/speaking_chat_answer.dart';
+import 'package:ielts_ai_trainer/features/speaking/domain/speaking_speech_answer.dart';
 
 /// API service for the Speaking screens, generating prompts and evaluating answers.
 class SpeakingApiService {
@@ -31,6 +33,51 @@ class SpeakingApiService {
     await Future.delayed(const Duration(seconds: 2));
     return SpeakingReplyResponse(message: faker.lorem.sentences(2).join("\n"));
   }
+
+  /// Grades the given speaking chat answer.
+  Future<SpeakingChatGradingResponse> gradeChatAnswer({
+    required SpeakingChatAnswer answer,
+  }) async {
+    // TODO: dummy data
+    await Future.delayed(const Duration(seconds: 2));
+
+    final fluencyScores = List.generate(answer.utterances.length, (_) {
+      return (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2;
+    });
+
+    return SpeakingChatGradingResponse(
+      fluency:
+          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
+      coherence:
+          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
+      lexial: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
+      grammatical:
+          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
+      score: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
+      feedback: faker.lorem.sentences(3).join("\n"),
+      utteranceFluency: fluencyScores,
+    );
+  }
+
+  /// Grades the given speaking speech answer.
+  Future<SpeakingSpeechGradingResponse> gradeSpeechAnswer({
+    required SpeakingSpeechAnswer answer,
+  }) async {
+    // TODO: dummy data
+    await Future.delayed(const Duration(seconds: 2));
+
+    return SpeakingSpeechGradingResponse(
+      fluency:
+          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
+      coherence:
+          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
+      lexial: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
+      grammatical:
+          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
+      score: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
+      feedback: faker.lorem.sentences(3).join("\n"),
+    );
+  }
 }
 
 /// Response for speaking prompt generation.
@@ -53,4 +100,44 @@ class SpeakingReplyResponse {
   final String message;
 
   const SpeakingReplyResponse({required this.message});
+}
+
+/// Result of grading a speaking chat answer.
+class SpeakingChatGradingResponse {
+  final double fluency;
+  final double coherence;
+  final double lexial;
+  final double grammatical;
+  final double score;
+  final String feedback;
+  final List<double> utteranceFluency;
+
+  const SpeakingChatGradingResponse({
+    required this.fluency,
+    required this.coherence,
+    required this.lexial,
+    required this.grammatical,
+    required this.score,
+    required this.feedback,
+    required this.utteranceFluency,
+  });
+}
+
+/// Result of grading a speaking speech answer.
+class SpeakingSpeechGradingResponse {
+  final double fluency;
+  final double coherence;
+  final double lexial;
+  final double grammatical;
+  final double score;
+  final String feedback;
+
+  const SpeakingSpeechGradingResponse({
+    required this.fluency,
+    required this.coherence,
+    required this.lexial,
+    required this.grammatical,
+    required this.score,
+    required this.feedback,
+  });
 }

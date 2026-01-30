@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_vo.dart';
 import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
 
 part 'speaking_speech_answer.freezed.dart';
@@ -12,9 +13,9 @@ abstract class SpeakingSpeechAnswer with _$SpeakingSpeechAnswer {
     int? utteranceId,
     required DateTime createdAt,
     required DateTime updatedAt,
-    required String promptText,
+    required SpeakingUtteranceVO prompt,
     required List<PromptTopic> topics,
-    required String answerText,
+    required SpeakingUtteranceVO answer,
     required int duration,
     required bool isGraded,
     String? note,

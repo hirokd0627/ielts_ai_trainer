@@ -14,7 +14,7 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
     with _$WritingAnswerRepositoryMixin {
   WritingAnswerRepository(super.attachedDatabase);
 
-  /// Selects the answer for the given id.
+  /// Selects an answer for the given id.
   Future<WritingAnswer> selectAnswerById(int id) async {
     // Join
     final joins = <Join<HasResultSet, dynamic>>[];

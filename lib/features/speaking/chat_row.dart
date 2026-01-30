@@ -36,18 +36,25 @@ class ChatRow extends StatelessWidget {
   /// The asset name for the avatar image.
   final String _assetName;
 
+  /// Whether to display on the result screen.
+  final bool isResultView;
+
   const ChatRow({
     super.key,
     required this.isUser,
     required this.text,
-    required this.playingButtonLabel,
-    required this.recordingButtonLabel,
-    required this.showRecordingButton,
-    required this.showPlayButton,
-    required this.index,
-    required this.onPressedPlay,
-    required this.onPressedRecording,
+    this.playingButtonLabel = 'Play',
+    this.recordingButtonLabel = 'Recording',
+    this.showRecordingButton = false,
+    this.showPlayButton = false,
+    this.index,
+    this.onPressedPlay,
+    this.onPressedRecording,
+    this.isResultView = false,
   }) : _assetName = isUser ? _userImageAssetName : _aiImageAssetName;
+
+  /// Font size for message texts.
+  double get fontSize => isResultView ? 14 : 16;
 
   /// Builds a Row widget containing the avator icon.
   Widget _avatarIcon() {
@@ -62,6 +69,7 @@ class ChatRow extends StatelessWidget {
             border: Border.all(color: Colors.grey, width: 1),
           ),
           child: CircleAvatar(
+            radius: isResultView ? 16 : 20,
             backgroundImage: AssetImage(_assetName),
             backgroundColor: Colors.white,
           ),
@@ -94,7 +102,9 @@ class ChatRow extends StatelessWidget {
                 ? CrossAxisAlignment.end
                 : CrossAxisAlignment.start,
             children: [
-              Row(children: [Text(text, style: TextStyle(fontSize: 16))]),
+              Row(
+                children: [Text(text, style: TextStyle(fontSize: fontSize))],
+              ),
               // Shows a recording and play button only if in a user message.
               if (isUser && (showRecordingButton || showPlayButton)) ...[
                 SizedBox(height: 10),

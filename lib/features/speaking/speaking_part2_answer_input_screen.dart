@@ -94,7 +94,11 @@ class _SpeakingPart2AnswerInputScreenState
       return;
     }
 
-    // TODO: Navigates to the result screen.
+    // Navigates to the result screen.
+    context.go(
+      speakingPart2ResultScreenRoutePath,
+      extra: RouterExtra({'id': id}),
+    );
   }
 
   /// Called when the cancel button is pressed.

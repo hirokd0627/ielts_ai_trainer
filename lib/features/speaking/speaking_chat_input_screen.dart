@@ -80,30 +80,6 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
     super.dispose();
   }
 
-  // /// Called when the cancel button is pressed.
-  // void _onPressedCancel() async {
-  //   // Confirm whether to stop practicing.
-  //   final confirmed = await showConfirmDialog(context, 'Stop to practice?', '');
-  //   if (confirmed == null || !confirmed) {
-  //     return;
-  //   }
-
-  //   // Delete the temporary file.
-  //   _ctrl.deleteTemporaryRecordingFile();
-
-  //   if (!mounted) {
-  //     // If state has been destroyed, context cannot be used, so return
-  //     return;
-  //   }
-
-  //   // Navigates to the question generator screen.
-  //   final extra = RouterExtra({
-  //     'promptText': widget.initialPromptText,
-  //     'topics': widget.topics,
-  //   });
-  //   context.go(speakingPart2QuestionGeneratorScreenRoutePath, extra: extra);
-  // }
-
   /// Called when the Recording button is pressed.
   void _onPressedRecording(int index) async {
     if (_ctrl.isRecording) {
@@ -168,7 +144,13 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
       return;
     }
 
-    // TODO: Navigates to the result screen.
+    // Navigates to the result screen.
+    final extra = RouterExtra({'id': id});
+    if (widget.testTask == TestTask.speakingPart1) {
+      context.go(speakingPart1ResultScreenRoutePath, extra: extra);
+    } else if (widget.testTask == TestTask.speakingPart3) {
+      context.go(speakingPart3ResultScreenRoutePath, extra: extra);
+    }
   }
 
   /// Scrolls the message list to the bottom.
@@ -184,8 +166,8 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
     });
   }
 
-  /// Called when the EndConversation button is pressed.
-  void _onPressedEndConversation() async {
+  /// Called when the Cancel button is pressed.
+  void _onPressedCancel() async {
     // Confirm whether to stop practicing.
     final confirmed = await showConfirmDialog(context, 'Stop to practice?', '');
     if (confirmed == null || !confirmed) {
@@ -330,7 +312,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
                           children: [
                             OutlinedButton(
                               onPressed: _ctrl.isControlsEnabled
-                                  ? _onPressedEndConversation
+                                  ? _onPressedCancel
                                   : null,
                               style: ButtonStyle(
                                 side: WidgetStateProperty.resolveWith((states) {
@@ -346,7 +328,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
                                   );
                                 }),
                               ),
-                              child: const Text('End Conversation'),
+                              child: const Text('Cancel'),
                             ),
                             SizedBox(width: 20),
                             FilledButton(
