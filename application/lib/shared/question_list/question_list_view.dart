@@ -55,7 +55,6 @@ class _QuestionListViewState extends State<QuestionListView> {
 
   /// Returns the data rows in the list.
   List<DataRow> get _questionListToDataRows {
-    final displayDateFormat = DateFormat('MMM d, yyyy');
     return _ctrl.eventList.map((item) {
       return DataRow2(
         decoration: BoxDecoration(
@@ -65,24 +64,16 @@ class _QuestionListViewState extends State<QuestionListView> {
         cells: [
           DataCell(
             Text(
-              item.promptText.replaceAll('\n', ' '), // To one line
+              item.promptTextDisplay,
               maxLines: 1,
               // Fade to the right
               overflow: TextOverflow.fade,
               softWrap: false,
             ),
           ),
-          DataCell(Text(displayDateFormat.format(item.datetime))),
-          DataCell(
-            Text(switch (item.testTask) {
-              TestTask.speakingPart1 => 'Speaking Part 1',
-              TestTask.speakingPart2 => 'Speaking Part 2',
-              TestTask.speakingPart3 => 'Speaking Part 3',
-              TestTask.writingTask1 => 'Writing Task 1',
-              TestTask.writingTask2 => 'Writing Task 2',
-            }),
-          ),
-          DataCell(Text(item.topics.join(', '))),
+          DataCell(Text(item.dateDisplay)),
+          DataCell(Text(item.testTaskDisplay)),
+          DataCell(Text(item.topicsDisplay)),
         ],
       );
     }).toList();
@@ -281,11 +272,41 @@ class _QuestionListViewState extends State<QuestionListView> {
 
 /// ViewModel that represents a UserAnswer for display on Question list.
 class QuestionListViewVM {
+  /// The date fomart for the Date column.
+  static final _displayDateFormat = DateFormat('MMM d, yyyy');
+
   final int id;
   final String promptText;
   final TestTask testTask;
   final List<String> topics;
   final DateTime datetime;
+
+  /// The prompt text formatted for display in a table cell.
+  String get promptTextDisplay {
+    // To one line
+    return promptText.replaceAll('\n', ' ');
+  }
+
+  /// The datetime formatted for display in a table cell.
+  String get dateDisplay {
+    return _displayDateFormat.format(datetime);
+  }
+
+  /// The test task formatted for display in a table cell.
+  String get testTaskDisplay {
+    return switch (testTask) {
+      TestTask.speakingPart1 => 'Speaking Part 1',
+      TestTask.speakingPart2 => 'Speaking Part 2',
+      TestTask.speakingPart3 => 'Speaking Part 3',
+      TestTask.writingTask1 => 'Writing Task 1',
+      TestTask.writingTask2 => 'Writing Task 2',
+    };
+  }
+
+  /// The topics formatted for display in a table cell.
+  String get topicsDisplay {
+    return topics.join(', ');
+  }
 
   const QuestionListViewVM({
     required this.id,
