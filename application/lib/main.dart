@@ -5,24 +5,16 @@ import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
-final _appTitle = 'IELTS AI Trainer';
+/// The application title
+const _appTitle = 'IELTS AI Trainer';
+
+/// The application window size
+const _windowSize = Size(800, 800);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await windowManager.ensureInitialized();
-
-  WindowOptions windowOptions = WindowOptions(
-    size: Size(800, 800),
-    minimumSize: Size(800, 800),
-    backgroundColor: Colors.transparent,
-    title: _appTitle,
-    center: false,
-  );
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-  });
+  _initiaizeWindow();
 
   runApp(
     Provider<AppDatabase>(
@@ -31,6 +23,23 @@ void main() async {
       child: const MyApp(),
     ),
   );
+}
+
+/// Initialize the application window.
+void _initiaizeWindow() async {
+  await windowManager.ensureInitialized();
+
+  WindowOptions windowOptions = WindowOptions(
+    size: _windowSize,
+    minimumSize: _windowSize,
+    backgroundColor: Colors.white,
+    title: _appTitle,
+    center: false,
+  );
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
 }
 
 /// Root widget of application
