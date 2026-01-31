@@ -7,8 +7,20 @@ class WritingApiService {
   /// Generates prompt text based on the given topics.
   Future<WritingPromptResponse> generatePromptText(List<String> topics) async {
     // TODO: dummy data
+
+    // If the number of topics is zero, generates a topic.
+    var usedTopics = [...topics];
+    if (topics.isEmpty) {
+      final faker = Faker();
+      usedTopics.add(faker.lorem.word());
+    }
+
     await Future.delayed(const Duration(seconds: 2));
-    return WritingPromptResponse(faker.lorem.sentences(3).join("\n"));
+
+    return WritingPromptResponse(
+      promptText: faker.lorem.sentences(3).join("\n"),
+      topics: usedTopics,
+    );
   }
 
   /// Grades the given writing answer.
@@ -39,7 +51,10 @@ class WritingPromptResponse {
   /// Generated prompt text.
   final String promptText;
 
-  const WritingPromptResponse(this.promptText);
+  /// Topics used to generate the prompt text.
+  final List<String> topics;
+
+  const WritingPromptResponse({required this.promptText, required this.topics});
 }
 
 /// Response of the result of grading a writing answer.

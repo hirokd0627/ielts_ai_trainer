@@ -37,16 +37,16 @@ class _WritingTask2QuestionGeneratorScreenState
   /// API service to generate prompt text
   final WritingApiService _apiSrv = WritingApiService();
 
-  /// Generates the prompt text and returns it.
-  ///
-  /// Called when generation button is tapped.
-  Future<String> _generatePromptText(
+  /// Called when the Generate button is tapped.
+  /// Generates prompt text using the given topics.
+  /// Returns a record containing the generated prompt text and the topics used.
+  Future<({List<String> topics, String promptText})> _generatePromptText(
     WritingPromptType promptType,
     List<String> topics,
   ) async {
     final resp = await _apiSrv.generatePromptText(topics);
     // TODO: error handling
-    return resp.promptText;
+    return (topics: resp.topics, promptText: resp.promptText);
   }
 
   /// Called when start button is tapped.

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/app/router_extra.dart';
 import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
+import 'package:ielts_ai_trainer/features/speaking/speaking_routes.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
@@ -145,10 +146,13 @@ class _QuestionListViewState extends State<QuestionListView> {
   /// Called when the row is tapped.
   void _onTappedRow(QuestionListViewVM row) {
     // Navigates to the result screen.
-    final path = row.testTask == TestTask.writingTask1
-        ? writingTask1ResultScreenRoutePath
-        : writingTask2ResultScreenRoutePath;
-
+    final path = switch (row.testTask) {
+      TestTask.writingTask1 => writingTask1ResultScreenRoutePath,
+      TestTask.writingTask2 => writingTask2ResultScreenRoutePath,
+      TestTask.speakingPart1 => speakingPart1ResultScreenRoutePath,
+      TestTask.speakingPart2 => speakingPart2ResultScreenRoutePath,
+      TestTask.speakingPart3 => speakingPart3ResultScreenRoutePath,
+    };
     context.go(path, extra: RouterExtra({'id': row.id}));
   }
 
@@ -188,7 +192,7 @@ class _QuestionListViewState extends State<QuestionListView> {
                         decoration: InputDecoration(
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-                          hintText: 'Enter word to search...',
+                          hintText: 'Type word to search...',
                           hintStyle: AppStyles.placeHolderText,
                           prefixIcon: Icon(Icons.search, size: 24),
                         ),

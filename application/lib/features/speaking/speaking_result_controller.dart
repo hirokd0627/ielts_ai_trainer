@@ -139,7 +139,7 @@ class SpeakingResultController extends ChangeNotifier {
 
   String getPlayButtonLabelAt(int index) {
     if (_recordingFileExists.isEmpty || !_recordingFileExists[index]) {
-      return 'No Recording';
+      return 'Not Recorded';
     }
     return isPlayingAt(index) ? 'Stop' : 'Play';
   }

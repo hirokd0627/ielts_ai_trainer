@@ -260,7 +260,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                           // Part 1 or Part 3
                           // Conversation
                           HeadlineText("Conversation"),
-                          SizedBox(height: 4),
+                          SizedBox(height: 16),
                           Column(
                             children: _ctrl.utterances.mapIndexed((i, u) {
                               return Padding(

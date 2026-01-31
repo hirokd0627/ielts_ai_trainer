@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 /// Question Generator Screen for Task 1 and 2.
 class WritingQuestionGeneratorScreen extends StatefulWidget {
   /// Called when generation button is tapped.
-  final Future<String> Function(
+  final Future<({List<String> topics, String promptText})> Function(
     WritingPromptType promptType,
     List<String> topics,
   )

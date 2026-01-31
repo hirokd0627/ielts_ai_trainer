@@ -12,7 +12,8 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
   final List<String> _usedTopics;
 
   /// Function to generate prompt Text.
-  final Future<String> Function(
+  /// Returns a record containing prompt text and topics used.
+  final Future<({List<String> topics, String promptText})> Function(
     WritingPromptType promptType,
     List<String> topics,
   )
@@ -30,7 +31,7 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
   WritingQuestionGeneratorFormController({
     required WritingApiService apiSrv,
-    required Future<String> Function(
+    required Future<({List<String> topics, String promptText})> Function(
       WritingPromptType promptType,
       List<String> topics,
     )
@@ -116,10 +117,15 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
     notifyListeners();
 
     // TODO: error handling
-    _promptText = await _generatePromptText(_promptType!, _topics);
+    final generated = await _generatePromptText(_promptType!, _topics);
+    _promptText = generated.promptText;
 
     _usedTopics.clear();
-    _usedTopics.addAll(_topics); // store topics used generating
+    _usedTopics.addAll(generated.topics); // store topics used generating
+
+    // show used topics on screen
+    _topics.clear();
+    _topics.addAll(generated.topics);
 
     _promptTextState = 2;
     notifyListeners();

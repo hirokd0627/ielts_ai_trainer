@@ -11,17 +11,16 @@ class ConfirmDialog extends StatelessWidget {
   const ConfirmDialog({
     super.key,
     required this.title,
-    required this.message,
-    String? yesLabel,
-    String? noLabel,
-  }) : yesLabel = yesLabel ?? 'OK',
-       noLabel = noLabel ?? 'Cancel';
+    this.message = '',
+    this.yesLabel = 'OK',
+    this.noLabel = 'Cancel',
+  });
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(title),
-      content: Text(message),
+      content: message.isNotEmpty ? Text(message) : null,
       actions: [
         // Cancel
         TextButton(

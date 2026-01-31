@@ -121,10 +121,9 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
   /// Called when the Submit button is pressed.
   void _onPressedSubmit() async {
     // Confirm whether to submit the answer.
-    final confirmed = await showConfirmDialog(
+    final confirmed = await showSubmitAnswerDialog(
       context,
-      'Submit your answer?',
-      '',
+      multipleAnswers: true,
     );
     if (confirmed == null || !confirmed) {
       return;
@@ -169,7 +168,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
   /// Called when the Cancel button is pressed.
   void _onPressedCancel() async {
     // Confirm whether to stop practicing.
-    final confirmed = await showConfirmDialog(context, 'Stop to practice?', '');
+    final confirmed = await showQuitPracticeDialog(context);
     if (confirmed == null || !confirmed) {
       return;
     }
@@ -279,6 +278,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
                             enabled: _ctrl.isControlsEnabled,
                             onChanged: _onChangedText,
                             controller: _textCtrl,
+                            hintText: 'Type your reply here...',
                           ),
                         ),
                         SizedBox(width: 8),
@@ -328,7 +328,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
                                   );
                                 }),
                               ),
-                              child: const Text('Cancel'),
+                              child: const Text('Quit'),
                             ),
                             SizedBox(width: 20),
                             FilledButton(
