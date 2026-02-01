@@ -26,10 +26,6 @@ class SpeakingResultController extends ChangeNotifier {
   /// The currently loaded speaking speech answer to display and grade.
   SpeakingSpeechAnswer? _speechAnswer;
 
-  /// The ID of the speaking answer.
-  /// Uses a SpeakingChatAnswer ID for Part 2, otherwise, a SpeakingSpeechAnswer ID.
-  int _userAnswerId = -1;
-
   /// The index of messages currently being played.
   int _currentPlayingIndex = -1;
 
@@ -40,7 +36,7 @@ class SpeakingResultController extends ChangeNotifier {
   int _playingState = 0;
 
   /// Whether a recording file exists for each index.
-  final List<bool> _recordingFileExists = [];
+  final Map<int, bool> _recordingFileExists = {};
 
   SpeakingResultController({
     required SpeakingAnswerRepository repo,
@@ -114,18 +110,17 @@ class SpeakingResultController extends ChangeNotifier {
 
   bool get isPlaying => _playingState == 1;
 
-  /// Returns a SpeakingUtteranceIdVO for the given index.
-  SpeakingUtteranceIdVO _getUtteranceId(int index) {
-    return SpeakingUtteranceIdVO(
-      userAnswerId: _userAnswerId,
-      order: (index + 1),
-    );
+  /// Returns an audio file UUID for the given index.
+  String? _getAudioFileUuid(int index) {
+    return utterances[index].audioFileUuid;
   }
 
   bool isPlayingAt(int index) => _currentPlayingIndex == index;
 
   bool isPlayButtonEnabledAt(int index) {
-    if (_recordingFileExists.isEmpty || !_recordingFileExists[index]) {
+    if (_recordingFileExists.isEmpty ||
+        !_recordingFileExists.containsKey(index) ||
+        !_recordingFileExists[index]!) {
       return false;
     }
     if (_currentPlayingIndex == -1 ||
@@ -138,7 +133,9 @@ class SpeakingResultController extends ChangeNotifier {
   }
 
   String getPlayButtonLabelAt(int index) {
-    if (_recordingFileExists.isEmpty || !_recordingFileExists[index]) {
+    if (_recordingFileExists.isEmpty ||
+        !_recordingFileExists.containsKey(index) ||
+        !_recordingFileExists[index]!) {
       return 'Not Recorded';
     }
     return isPlayingAt(index) ? 'Stop' : 'Play';
@@ -149,21 +146,18 @@ class SpeakingResultController extends ChangeNotifier {
     if (_testTask == TestTask.speakingPart2) {
       // Part 2
       _speechAnswer = await _repo.selectPart2AnswerById(id);
-      _userAnswerId = _speechAnswer!.id!;
-      _recordingFileExists.add(
-        await _recordingSrv.recordingFileExists(_getUtteranceId(0)),
-      );
-      _recordingFileExists.add(
-        await _recordingSrv.recordingFileExists(_getUtteranceId(1)),
-      );
+      _recordingFileExists[1] = _speechAnswer!.answer.audioFileUuid != null
+          ? await _recordingSrv.recordingFileExists(
+              _speechAnswer!.answer.audioFileUuid!,
+            )
+          : false;
     } else {
       // Part 1 or 3
       _chatAnswer = await _repo.selectPart13AnswerById(id);
-      _userAnswerId = _chatAnswer!.id!;
       for (var i = 0; i < _chatAnswer!.utterances.length; i++) {
-        _recordingFileExists.add(
-          await _recordingSrv.recordingFileExists(_getUtteranceId(i)),
-        );
+        _recordingFileExists[i] = _getAudioFileUuid(i) != null
+            ? await _recordingSrv.recordingFileExists(_getAudioFileUuid(i)!)
+            : false;
       }
     }
 
@@ -180,12 +174,21 @@ class SpeakingResultController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Starts playing the recorded speech for the message at the given index.
-  Future<void> startPlaying(int index) async {
+  /// Starts playing the recorded chat audio for the message at the given index.
+  Future<void> startPlayingChatAudio(int index) async {
     _playingState = 1;
     _currentPlayingIndex = index;
 
-    await _recordingSrv.playAudioById(_getUtteranceId(index));
+    await _recordingSrv.playAudio(_getAudioFileUuid(index)!);
+    notifyListeners();
+  }
+
+  /// Starts playing the recorded speech audio for the message at the given index.
+  Future<void> startPlayingSpeechAudio() async {
+    _playingState = 1;
+    _currentPlayingIndex = 1;
+
+    await _recordingSrv.playAudio(_speechAnswer!.answer.audioFileUuid!);
     notifyListeners();
   }
 

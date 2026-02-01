@@ -2177,6 +2177,17 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _audioFileUuidMeta = const VerificationMeta(
+    'audioFileUuid',
+  );
+  @override
+  late final GeneratedColumn<String> audioFileUuid = GeneratedColumn<String>(
+    'audio_file_uuid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _fluencyScoreMeta = const VerificationMeta(
     'fluencyScore',
   );
@@ -2206,6 +2217,7 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
     order,
     isUser,
     message,
+    audioFileUuid,
     fluencyScore,
     updatedAt,
   ];
@@ -2256,6 +2268,15 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
     } else if (isInserting) {
       context.missing(_messageMeta);
     }
+    if (data.containsKey('audio_file_uuid')) {
+      context.handle(
+        _audioFileUuidMeta,
+        audioFileUuid.isAcceptableOrUnknown(
+          data['audio_file_uuid']!,
+          _audioFileUuidMeta,
+        ),
+      );
+    }
     if (data.containsKey('fluency_score')) {
       context.handle(
         _fluencyScoreMeta,
@@ -2299,6 +2320,10 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
         DriftSqlType.string,
         data['${effectivePrefix}message'],
       )!,
+      audioFileUuid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}audio_file_uuid'],
+      ),
       fluencyScore: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}fluency_score'],
@@ -2322,6 +2347,7 @@ class SpeakingUtterancesTableData extends DataClass
   final int order;
   final bool isUser;
   final String message;
+  final String? audioFileUuid;
   final double? fluencyScore;
   final DateTime updatedAt;
   const SpeakingUtterancesTableData({
@@ -2329,6 +2355,7 @@ class SpeakingUtterancesTableData extends DataClass
     required this.order,
     required this.isUser,
     required this.message,
+    this.audioFileUuid,
     this.fluencyScore,
     required this.updatedAt,
   });
@@ -2339,6 +2366,9 @@ class SpeakingUtterancesTableData extends DataClass
     map['order'] = Variable<int>(order);
     map['is_user'] = Variable<bool>(isUser);
     map['message'] = Variable<String>(message);
+    if (!nullToAbsent || audioFileUuid != null) {
+      map['audio_file_uuid'] = Variable<String>(audioFileUuid);
+    }
     if (!nullToAbsent || fluencyScore != null) {
       map['fluency_score'] = Variable<double>(fluencyScore);
     }
@@ -2352,6 +2382,9 @@ class SpeakingUtterancesTableData extends DataClass
       order: Value(order),
       isUser: Value(isUser),
       message: Value(message),
+      audioFileUuid: audioFileUuid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audioFileUuid),
       fluencyScore: fluencyScore == null && nullToAbsent
           ? const Value.absent()
           : Value(fluencyScore),
@@ -2369,6 +2402,7 @@ class SpeakingUtterancesTableData extends DataClass
       order: serializer.fromJson<int>(json['order']),
       isUser: serializer.fromJson<bool>(json['isUser']),
       message: serializer.fromJson<String>(json['message']),
+      audioFileUuid: serializer.fromJson<String?>(json['audioFileUuid']),
       fluencyScore: serializer.fromJson<double?>(json['fluencyScore']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -2381,6 +2415,7 @@ class SpeakingUtterancesTableData extends DataClass
       'order': serializer.toJson<int>(order),
       'isUser': serializer.toJson<bool>(isUser),
       'message': serializer.toJson<String>(message),
+      'audioFileUuid': serializer.toJson<String?>(audioFileUuid),
       'fluencyScore': serializer.toJson<double?>(fluencyScore),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -2391,6 +2426,7 @@ class SpeakingUtterancesTableData extends DataClass
     int? order,
     bool? isUser,
     String? message,
+    Value<String?> audioFileUuid = const Value.absent(),
     Value<double?> fluencyScore = const Value.absent(),
     DateTime? updatedAt,
   }) => SpeakingUtterancesTableData(
@@ -2398,6 +2434,9 @@ class SpeakingUtterancesTableData extends DataClass
     order: order ?? this.order,
     isUser: isUser ?? this.isUser,
     message: message ?? this.message,
+    audioFileUuid: audioFileUuid.present
+        ? audioFileUuid.value
+        : this.audioFileUuid,
     fluencyScore: fluencyScore.present ? fluencyScore.value : this.fluencyScore,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -2411,6 +2450,9 @@ class SpeakingUtterancesTableData extends DataClass
       order: data.order.present ? data.order.value : this.order,
       isUser: data.isUser.present ? data.isUser.value : this.isUser,
       message: data.message.present ? data.message.value : this.message,
+      audioFileUuid: data.audioFileUuid.present
+          ? data.audioFileUuid.value
+          : this.audioFileUuid,
       fluencyScore: data.fluencyScore.present
           ? data.fluencyScore.value
           : this.fluencyScore,
@@ -2425,6 +2467,7 @@ class SpeakingUtterancesTableData extends DataClass
           ..write('order: $order, ')
           ..write('isUser: $isUser, ')
           ..write('message: $message, ')
+          ..write('audioFileUuid: $audioFileUuid, ')
           ..write('fluencyScore: $fluencyScore, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2437,6 +2480,7 @@ class SpeakingUtterancesTableData extends DataClass
     order,
     isUser,
     message,
+    audioFileUuid,
     fluencyScore,
     updatedAt,
   );
@@ -2448,6 +2492,7 @@ class SpeakingUtterancesTableData extends DataClass
           other.order == this.order &&
           other.isUser == this.isUser &&
           other.message == this.message &&
+          other.audioFileUuid == this.audioFileUuid &&
           other.fluencyScore == this.fluencyScore &&
           other.updatedAt == this.updatedAt);
 }
@@ -2458,6 +2503,7 @@ class SpeakingUtterancesTableCompanion
   final Value<int> order;
   final Value<bool> isUser;
   final Value<String> message;
+  final Value<String?> audioFileUuid;
   final Value<double?> fluencyScore;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -2466,6 +2512,7 @@ class SpeakingUtterancesTableCompanion
     this.order = const Value.absent(),
     this.isUser = const Value.absent(),
     this.message = const Value.absent(),
+    this.audioFileUuid = const Value.absent(),
     this.fluencyScore = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2475,6 +2522,7 @@ class SpeakingUtterancesTableCompanion
     required int order,
     required bool isUser,
     required String message,
+    this.audioFileUuid = const Value.absent(),
     this.fluencyScore = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2487,6 +2535,7 @@ class SpeakingUtterancesTableCompanion
     Expression<int>? order,
     Expression<bool>? isUser,
     Expression<String>? message,
+    Expression<String>? audioFileUuid,
     Expression<double>? fluencyScore,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -2496,6 +2545,7 @@ class SpeakingUtterancesTableCompanion
       if (order != null) 'order': order,
       if (isUser != null) 'is_user': isUser,
       if (message != null) 'message': message,
+      if (audioFileUuid != null) 'audio_file_uuid': audioFileUuid,
       if (fluencyScore != null) 'fluency_score': fluencyScore,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -2507,6 +2557,7 @@ class SpeakingUtterancesTableCompanion
     Value<int>? order,
     Value<bool>? isUser,
     Value<String>? message,
+    Value<String?>? audioFileUuid,
     Value<double?>? fluencyScore,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -2516,6 +2567,7 @@ class SpeakingUtterancesTableCompanion
       order: order ?? this.order,
       isUser: isUser ?? this.isUser,
       message: message ?? this.message,
+      audioFileUuid: audioFileUuid ?? this.audioFileUuid,
       fluencyScore: fluencyScore ?? this.fluencyScore,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -2537,6 +2589,9 @@ class SpeakingUtterancesTableCompanion
     if (message.present) {
       map['message'] = Variable<String>(message.value);
     }
+    if (audioFileUuid.present) {
+      map['audio_file_uuid'] = Variable<String>(audioFileUuid.value);
+    }
     if (fluencyScore.present) {
       map['fluency_score'] = Variable<double>(fluencyScore.value);
     }
@@ -2556,6 +2611,7 @@ class SpeakingUtterancesTableCompanion
           ..write('order: $order, ')
           ..write('isUser: $isUser, ')
           ..write('message: $message, ')
+          ..write('audioFileUuid: $audioFileUuid, ')
           ..write('fluencyScore: $fluencyScore, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -4528,6 +4584,7 @@ typedef $$SpeakingUtterancesTableTableCreateCompanionBuilder =
       required int order,
       required bool isUser,
       required String message,
+      Value<String?> audioFileUuid,
       Value<double?> fluencyScore,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -4538,6 +4595,7 @@ typedef $$SpeakingUtterancesTableTableUpdateCompanionBuilder =
       Value<int> order,
       Value<bool> isUser,
       Value<String> message,
+      Value<String?> audioFileUuid,
       Value<double?> fluencyScore,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -4603,6 +4661,11 @@ class $$SpeakingUtterancesTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get audioFileUuid => $composableBuilder(
+    column: $table.audioFileUuid,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<double> get fluencyScore => $composableBuilder(
     column: $table.fluencyScore,
     builder: (column) => ColumnFilters(column),
@@ -4661,6 +4724,11 @@ class $$SpeakingUtterancesTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get audioFileUuid => $composableBuilder(
+    column: $table.audioFileUuid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get fluencyScore => $composableBuilder(
     column: $table.fluencyScore,
     builder: (column) => ColumnOrderings(column),
@@ -4712,6 +4780,11 @@ class $$SpeakingUtterancesTableTableAnnotationComposer
 
   GeneratedColumn<String> get message =>
       $composableBuilder(column: $table.message, builder: (column) => column);
+
+  GeneratedColumn<String> get audioFileUuid => $composableBuilder(
+    column: $table.audioFileUuid,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<double> get fluencyScore => $composableBuilder(
     column: $table.fluencyScore,
@@ -4791,6 +4864,7 @@ class $$SpeakingUtterancesTableTableTableManager
                 Value<int> order = const Value.absent(),
                 Value<bool> isUser = const Value.absent(),
                 Value<String> message = const Value.absent(),
+                Value<String?> audioFileUuid = const Value.absent(),
                 Value<double?> fluencyScore = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -4799,6 +4873,7 @@ class $$SpeakingUtterancesTableTableTableManager
                 order: order,
                 isUser: isUser,
                 message: message,
+                audioFileUuid: audioFileUuid,
                 fluencyScore: fluencyScore,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -4809,6 +4884,7 @@ class $$SpeakingUtterancesTableTableTableManager
                 required int order,
                 required bool isUser,
                 required String message,
+                Value<String?> audioFileUuid = const Value.absent(),
                 Value<double?> fluencyScore = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -4817,6 +4893,7 @@ class $$SpeakingUtterancesTableTableTableManager
                 order: order,
                 isUser: isUser,
                 message: message,
+                audioFileUuid: audioFileUuid,
                 fluencyScore: fluencyScore,
                 updatedAt: updatedAt,
                 rowid: rowid,

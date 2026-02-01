@@ -60,9 +60,11 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
     )..where((u) => u.userAnswerId.equals(id))).get();
     String promptText = '';
     String answerText = '';
+    String? answerAudioUuid;
     for (final row in utteranceRows) {
       if (row.isUser) {
         answerText = row.message;
+        answerAudioUuid = row.audioFileUuid;
       } else {
         promptText = row.message;
       }
@@ -86,7 +88,12 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
       score: detail.score,
       feedback: detail.feedback,
       prompt: SpeakingUtteranceVO(order: 1, isUser: false, text: promptText),
-      answer: SpeakingUtteranceVO(order: 2, isUser: true, text: answerText),
+      answer: SpeakingUtteranceVO(
+        order: 2,
+        isUser: true,
+        text: answerText,
+        audioFileUuid: answerAudioUuid,
+      ),
       note: detail.note,
     );
   }
@@ -135,6 +142,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
           isUser: row.isUser,
           text: row.message,
           fluency: row.fluencyScore,
+          audioFileUuid: row.audioFileUuid,
         ),
       );
     }
@@ -200,6 +208,9 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
             order: Value(answer.utterances[i].order),
             isUser: Value(answer.utterances[i].isUser),
             message: Value(answer.utterances[i].text),
+            audioFileUuid: answer.utterances[i].audioFileUuid != null
+                ? Value(answer.utterances[i].audioFileUuid!)
+                : Value.absent(),
           ),
         );
         utteranceIds.add(
@@ -252,6 +263,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
             order: Value(1),
             isUser: Value(false),
             message: Value(answer.prompt.text),
+            audioFileUuid: Value.absent(),
           ),
           mode: InsertMode.insertOrReplace,
         );
@@ -262,6 +274,9 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
             order: Value(2),
             isUser: Value(true),
             message: Value(answer.answer.text),
+            audioFileUuid: answer.answer.audioFileUuid != null
+                ? Value(answer.answer.audioFileUuid!)
+                : Value.absent(),
           ),
           mode: InsertMode.insertOrReplace,
         );

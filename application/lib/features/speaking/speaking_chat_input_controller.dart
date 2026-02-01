@@ -275,6 +275,12 @@ class SpeakingChatInputController extends ChangeNotifier {
     if (isRecording) {
       await _recordingSrv.stopRecording();
       _recordingState[_currentRecordingIndex] = 2; // recorded
+
+      // Updates audio file UUID
+      _messages[_currentRecordingIndex] = _messages[_currentRecordingIndex]
+          .copyWith(
+            audioFileUuid: _recordingFileUuidMap[_currentRecordingIndex],
+          );
     }
     _currentRecordingIndex = -1;
 
@@ -285,7 +291,10 @@ class SpeakingChatInputController extends ChangeNotifier {
   Future<void> startPlaying(int index) async {
     _currentPlayingIndex = index;
 
-    await _recordingSrv.playAudio(_recordingFileUuidMap[index]!);
+    await _recordingSrv.playAudio(
+      _recordingFileUuidMap[index]!,
+      temporaryfile: true,
+    );
     notifyListeners();
   }
 
@@ -308,8 +317,8 @@ class SpeakingChatInputController extends ChangeNotifier {
   Future<void> _persistRecordingFile(
     List<SpeakingUtteranceIdVO> utteranceIds,
   ) async {
-    _recordingFileUuidMap.forEach((i, uuid) async {
-      await _recordingSrv.persistRecordingFile(utteranceIds[i], uuid);
+    _recordingFileUuidMap.forEach((_, uuid) async {
+      await _recordingSrv.persistRecordingFile(uuid);
     });
   }
 

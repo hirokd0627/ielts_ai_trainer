@@ -183,7 +183,12 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
     final answer = SpeakingSpeechAnswer(
       createdAt: now,
       prompt: SpeakingUtteranceVO(order: 1, isUser: false, text: _promptText),
-      answer: SpeakingUtteranceVO(order: 2, isUser: true, text: _answerText),
+      answer: SpeakingUtteranceVO(
+        order: 2,
+        isUser: true,
+        text: _answerText,
+        audioFileUuid: _recordingFileUuid,
+      ),
       isGraded: false,
       duration: _elapsedDuration.inSeconds,
       topics: topics,
@@ -236,7 +241,7 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
   /// Starts playing the recorded speech.
   Future<void> startPlaying() async {
     _playingState = 1;
-    await _recordingSrv.playAudio(_recordingFileUuid);
+    await _recordingSrv.playAudio(_recordingFileUuid, temporaryfile: true);
     notifyListeners();
   }
 
@@ -255,6 +260,6 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
 
   /// Persists the temporary recording file for an utterance.
   Future<void> _persistRecordingFile(SpeakingUtteranceIdVO utteranceId) async {
-    await _recordingSrv.persistRecordingFile(utteranceId, _recordingFileUuid);
+    await _recordingSrv.persistRecordingFile(_recordingFileUuid);
   }
 }

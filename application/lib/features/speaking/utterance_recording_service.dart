@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_id_vo.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
@@ -68,23 +67,15 @@ class UtteranceRecordingService {
   }
 
   /// Returns the path of the persistent file for the recording file.
-  Future<String> getPersistentFilePath(
-    SpeakingUtteranceIdVO utteranceId,
-  ) async {
+  Future<String> getPersistentFilePath(String uuid) async {
     final dir = await getApplicationDocumentsDirectory();
-    return p.join(
-      dir.path,
-      '${utteranceId.userAnswerId}_${utteranceId.order}.m4a',
-    );
+    return p.join(dir.path, '$uuid.m4a');
   }
 
   /// Persists the recording file for the UUID and returns the file path.
-  Future<String> persistRecordingFile(
-    SpeakingUtteranceIdVO utteranceId,
-    String uuid,
-  ) async {
+  Future<String> persistRecordingFile(String uuid) async {
     final srcPath = await _getTemporaryFilePath(uuid);
-    final dstPath = await getPersistentFilePath(utteranceId);
+    final dstPath = await getPersistentFilePath(uuid);
 
     // Copy
     final srcFile = File(srcPath);
@@ -111,18 +102,11 @@ class UtteranceRecordingService {
   }
 
   /// Starts playing the audio file for the given UUID.
-  Future<void> playAudio(String uuid) async {
-    await _audioPlayer.setSource(
-      DeviceFileSource(await _getTemporaryFilePath(uuid)),
-    );
-    await _audioPlayer.resume();
-  }
-
-  /// Starts playing the audio file for the given utterance id.
-  Future<void> playAudioById(SpeakingUtteranceIdVO utteranceId) async {
-    await _audioPlayer.setSource(
-      DeviceFileSource(await getPersistentFilePath(utteranceId)),
-    );
+  Future<void> playAudio(String uuid, {bool temporaryfile = false}) async {
+    final path = temporaryfile
+        ? await _getTemporaryFilePath(uuid)
+        : await getPersistentFilePath(uuid);
+    await _audioPlayer.setSource(DeviceFileSource(path));
     await _audioPlayer.resume();
   }
 
@@ -131,9 +115,9 @@ class UtteranceRecordingService {
     await _audioPlayer.stop();
   }
 
-  /// Returns true if a recording file exists for the given utterance id.
-  Future<bool> recordingFileExists(SpeakingUtteranceIdVO utteranceId) async {
-    final path = await getPersistentFilePath(utteranceId);
+  /// Returns true if a recording file exists for the given UUID.
+  Future<bool> recordingFileExists(String uuid) async {
+    final path = await getPersistentFilePath(uuid);
     final file = File(path);
     return await file.exists();
   }

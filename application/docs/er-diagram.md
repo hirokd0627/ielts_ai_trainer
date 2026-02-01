@@ -57,6 +57,7 @@ erDiagram
         INTEGER order PK
         INTEGER is_user
         TEXT message
+        TEXT audio_file_uuid
         REAL fluency_score
         TEXT updated_at
     }

@@ -100,7 +100,11 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
     if (_ctrl.isPlaying) {
       await _ctrl.stopPlaying();
     } else {
-      await _ctrl.startPlaying(index);
+      if (widget.testTask == TestTask.speakingPart2) {
+        await _ctrl.startPlayingSpeechAudio();
+      } else {
+        await _ctrl.startPlayingChatAudio(index);
+      }
     }
   }
 
