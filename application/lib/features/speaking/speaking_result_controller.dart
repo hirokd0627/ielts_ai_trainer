@@ -1,9 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_answer_repository.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_chat_answer.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_speech_answer.dart';
-import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_id_vo.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_vo.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/utterance_recording_service.dart';
@@ -117,10 +117,14 @@ class SpeakingResultController extends ChangeNotifier {
 
   bool isPlayingAt(int index) => _currentPlayingIndex == index;
 
+  bool isRecorded(int index) {
+    return _recordingFileExists.isNotEmpty &&
+        _recordingFileExists.containsKey(index) &&
+        _recordingFileExists[index]!;
+  }
+
   bool isPlayButtonEnabledAt(int index) {
-    if (_recordingFileExists.isEmpty ||
-        !_recordingFileExists.containsKey(index) ||
-        !_recordingFileExists[index]!) {
+    if (!isRecorded(index)) {
       return false;
     }
     if (_currentPlayingIndex == -1 ||
@@ -133,9 +137,7 @@ class SpeakingResultController extends ChangeNotifier {
   }
 
   String getPlayButtonLabelAt(int index) {
-    if (_recordingFileExists.isEmpty ||
-        !_recordingFileExists.containsKey(index) ||
-        !_recordingFileExists[index]!) {
+    if (!isRecorded(index)) {
       return 'Not Recorded';
     }
     return isPlayingAt(index) ? 'Stop' : 'Play';
@@ -213,6 +215,10 @@ class SpeakingResultController extends ChangeNotifier {
   Future<void> _gradeChatAnswer() async {
     final resp = await _apiSrv.gradeChatAnswer(answer: _chatAnswer!);
 
+    final utterances = _chatAnswer!.utterances.mapIndexed((i, u) {
+      return u.copyWith(fluency: resp.utteranceFluency[i]);
+    }).toList();
+
     // Updates results in answer
     final gradedAnswer = _chatAnswer!.copyWith(
       fluency: resp.fluency,
@@ -223,7 +229,7 @@ class SpeakingResultController extends ChangeNotifier {
       feedback: resp.feedback,
       isGraded: true,
       updatedAt: DateTime.now(),
-      utterances: List.from(_chatAnswer!.utterances),
+      utterances: utterances,
     );
     _repo.saveSpeakingChatAnswer(gradedAnswer);
 
@@ -246,6 +252,7 @@ class SpeakingResultController extends ChangeNotifier {
       feedback: resp.feedback,
       isGraded: true,
       updatedAt: DateTime.now(),
+      answer: _speechAnswer!.answer.copyWith(fluency: resp.fluency),
     );
     _repo.saveSpeakingSpeechAnswer(gradedAnswer);
 

@@ -280,6 +280,10 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                                   showPlayButton: true,
                                   playingButtonLabel: _ctrl
                                       .getPlayButtonLabelAt(i),
+                                  fluencyScore:
+                                      _ctrl.isGraded && _ctrl.isRecorded(i)
+                                      ? u.fluency
+                                      : null,
                                 ),
                               );
                             }).toList(),
