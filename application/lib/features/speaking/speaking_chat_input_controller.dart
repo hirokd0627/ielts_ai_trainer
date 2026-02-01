@@ -55,7 +55,7 @@ class SpeakingChatInputController extends ChangeNotifier {
   /// Whether prompt text is being generated.
   bool _isGeneratingPromptText = false;
 
-  /// The map _messages index to temporary UUID of teh recorded audio file.
+  /// The map _messages index to the UUID of recorded file.
   final Map<int, String> _recordingFileUuidMap = {};
 
   /// The map _messages index to recording state: 0 = not started, 1 = recording, 2 = recorded, 3 = rerecording.
@@ -236,11 +236,9 @@ class SpeakingChatInputController extends ChangeNotifier {
       testTask: _testTask,
     );
 
-    final ids = await _repo.saveSpeakingChatAnswer(answer);
-
-    // Persists the temporary recording file.
+    late ({int id, List<SpeakingUtteranceIdVO> utteranceIds}) ids;
     try {
-      _persistRecordingFile(ids.utteranceIds);
+      ids = await _repo.saveSpeakingChatAnswer(answer);
     } catch (e, stackTrace) {
       await _repo.deleteSpeakingUserAnswer(ids.id); // rollback
       throw Exception('Failed to persist recording file: $e\n$stackTrace');
@@ -249,16 +247,16 @@ class SpeakingChatInputController extends ChangeNotifier {
     return ids.id;
   }
 
-  /// Deletes all the temporary recording files.
-  Future<void> deleteAllTemporaryRecordingFiles() async {
+  /// Deletes all the recording files.
+  Future<void> deleteAllRecordingFiles() async {
     _recordingFileUuidMap.forEach((i, uuid) async {
-      await _deleteTemporaryRecordingFile(i);
+      await _deleteRecordingFile(i);
     });
   }
 
   /// Starts recording the user's speech in the message at the given index.
   Future<void> startRecording(int index) async {
-    await _deleteTemporaryRecordingFile(index); // deletes old temporary file
+    await _deleteRecordingFile(index); // deletes old file
 
     _currentRecordingIndex = index;
 
@@ -291,10 +289,7 @@ class SpeakingChatInputController extends ChangeNotifier {
   Future<void> startPlaying(int index) async {
     _currentPlayingIndex = index;
 
-    await _recordingSrv.playAudio(
-      _recordingFileUuidMap[index]!,
-      temporaryfile: true,
-    );
+    await _recordingSrv.playAudio(_recordingFileUuidMap[index]!);
     notifyListeners();
   }
 
@@ -313,21 +308,10 @@ class SpeakingChatInputController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Persists the temporary recording files and deletes them.
-  Future<void> _persistRecordingFile(
-    List<SpeakingUtteranceIdVO> utteranceIds,
-  ) async {
-    _recordingFileUuidMap.forEach((_, uuid) async {
-      await _recordingSrv.persistRecordingFile(uuid);
-    });
-  }
-
-  /// Deletes the temporary recording file at the given index.
-  Future<void> _deleteTemporaryRecordingFile(int index) async {
+  /// Deletes the recording file at the given index.
+  Future<void> _deleteRecordingFile(int index) async {
     if (_recordingFileUuidMap[index]?.isNotEmpty ?? false) {
-      await _recordingSrv.deleteTemporaryRecordingFile(
-        _recordingFileUuidMap[index]!,
-      );
+      await _recordingSrv.deleteRecordingFile(_recordingFileUuidMap[index]!);
       _recordingFileUuidMap.remove(index);
     }
   }

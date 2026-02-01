@@ -50,9 +50,9 @@ class UtteranceRecordingService {
     // Use mono audio.
     const config = RecordConfig(encoder: encoder, numChannels: 1);
 
-    // Generate UUID for the identity for the temporary file.
+    // Generate UUID for the identity for the audio file.
     final uuid = Uuid().v4();
-    final path = await _getTemporaryFilePath(uuid);
+    final path = await _getFilePath(uuid);
 
     // Start to record.
     await _audioRecorder.start(config, path: path);
@@ -66,35 +66,9 @@ class UtteranceRecordingService {
     return path ?? '';
   }
 
-  /// Returns the path of the persistent file for the recording file.
-  Future<String> getPersistentFilePath(String uuid) async {
-    final dir = await getApplicationDocumentsDirectory();
-    return p.join(dir.path, '$uuid.m4a');
-  }
-
-  /// Persists the recording file for the UUID and returns the file path.
-  Future<String> persistRecordingFile(String uuid) async {
-    final srcPath = await _getTemporaryFilePath(uuid);
-    final dstPath = await getPersistentFilePath(uuid);
-
-    // Copy
-    final srcFile = File(srcPath);
-    await srcFile.copy(dstPath);
-
-    // Delete the temporary file.
-    final dstFile = File(dstPath);
-    if (await dstFile.exists() == false) {
-      throw Exception('failed to persist audio file.');
-    }
-    // delete after confirming the copied file
-    await srcFile.delete();
-
-    return dstPath;
-  }
-
-  /// Deletes the temporary recording file.
-  Future<void> deleteTemporaryRecordingFile(String uuid) async {
-    final path = await _getTemporaryFilePath(uuid);
+  /// Deletes the recording file.
+  Future<void> deleteRecordingFile(String uuid) async {
+    final path = await _getFilePath(uuid);
     final file = File(path);
     if (await file.exists()) {
       await file.delete();
@@ -102,10 +76,8 @@ class UtteranceRecordingService {
   }
 
   /// Starts playing the audio file for the given UUID.
-  Future<void> playAudio(String uuid, {bool temporaryfile = false}) async {
-    final path = temporaryfile
-        ? await _getTemporaryFilePath(uuid)
-        : await getPersistentFilePath(uuid);
+  Future<void> playAudio(String uuid) async {
+    final path = await _getFilePath(uuid);
     await _audioPlayer.setSource(DeviceFileSource(path));
     await _audioPlayer.resume();
   }
@@ -117,7 +89,7 @@ class UtteranceRecordingService {
 
   /// Returns true if a recording file exists for the given UUID.
   Future<bool> recordingFileExists(String uuid) async {
-    final path = await getPersistentFilePath(uuid);
+    final path = await _getFilePath(uuid);
     final file = File(path);
     return await file.exists();
   }
@@ -139,9 +111,9 @@ class UtteranceRecordingService {
     return isSupported;
   }
 
-  /// Returns the temporary file path for the recording file.
-  Future<String> _getTemporaryFilePath(String uuid) async {
+  /// Returns the path of the recording file.
+  Future<String> _getFilePath(String uuid) async {
     final dir = await getApplicationDocumentsDirectory();
-    return p.join(dir.path, 'tmp_$uuid.m4a');
+    return p.join(dir.path, '$uuid.m4a');
   }
 }

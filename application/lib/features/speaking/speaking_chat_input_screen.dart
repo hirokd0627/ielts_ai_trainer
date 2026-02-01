@@ -173,8 +173,8 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
       return;
     }
 
-    // Delete all temporary file.
-    _ctrl.deleteAllTemporaryRecordingFiles();
+    // Delete all files.
+    _ctrl.deleteAllRecordingFiles();
 
     if (!mounted) {
       // If state has been destroyed, context cannot be used, so return

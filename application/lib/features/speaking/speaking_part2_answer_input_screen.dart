@@ -105,8 +105,8 @@ class _SpeakingPart2AnswerInputScreenState
       return;
     }
 
-    // Delete the temporary file.
-    _ctrl.deleteTemporaryRecordingFile();
+    // Delete the recorded file.
+    _ctrl.deleteRecordingFile();
 
     if (!mounted) {
       // If state has been destroyed, context cannot be used, so return

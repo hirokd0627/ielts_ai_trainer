@@ -196,12 +196,10 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
       note: _noteText,
     );
 
-    final ids = await _repo.saveSpeakingSpeechAnswer(answer);
-
-    // Persists the temporary recording file.
+    late ({int id, SpeakingUtteranceIdVO utteranceId}) ids;
     if (_recordingFileUuid.isNotEmpty) {
       try {
-        _persistRecordingFile(ids.utteranceId);
+        ids = await _repo.saveSpeakingSpeechAnswer(answer);
       } catch (e, stackTrace) {
         await _repo.deleteSpeakingUserAnswer(ids.id); // rollback
         throw Exception('Failed to persist recording file: $e\n$stackTrace');
@@ -211,17 +209,17 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
     return ids.id;
   }
 
-  /// Deletes the temporary recording file.
-  Future<void> deleteTemporaryRecordingFile() async {
+  /// Deletes the recording file.
+  Future<void> deleteRecordingFile() async {
     if (_recordingFileUuid.isNotEmpty) {
-      await _recordingSrv.deleteTemporaryRecordingFile(_recordingFileUuid);
+      await _recordingSrv.deleteRecordingFile(_recordingFileUuid);
       _recordingFileUuid = '';
     }
   }
 
   /// Starts recording the user's speech.
   Future<void> startRecording() async {
-    await deleteTemporaryRecordingFile();
+    await deleteRecordingFile(); // delete old recorded file
     _recordingState = isRecorded ? 3 : 1;
     _recordingFileUuid = await _recordingSrv.startRecording();
 
@@ -241,7 +239,7 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
   /// Starts playing the recorded speech.
   Future<void> startPlaying() async {
     _playingState = 1;
-    await _recordingSrv.playAudio(_recordingFileUuid, temporaryfile: true);
+    await _recordingSrv.playAudio(_recordingFileUuid);
     notifyListeners();
   }
 
@@ -256,10 +254,5 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
   void _onPlayerComplete() {
     _playingState = 0;
     notifyListeners();
-  }
-
-  /// Persists the temporary recording file for an utterance.
-  Future<void> _persistRecordingFile(SpeakingUtteranceIdVO utteranceId) async {
-    await _recordingSrv.persistRecordingFile(_recordingFileUuid);
   }
 }
