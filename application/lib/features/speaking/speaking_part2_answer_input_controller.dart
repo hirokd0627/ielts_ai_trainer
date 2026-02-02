@@ -197,13 +197,13 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
     );
 
     late ({int id, SpeakingUtteranceIdVO utteranceId}) ids;
-    if (_recordingFileUuid.isNotEmpty) {
-      try {
-        ids = await _repo.saveSpeakingSpeechAnswer(answer);
-      } catch (e, stackTrace) {
+    try {
+      ids = await _repo.saveSpeakingSpeechAnswer(answer);
+    } catch (e, stackTrace) {
+      if (_recordingFileUuid.isNotEmpty) {
         await _repo.deleteSpeakingUserAnswer(ids.id); // rollback
-        throw Exception('Failed to persist recording file: $e\n$stackTrace');
       }
+      throw Exception('Failed to persist recording file: $e\n$stackTrace');
     }
 
     return ids.id;
