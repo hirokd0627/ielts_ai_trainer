@@ -48,7 +48,12 @@ class UtteranceRecordingService {
     }
 
     // Use mono audio.
-    const config = RecordConfig(encoder: encoder, numChannels: 1);
+    const config = RecordConfig(
+      encoder: AudioEncoder.aacLc,
+      sampleRate: 44100,
+      bitRate: 128000,
+      numChannels: 1,
+    );
 
     // Generate UUID for the identity for the audio file.
     final uuid = Uuid().v4();
