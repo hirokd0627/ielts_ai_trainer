@@ -130,11 +130,7 @@ class _SpeakingQuestionGeneratorFormState
   /// Called when the Start button is tapped.
   void _onPressedStart() async {
     // Confirm whether to start practicing.
-    final confirmed = await showConfirmDialog(
-      context,
-      'Start to practice?',
-      '',
-    );
+    final confirmed = await showStartPracticeDialog(context);
     if (confirmed == null || !confirmed) {
       return;
     }
@@ -209,6 +205,15 @@ class _SpeakingQuestionGeneratorFormState
               margin: EdgeInsets.only(bottom: 4),
               child: FieldLabel('Topics'),
             ),
+            Container(
+              margin: EdgeInsets.only(bottom: 8),
+              child: Text(
+                widget.testTask == TestTask.speakingPart1
+                    ? 'Missing topics will be auto-generated to reach the number of topics.'
+                    : 'A topic will be auto-generated if left blank.',
+                style: AppStyles.helperTextStyle,
+              ),
+            ),
             MouseRegion(
               onEnter: (_) => setState(() => _hoveringOnTopics = true),
               onExit: (_) => setState(() => _hoveringOnTopics = false),
@@ -235,7 +240,7 @@ class _SpeakingQuestionGeneratorFormState
                         style: AppStyles.textFieldStyle(context),
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          hintText: 'Add tag Enter a topic and press Enter',
+                          hintText: 'Type a topic and press Enter',
                           hintStyle: AppStyles.placeHolderText,
                           isDense: true,
                           contentPadding: EdgeInsets.symmetric(

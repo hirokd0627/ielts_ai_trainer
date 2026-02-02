@@ -11,7 +11,7 @@ import 'package:ielts_ai_trainer/shared/views/texts.dart';
 /// Question Generator Form for Writing Tasks.
 class WritingQuestionGeneratorForm extends StatefulWidget {
   /// Called when generation button is tapped.
-  final Future<String> Function(
+  final Future<({List<String> topics, String promptText})> Function(
     WritingPromptType promptType,
     List<String> topics,
   )
@@ -216,11 +216,7 @@ class _WritingQuestionGeneratorFormState
   /// Called when the start button is tapped.
   void _onPressedStart() async {
     // Confirm whether to start practicing.
-    final confirmed = await showConfirmDialog(
-      context,
-      'Start to practice?',
-      '',
-    );
+    final confirmed = await showStartPracticeDialog(context);
     if (confirmed == null || !confirmed) {
       return;
     }
@@ -245,7 +241,7 @@ class _WritingQuestionGeneratorFormState
           children: [
             // Question type
             Container(
-              margin: EdgeInsets.only(bottom: 4),
+              margin: EdgeInsets.only(bottom: 8),
               child: FieldLabel(_promptTypeLabel),
             ),
             MouseRegion(
@@ -283,6 +279,13 @@ class _WritingQuestionGeneratorFormState
               margin: EdgeInsets.only(bottom: 4),
               child: FieldLabel('Topics'),
             ),
+            Container(
+              margin: EdgeInsets.only(bottom: 8),
+              child: Text(
+                'A topic will be auto-generated if left blank.',
+                style: AppStyles.helperTextStyle,
+              ),
+            ),
             MouseRegion(
               onEnter: (_) => setState(() => _hoveringOnTopics = true),
               onExit: (_) => setState(() => _hoveringOnTopics = false),
@@ -308,7 +311,7 @@ class _WritingQuestionGeneratorFormState
                         style: AppStyles.textFieldStyle(context),
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          hintText: 'Add tag Enter a topic and press Enter',
+                          hintText: 'Type a topic and press Enter',
                           hintStyle: AppStyles.placeHolderText,
                           isDense: true,
                           contentPadding: EdgeInsets.symmetric(

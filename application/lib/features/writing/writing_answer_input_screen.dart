@@ -83,11 +83,7 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
   /// Called when the submit button is pressed.
   void _onPressedSubmit() async {
     // Confirm whether to submit the answer.
-    final confirmed = await showConfirmDialog(
-      context,
-      'Submit your answer?',
-      '',
-    );
+    final confirmed = await showSubmitAnswerDialog(context);
     if (confirmed == null || !confirmed) {
       return;
     }
@@ -117,7 +113,7 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
   /// Called when the cancel button is pressed.
   void _onPressedCancel() async {
     // Confirm whether to stop practicing.
-    final confirmed = await showConfirmDialog(context, 'Stop to practice?', '');
+    final confirmed = await showQuitPracticeDialog(context);
     if (confirmed == null || !confirmed) {
       return;
     }
@@ -188,7 +184,7 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
                           width: 1,
                         ),
                       ),
-                      hintText: 'Enter your answer...',
+                      hintText: 'Type your answer...',
                       hintStyle: TextStyle(
                         color: AppColors.placeholderTextColor,
                         fontWeight: FontWeight.w400,
@@ -202,7 +198,7 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: 8),
                         child: Text(_ctrl.getWordCountAsText(widget.testTask)),
                       ),
                       Padding(
@@ -216,7 +212,7 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
                                   AppColors.chipBackground,
                                 ),
                               ),
-                              child: const Text('Cancel'),
+                              child: const Text('Quit'),
                             ),
                             SizedBox(width: 12),
                             FilledButton(

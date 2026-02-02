@@ -21,7 +21,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
@@ -30,6 +30,22 @@ class AppDatabase extends _$AppDatabase {
         // macos: Library/Containers/com.example.ieltsAiTrainer/Data/Documents/db.sql
         databaseDirectory: getApplicationDocumentsDirectory,
       ),
+    );
+  }
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onUpgrade: (Migrator m, int from, int to) async {
+        // Recreate all tables if the schemaVersion changes.
+        if (1 < to) {
+          for (final table in allTables) {
+            // Delete all tables and create ones.
+            await m.deleteTable(table.actualTableName);
+            await m.createTable(table);
+          }
+        }
+      },
     );
   }
 }
@@ -110,6 +126,7 @@ class SpeakingUtterancesTable extends Table {
   IntColumn get order => integer()();
   BoolColumn get isUser => boolean()();
   TextColumn get message => text()();
+  TextColumn get audioFileUuid => text().nullable()();
   // score is nullable because it will be updated after evaluation.
   RealColumn get fluencyScore => real().nullable()();
   // creation date is the same as the parent UserAnswer

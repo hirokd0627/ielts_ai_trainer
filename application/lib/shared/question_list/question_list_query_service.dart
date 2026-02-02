@@ -8,7 +8,12 @@ part 'question_list_query_service.g.dart';
 
 /// Query service for QuestionListView, handling database data retrieval.
 @DriftAccessor(
-  tables: [UserAnswersTable, WritingAnswerDetailsTable, PromptTopicsTable],
+  tables: [
+    UserAnswersTable,
+    WritingAnswerDetailsTable,
+    PromptTopicsTable,
+    SpeakingUtterancesTable,
+  ],
 )
 class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
     with _$QuestionListQueryServiceMixin {
@@ -24,10 +29,17 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
   }) async {
     testTasks ??= TestTask.values.toSet();
 
+    final containsWriting =
+        testTasks.contains(TestTask.writingTask1) ||
+        testTasks.contains(TestTask.writingTask2);
+    final containsSpeaking =
+        testTasks.contains(TestTask.speakingPart1) ||
+        testTasks.contains(TestTask.speakingPart2) ||
+        testTasks.contains(TestTask.speakingPart3);
+
     // Join
     final joins = <Join<HasResultSet, dynamic>>[];
-    if (testTasks.contains(TestTask.writingTask1) ||
-        testTasks.contains(TestTask.writingTask2)) {
+    if (containsWriting) {
       joins.add(
         leftOuterJoin(
           writingAnswerDetailsTable,
@@ -35,10 +47,15 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
         ),
       );
     }
-    if (testTasks.contains(TestTask.speakingPart1) ||
-        testTasks.contains(TestTask.speakingPart2) ||
-        testTasks.contains(TestTask.speakingPart3)) {
-      // TODO: speaking
+    if (containsSpeaking) {
+      joins.add(
+        leftOuterJoin(
+          speakingUtterancesTable,
+          speakingUtterancesTable.userAnswerId.equalsExp(userAnswersTable.id) &
+              // The prompt text is stored with order 1.
+              speakingUtterancesTable.order.equals(1),
+        ),
+      );
     }
     final joinedQuery = select(userAnswersTable).join(joins);
 
@@ -69,16 +86,13 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
     // Search word
     if (word.isNotEmpty) {
       final wordWhereClauses = <Expression<bool>>[];
-      if (testTasks.contains(TestTask.writingTask1) ||
-          testTasks.contains(TestTask.writingTask2)) {
+      if (containsWriting) {
         wordWhereClauses.add(
           writingAnswerDetailsTable.promptText.contains(word),
         );
       }
-      if (testTasks.contains(TestTask.speakingPart1) ||
-          testTasks.contains(TestTask.speakingPart2) ||
-          testTasks.contains(TestTask.speakingPart3)) {
-        // TODO: speaking
+      if (containsSpeaking) {
+        wordWhereClauses.add(speakingUtterancesTable.message.contains(word));
       }
       if (wordWhereClauses.isNotEmpty) {
         joinedQuery.where(wordWhereClauses.reduce((a, b) => a | b));
@@ -121,11 +135,19 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
     for (final row in userAnswerRows) {
       final ua = row.readTable(userAnswersTable);
       final wa = row.readTableOrNull(writingAnswerDetailsTable);
+      final ut = row.readTableOrNull(speakingUtterancesTable);
+
+      late String promptText;
+      if (ua.testTask.isWriting) {
+        promptText = wa?.promptText ?? '';
+      } else if (ua.testTask.isSpeaking) {
+        promptText = ut?.message ?? '';
+      }
 
       userAnswers.add(
         QuestionListViewVM(
           id: ua.id,
-          promptText: wa?.promptText ?? '',
+          promptText: promptText,
           testTask: ua.testTask,
           datetime: ua.createdAt.toLocal(),
           topics: topicsMap[ua.id] ?? [],

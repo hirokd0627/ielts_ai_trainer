@@ -11,7 +11,7 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
   final List<String> _usedTopics;
 
   /// Function to generate prompt text.
-  /// Returns a record containing prompt text and a topics used.
+  /// Returns a record containing prompt text and topics used.
   final Future<({List<String> topics, String promptText})> Function(
     int topicCount,
     List<String> topics,

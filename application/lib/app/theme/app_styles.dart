@@ -20,6 +20,16 @@ class AppStyles {
     );
   }
 
+  /// Helper text style.
+  static TextStyle get helperTextStyle {
+    return TextStyle(
+      // color: Colors.grey.shade700,
+      color: AppColors.secondaryTextColor,
+      fontWeight: FontWeight.w400,
+      fontSize: 13,
+    );
+  }
+
   /// Screen horizontal padding.
   static double get screenPadding => 24;
 

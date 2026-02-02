@@ -100,7 +100,11 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
     if (_ctrl.isPlaying) {
       await _ctrl.stopPlaying();
     } else {
-      await _ctrl.startPlaying(index);
+      if (widget.testTask == TestTask.speakingPart2) {
+        await _ctrl.startPlayingSpeechAudio();
+      } else {
+        await _ctrl.startPlayingChatAudio(index);
+      }
     }
   }
 
@@ -260,7 +264,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                           // Part 1 or Part 3
                           // Conversation
                           HeadlineText("Conversation"),
-                          SizedBox(height: 4),
+                          SizedBox(height: 16),
                           Column(
                             children: _ctrl.utterances.mapIndexed((i, u) {
                               return Padding(
@@ -276,6 +280,10 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                                   showPlayButton: true,
                                   playingButtonLabel: _ctrl
                                       .getPlayButtonLabelAt(i),
+                                  fluencyScore:
+                                      _ctrl.isGraded && _ctrl.isRecorded(i)
+                                      ? u.fluency
+                                      : null,
                                 ),
                               );
                             }).toList(),

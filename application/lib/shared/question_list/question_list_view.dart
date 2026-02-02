@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/app/router_extra.dart';
 import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
+import 'package:ielts_ai_trainer/features/speaking/speaking_routes.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
@@ -55,7 +56,6 @@ class _QuestionListViewState extends State<QuestionListView> {
 
   /// Returns the data rows in the list.
   List<DataRow> get _questionListToDataRows {
-    final displayDateFormat = DateFormat('MMM d, yyyy');
     return _ctrl.eventList.map((item) {
       return DataRow2(
         decoration: BoxDecoration(
@@ -65,24 +65,16 @@ class _QuestionListViewState extends State<QuestionListView> {
         cells: [
           DataCell(
             Text(
-              item.promptText.replaceAll('\n', ' '), // To one line
+              item.promptTextDisplay,
               maxLines: 1,
               // Fade to the right
               overflow: TextOverflow.fade,
               softWrap: false,
             ),
           ),
-          DataCell(Text(displayDateFormat.format(item.datetime))),
-          DataCell(
-            Text(switch (item.testTask) {
-              TestTask.speakingPart1 => 'Speaking Part 1',
-              TestTask.speakingPart2 => 'Speaking Part 2',
-              TestTask.speakingPart3 => 'Speaking Part 3',
-              TestTask.writingTask1 => 'Writing Task 1',
-              TestTask.writingTask2 => 'Writing Task 2',
-            }),
-          ),
-          DataCell(Text(item.topics.join(', '))),
+          DataCell(Text(item.dateDisplay)),
+          DataCell(Text(item.testTaskDisplay)),
+          DataCell(Text(item.topicsDisplay)),
         ],
       );
     }).toList();
@@ -154,10 +146,13 @@ class _QuestionListViewState extends State<QuestionListView> {
   /// Called when the row is tapped.
   void _onTappedRow(QuestionListViewVM row) {
     // Navigates to the result screen.
-    final path = row.testTask == TestTask.writingTask1
-        ? writingTask1ResultScreenRoutePath
-        : writingTask2ResultScreenRoutePath;
-
+    final path = switch (row.testTask) {
+      TestTask.writingTask1 => writingTask1ResultScreenRoutePath,
+      TestTask.writingTask2 => writingTask2ResultScreenRoutePath,
+      TestTask.speakingPart1 => speakingPart1ResultScreenRoutePath,
+      TestTask.speakingPart2 => speakingPart2ResultScreenRoutePath,
+      TestTask.speakingPart3 => speakingPart3ResultScreenRoutePath,
+    };
     context.go(path, extra: RouterExtra({'id': row.id}));
   }
 
@@ -197,7 +192,7 @@ class _QuestionListViewState extends State<QuestionListView> {
                         decoration: InputDecoration(
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-                          hintText: 'Enter word to search...',
+                          hintText: 'Type word to search...',
                           hintStyle: AppStyles.placeHolderText,
                           prefixIcon: Icon(Icons.search, size: 24),
                         ),
@@ -281,11 +276,41 @@ class _QuestionListViewState extends State<QuestionListView> {
 
 /// ViewModel that represents a UserAnswer for display on Question list.
 class QuestionListViewVM {
+  /// The date fomart for the Date column.
+  static final _displayDateFormat = DateFormat('MMM d, yyyy');
+
   final int id;
   final String promptText;
   final TestTask testTask;
   final List<String> topics;
   final DateTime datetime;
+
+  /// The prompt text formatted for display in a table cell.
+  String get promptTextDisplay {
+    // To one line
+    return promptText.replaceAll('\n', ' ');
+  }
+
+  /// The datetime formatted for display in a table cell.
+  String get dateDisplay {
+    return _displayDateFormat.format(datetime);
+  }
+
+  /// The test task formatted for display in a table cell.
+  String get testTaskDisplay {
+    return switch (testTask) {
+      TestTask.speakingPart1 => 'Speaking Part 1',
+      TestTask.speakingPart2 => 'Speaking Part 2',
+      TestTask.speakingPart3 => 'Speaking Part 3',
+      TestTask.writingTask1 => 'Writing Task 1',
+      TestTask.writingTask2 => 'Writing Task 2',
+    };
+  }
+
+  /// The topics formatted for display in a table cell.
+  String get topicsDisplay {
+    return topics.join(', ');
+  }
 
   const QuestionListViewVM({
     required this.id,

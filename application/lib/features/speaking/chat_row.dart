@@ -39,6 +39,9 @@ class ChatRow extends StatelessWidget {
   /// Whether to display on the result screen.
   final bool isResultView;
 
+  /// The fluency score of an audio.
+  final double? fluencyScore;
+
   const ChatRow({
     super.key,
     required this.isUser,
@@ -51,6 +54,7 @@ class ChatRow extends StatelessWidget {
     this.onPressedPlay,
     this.onPressedRecording,
     this.isResultView = false,
+    this.fluencyScore = 0.0,
   }) : _assetName = isUser ? _userImageAssetName : _aiImageAssetName;
 
   /// Font size for message texts.
@@ -136,6 +140,10 @@ class ChatRow extends StatelessWidget {
                     // Margin between a recording and play buttons.
                     if (showRecordingButton && showPlayButton)
                       SizedBox(width: 10),
+                    if (isResultView && fluencyScore != null) ...[
+                      Text('Fluency: $fluencyScore'),
+                      SizedBox(width: 10),
+                    ],
                     // Play button
                     if (showPlayButton)
                       // TODO: make this outlinebutton reusable.

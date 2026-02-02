@@ -10,4 +10,6 @@ mixin _$QuestionListQueryServiceMixin on DatabaseAccessor<AppDatabase> {
       attachedDatabase.writingAnswerDetailsTable;
   $PromptTopicsTableTable get promptTopicsTable =>
       attachedDatabase.promptTopicsTable;
+  $SpeakingUtterancesTableTable get speakingUtterancesTable =>
+      attachedDatabase.speakingUtterancesTable;
 }

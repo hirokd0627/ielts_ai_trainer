@@ -71,11 +71,7 @@ class _SpeakingPart2AnswerInputScreenState
   /// Called when the submit button is pressed.
   void _onPressedSubmit() async {
     // Confirm whether to submit the answer.
-    final confirmed = await showConfirmDialog(
-      context,
-      'Submit your answer?',
-      '',
-    );
+    final confirmed = await showSubmitAnswerDialog(context);
     if (confirmed == null || !confirmed) {
       return;
     }
@@ -104,13 +100,13 @@ class _SpeakingPart2AnswerInputScreenState
   /// Called when the cancel button is pressed.
   void _onPressedCancel() async {
     // Confirm whether to stop practicing.
-    final confirmed = await showConfirmDialog(context, 'Stop to practice?', '');
+    final confirmed = await showQuitPracticeDialog(context);
     if (confirmed == null || !confirmed) {
       return;
     }
 
-    // Delete the temporary file.
-    _ctrl.deleteTemporaryRecordingFile();
+    // Delete the recorded file.
+    _ctrl.deleteRecordingFile();
 
     if (!mounted) {
       // If state has been destroyed, context cannot be used, so return
@@ -178,17 +174,25 @@ class _SpeakingPart2AnswerInputScreenState
                   Text(widget.promptText),
                   SizedBox(height: 20),
                   // Note
-                  Container(
-                    margin: EdgeInsets.only(bottom: 2),
-                    child: Row(
-                      children: [
-                        FieldLabel('Note'),
-                        SizedBox(width: 30),
-                        Row(
+                  Row(
+                    children: [
+                      FieldLabel('Note'),
+                      SizedBox(
+                        width: 160,
+                        child: Container(
+                          padding: EdgeInsets.only(left: 20),
+                          child: Text('Remaining: ${_ctrl.remainingAsText}'),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 150,
+                        child: Row(
                           children: [
-                            Text(_ctrl.remainingAsText),
-                            SizedBox(width: 30),
                             Checkbox(
+                              visualDensity: const VisualDensity(
+                                vertical: -3,
+                                // horizontal: -4,
+                              ),
                               checkColor: Colors.white,
                               activeColor: AppColors.focusColor,
                               side: BorderSide(
@@ -202,7 +206,14 @@ class _SpeakingPart2AnswerInputScreenState
                             Text('Lock'),
                           ],
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Input will be locked when time runs out. Uncheck "Lock" to edit again.',
+                      style: AppStyles.helperTextStyle,
                     ),
                   ),
                   HoverHighlightTextField(
@@ -210,13 +221,13 @@ class _SpeakingPart2AnswerInputScreenState
                     minLines: 3, // always show at least 3 lines
                     maxLines: null, // expands automatically
                     keyboardType: TextInputType.multiline,
-                    hintText: 'Enter your note...',
+                    hintText: 'Type your note...',
                     onChanged: _onChangedNoteText,
                   ),
                   SizedBox(height: 20),
                   // Answer
                   Container(
-                    margin: EdgeInsets.only(bottom: 4),
+                    margin: EdgeInsets.only(bottom: 8),
                     child: FieldLabel('Answer'),
                   ),
                   Stack(
@@ -225,7 +236,7 @@ class _SpeakingPart2AnswerInputScreenState
                         minLines: 5, // always show at least 5 lines
                         maxLines: null, // expands automatically
                         keyboardType: TextInputType.multiline,
-                        hintText: 'Enter your answer...',
+                        hintText: 'Type your answer...',
                         onChanged: _onChangedAnswerText,
                       ),
                       // Recording button and Play button
@@ -295,7 +306,7 @@ class _SpeakingPart2AnswerInputScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: 8),
                         child: Text(_ctrl.getWordCountAsText()),
                       ),
                       Padding(
@@ -309,7 +320,7 @@ class _SpeakingPart2AnswerInputScreenState
                                   AppColors.chipBackground,
                                 ),
                               ),
-                              child: const Text('Cancel'),
+                              child: const Text('Quit'),
                             ),
                             SizedBox(width: 12),
                             FilledButton(
