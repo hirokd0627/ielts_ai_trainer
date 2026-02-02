@@ -25,11 +25,27 @@ class AppDatabase extends _$AppDatabase {
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
-      name: 'db2',
+      name: 'db',
       native: const DriftNativeOptions(
         // macos: Library/Containers/com.example.ieltsAiTrainer/Data/Documents/db.sql
         databaseDirectory: getApplicationDocumentsDirectory,
       ),
+    );
+  }
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onUpgrade: (Migrator m, int from, int to) async {
+        // Recreate all tables if the schemaVersion changes.
+        if (1 < to) {
+          for (final table in allTables) {
+            // Delete all tables and create ones.
+            await m.deleteTable(table.actualTableName);
+            await m.createTable(table);
+          }
+        }
+      },
     );
   }
 }
