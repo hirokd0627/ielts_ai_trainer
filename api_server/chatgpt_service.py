@@ -1,0 +1,206 @@
+import base64
+import time
+
+from openai import OpenAI
+from pydantic import BaseModel
+
+
+class ChatGptService:
+    """A service class to generate prompt and evaluate answers for IELTS
+    Writing and Specaking practice using Chat GPT API"""
+
+    def __init__(self):
+        self.client = OpenAI()
+
+    def generate_writing_task1_prompt(
+        self, question_type: str, topics: list[str] | None = None
+    ) -> dict:
+        """Generates prompt for Writing Task 2.
+
+        Args:
+            question_type (str): Type of question.
+            topics (str): Topic of question.
+
+        Returns:
+            Dict[str, str]: Generated prompt parts.
+                - 'topics (list)': The list of topics to used in generating
+                    prompt.
+                - 'introduction' (str): Introduction sentence put before
+                    a diagram.
+                - 'description' (str): Description of a diagram.
+                - 'img_b64' (str): Base64 encoded bytes of a diagram.
+        """
+        topics = topics.copy() if topics else []
+
+        # Generates topics if it is not specified.
+        if not topics:
+            topics = self._generate_topics()
+
+        # Generates prompt for a diagram.
+        img_prompt = self._generate_writing_task1_digram_prompt(question_type, topics)
+
+        # Generates a diagram image.
+        img_b64 = self._generate_image(question_type, img_prompt)
+
+        return {
+            "topics": topics,
+            "introduction": img_prompt["diagram_introduction"],
+            "description": img_prompt["diagram_description"],
+            "img_b64": img_b64,
+        }
+
+    def generate_writing_task2_prompt(
+        self, question_type: str, topics: list[str] | None = None
+    ) -> dict:
+        """Generates prompt for Writing Task 2.
+
+        Args:
+            question_type (str): Type of question.
+            topic (str): Topic of question.
+
+        Returns:
+            Dict[str, str]: Generated prompt parts.
+                - 'topics (list)': The list of topics to used in generating
+                    prompt.
+                - 'statement' (str): Statement sentence including topics.
+                - 'instruction' (str): Dommand for statement.
+        """
+        topics = topics.copy() if topics else []
+
+        # generate topics if it is not specified
+        if not topics:
+            topics = self._generate_topics()
+
+        # generate prompt
+        instructions = """
+You are an test item writer for IELTS Writing Task 2.
+You must output two distinct parts of the prompt for IELTS Writing Task 2, a statement and an instruction.
+Do not include labels like "Statement:" and "Topic:".
+Do not include introductory remarks like "Here is your prompt:".
+
+You must output exactly two element for a structured output.
+
+Put the statement into 'statement' field.
+Put the instruction into 'instruction' field.
+
+Each part is as follows:
+
+Statement:
+- Include the situational background and viewpoints.
+- The number of words must be less than 40 words.
+- Do not include instruction in a statement.
+- Do not describe the essay type name like "This is a discussion essay...".
+- Do not include introductory phrases like "In this essay..." or "Examine the debate...".
+- Do not combine multiple clauses using a semicolon.
+- Use only declarative sentences that describe the topic.
+
+Instruction:
+- The specific task or question for the examinee.
+- The number of words must be less than 15 words.
+- The simple one sentence.
+- Do not output a long explanation. Keep it concise, about the length of the example provided in input.
+- Do not include an "You should spend about 40 minutes..."
+- Do not include an instruction such as "Give reasons for your answer..." or "Write at least 250 words."
+- Do not combine multiple clauses using a semicolon.
+"""
+
+        input = """
+Generate a prompt for IELTS Writing Task 2 practice.
+
+The essay type of a prompt is Discussion Essay.
+The topic of a statement is oil.
+Use the following expressions as a main base in an instruction, but choose only one variant.
+- Compare both and state your preference.
+- Discuss both views and give your opinion.
+Do not include multiple expressions, use only one expression.
+Do not limit to the expressions on the above expressions, but allow to use a variety of expressions with equivalent meanings that may appear in the actual IELTS Writing Task 2.
+"""
+
+        class Prompt(BaseModel):
+            statement: str
+            instruction: str
+
+        response = self.client.responses.parse(
+            model="gpt-5-nano",
+            reasoning={"effort": "medium"},
+            instructions=instructions,
+            input=input,
+            text_format=Prompt,
+            # Expanding the range of output expression
+            # nano does not support temperature
+            # temperature=0.6,
+            # top_p= 0.9,
+        )
+        prompt = response.output_parsed
+
+        return {
+            "topics": topics,
+            "statement": prompt.statement,
+            "instruction": prompt.instruction,
+        }
+
+    def _generate_topics(self) -> list[str]:
+        """Generates topics to use prompt generation.
+
+        Returns:
+            List[str]: The list of topics.
+        """
+        # curretly use fixed prompt
+        return ["oil"]
+
+    def _generate_writing_task1_digram_prompt(
+        self, question_type: str, topics: list[str]
+    ) -> dict:
+        """Generates the prompt for generating a diagram image for Writing Task 1.
+
+        Args:
+            question_type (str): Type of question.
+            topics (str): Topic of question.
+
+        Returns:
+            Dict[str, str]: Generated prompt parts.
+                - 'prompt': Prompt for generating a diagram.
+                - 'diagram_introduction' (str): Introduction put before
+                    a diagram.
+                - 'diagram_description' (str): Description as text for
+                    a diagram.
+        """
+        # NOTE: curretly use fixed prompt
+        return {
+            "prompt": "Create a clean, publication-ready image of a table diagram illustrating crude oil production. The table should have 4 rows for countries: Saudi Arabia, United States, Russia, China; and 3 columns for years: 2015, 2016, 2017, with a header row reading: Country | 2015 | 2016 | 2017. Include a caption: 'Oil production (mbpd)'. Fill each cell with the values (in million barrels per day) as follows: Saudi Arabia — 2015: 11.0, 2016: 11.2, 2017: 11.4; United States — 2015: 9.4, 2016: 9.3, 2017: 9.1; Russia — 2015: 11.0, 2016: 11.1, 2017: 11.2; China — 2015: 4.2, 2016: 4.0, 2017: 3.9. Ensure numbers are displayed with one decimal place and units (mbpd) are clearly indicated. Use a neutral blue-gray color palette, clear gridlines, and legible typography suitable for IELTS Task 1 practice, with a landscape orientation.",
+            "diagram_introduction": "The diagram below details the annual crude oil production by four top producers (Saudi Arabia, United States, Russia, and China) for the years 2015–2017.",
+            "diagram_description": "The values in the table are, Row: Saudi Arabia; Column: 2015; Value: 11.0; This value represents Saudi Arabia's crude oil production in 2015 in mbpd. Row: Saudi Arabia; Column: 2016; Value: 11.2; This value represents Saudi Arabia's crude oil production in 2016 in mbpd. Row: Saudi Arabia; Column: 2017; Value: 11.4; This value represents Saudi Arabia's crude oil production in 2017 in mbpd. Row: United States; Column: 2015; Value: 9.4; This value represents the United States' crude oil production in 2015 in mbpd. Row: United States; Column: 2016; Value: 9.3; This value represents the United States' crude oil production in 2016 in mbpd. Row: United States; Column: 2017; Value: 9.1; This value represents the United States' crude oil production in 2017 in mbpd. Row: Russia; Column: 2015; Value: 11.0; This value represents Russia's crude oil production in 2015 in mbpd. Row: Russia; Column: 2016; Value: 11.1; This value represents Russia's crude oil production in 2016 in mbpd. Row: Russia; Column: 2017; Value: 11.2; This value represents Russia's crude oil production in 2017 in mbpd. Row: China; Column: 2015; Value: 4.2; This value represents China's crude oil production in 2015 in mbpd. Row: China; Column: 2016; Value: 4.0; This value represents China's crude oil production in 2016 in mbpd. Row: China; Column: 2017; Value: 3.9; This value represents China's crude oil production in 2017 in mbpd.",
+        }
+
+    def _generate_diagram_image(self, question_type: str, img_prompt: dict) -> str:
+        """Generates a diagram image for Writing Task 1.
+
+        Args:
+            question_type (str): Type of question.
+            image_prompt (dict): Prompt to generate an image.
+                - 'prompt': Prompt for generating a diagram.
+                - 'diagram_description' (str): Description as text for
+                    a diagram.
+
+        Returns:
+            str: Base64 encoded bytes of a diagram image.
+        """
+        # Test
+        with open("./assets/test_w1.png", "rb") as f:
+            img_bytes = f.read()
+        time.sleep(5)
+        return base64.b64encode(img_bytes).decode("ascii")
+
+        # prompt = """
+        # You are an test item writer for IELTS Writing Task 1. Generate a IELTS-style {} diagram based on a prompt.
+        # {}
+        # {}
+        # """.format(question_type, img_prompt['prompt'], img_prompt['dialog_description'])
+
+        # result = self.client.images.generate(
+        #     model="gpt-image-1-mini",
+        #     prompt=prompt,
+        #     quality='high',
+        # )
+
+        # return result.data[0].b64_json

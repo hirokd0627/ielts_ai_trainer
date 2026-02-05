@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
@@ -11,13 +13,11 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
   /// Topics used when generating the prompt text.
   final List<String> _usedTopics;
 
-  /// Function to generate prompt Text.
-  /// Returns a record containing prompt text and topics used.
-  final Future<({List<String> topics, String promptText})> Function(
-    WritingPromptType promptType,
-    List<String> topics,
-  )
-  _generatePromptText;
+  /// API service to generate prompt text
+  final WritingApiService _apiSrv = WritingApiService();
+
+  /// The task type.
+  final TestTask _testTask;
 
   /// Selected prompt type.
   WritingPromptType? _promptType;
@@ -25,25 +25,26 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
   /// Generated prompt text.
   String _promptText = '';
 
+  /// Introduction sentence for the diagram.
+  String _diagramIntroduction = '';
+
+  /// Diagram for prompt.
+  Uint8List _diagramBytes = Uint8List(0);
+
   /// Processing state of prompt text generation.
   /// 0: not generated, 1: generating, 2: generated
   int _promptTextState = 0;
 
   WritingQuestionGeneratorFormController({
     required WritingApiService apiSrv,
-    required Future<({List<String> topics, String promptText})> Function(
-      WritingPromptType promptType,
-      List<String> topics,
-    )
-    generatePromptText,
     required TestTask testTask,
     String? promptText,
     List<String>? topics,
     WritingPromptType? promptType,
-  }) : _generatePromptText = generatePromptText,
-       _topics = topics != null ? List.from(topics) : [],
+  }) : _topics = topics != null ? List.from(topics) : [],
        _usedTopics = topics != null ? List.from(topics) : [],
-       _promptType = promptType {
+       _promptType = promptType,
+       _testTask = testTask {
     _promptText = promptText ?? '';
     _promptTextState = (promptText != null) && promptText.isNotEmpty ? 2 : 0;
   }
@@ -55,6 +56,10 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
   List<String> get usedTopics => _usedTopics;
 
   String get propmtText => _promptText;
+
+  String get diagramIntroduction => _diagramIntroduction;
+
+  Uint8List get diagramBytes => _diagramBytes;
 
   /// Whether the generate button is enabled.
   bool get isGenerateButtonEnabled {
@@ -112,22 +117,33 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
   /// Generates the prompt text using the entered topics.
   Future<void> generatePromptText() async {
-    // TODO: dummy data
     _promptTextState = 1;
     notifyListeners();
 
-    // TODO: error handling
-    final generated = await _generatePromptText(_promptType!, _topics);
-    _promptText = generated.promptText;
+    late List<String> promptTopics;
+    if (_testTask == TestTask.writingTask1) {
+      final prompt = await _apiSrv.generateTask1Prompt(topics);
+      promptTopics = prompt.topics;
 
+      _promptText = prompt.prompt;
+      _diagramIntroduction = prompt.introduction;
+      _diagramBytes = base64Decode(prompt.imageBase64); // base64 to bytes
+    } else {
+      final prompt = await _apiSrv.generateTask2Prompt(topics);
+      promptTopics = prompt.topics;
+
+      _promptText = "${prompt.statement}\n\n${prompt.instruction}";
+    }
+
+    // Update topics
     _usedTopics.clear();
-    _usedTopics.addAll(generated.topics); // store topics used generating
-
+    _usedTopics.addAll(promptTopics); // store topics used generating
     // show used topics on screen
     _topics.clear();
-    _topics.addAll(generated.topics);
+    _topics.addAll(promptTopics);
 
     _promptTextState = 2;
+
     notifyListeners();
   }
 }
