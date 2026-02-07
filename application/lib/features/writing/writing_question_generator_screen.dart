@@ -6,19 +6,11 @@ import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/question_list/question_list_controller.dart';
 import 'package:ielts_ai_trainer/shared/question_list/question_list_query_service.dart';
-import 'package:ielts_ai_trainer/shared/question_list/question_list_view.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 import 'package:provider/provider.dart';
 
 /// Question Generator Screen for Task 1 and 2.
 class WritingQuestionGeneratorScreen extends StatefulWidget {
-  /// Called when generation button is tapped.
-  final Future<({List<String> topics, String promptText})> Function(
-    WritingPromptType promptType,
-    List<String> topics,
-  )
-  generatePromptText;
-
   /// Called when start button is tapped.
   final void Function(
     String promptText,
@@ -41,7 +33,6 @@ class WritingQuestionGeneratorScreen extends StatefulWidget {
 
   const WritingQuestionGeneratorScreen({
     super.key,
-    required this.generatePromptText,
     required this.onTappedStart,
     required this.testTask,
     this.promptText,
@@ -86,57 +77,34 @@ class _WritingQuestionGeneratorScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsetsGeometry.symmetric(
-            horizontal: AppStyles.screenPadding,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 24),
-              // Title
-              ScreenTitleText(_screenTitle),
-              SizedBox(height: 20),
-              // Question Generator Form
-              WritingQuestionGeneratorForm(
-                generatePromptText: widget.generatePromptText,
-                onTappedStart: widget.onTappedStart,
-                testTask: widget.testTask,
-                promptText: widget.promptText,
-                topics: widget.topics,
-                promptType: widget.promptType,
-              ),
-              SizedBox(height: 40),
-            ],
-          ),
-        ),
-        // Question List
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppStyles.screenPadding,
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsetsGeometry.symmetric(
+              horizontal: AppStyles.screenPadding,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 24),
+                // Title
+                ScreenTitleText(_screenTitle),
+                SizedBox(height: 20),
+                // Question Generator Form
+                WritingQuestionGeneratorForm(
+                  onTappedStart: widget.onTappedStart,
+                  testTask: widget.testTask,
+                  promptText: widget.promptText,
+                  topics: widget.topics,
+                  promptType: widget.promptType,
                 ),
-                child: HeadlineText("Solved Questions"),
-              ),
-              SizedBox(height: 20),
-              // Question list
-              Expanded(
-                child: QuestionListView(
-                  searchBarEnabled: false,
-                  controller: _questionListController,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

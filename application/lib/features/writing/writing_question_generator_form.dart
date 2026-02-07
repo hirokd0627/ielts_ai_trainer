@@ -10,13 +10,6 @@ import 'package:ielts_ai_trainer/shared/views/texts.dart';
 
 /// Question Generator Form for Writing Tasks.
 class WritingQuestionGeneratorForm extends StatefulWidget {
-  /// Called when generation button is tapped.
-  final Future<({List<String> topics, String promptText})> Function(
-    WritingPromptType promptType,
-    List<String> topics,
-  )
-  generatePromptText;
-
   /// Called when start button is tapped.
   final void Function(
     String promptText,
@@ -39,7 +32,6 @@ class WritingQuestionGeneratorForm extends StatefulWidget {
 
   const WritingQuestionGeneratorForm({
     super.key,
-    required this.generatePromptText,
     required this.onTappedStart,
     required this.testTask,
     this.promptText,
@@ -152,7 +144,6 @@ class _WritingQuestionGeneratorFormState
     _ctrl = WritingQuestionGeneratorFormController(
       testTask: widget.testTask,
       apiSrv: WritingApiService(),
-      generatePromptText: widget.generatePromptText,
       promptText: widget.promptText,
       topics: widget.topics,
       promptType: widget.promptType,
@@ -358,24 +349,33 @@ class _WritingQuestionGeneratorFormState
               margin: EdgeInsets.only(bottom: 12),
               child: HeadlineText('Question'),
             ),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                // minHeight: 40,
-                // minWidth: double.infinity,
-              ),
+            Container(
               child: (_ctrl.isPromptTextNotGenerated)
                   ? Text(
                       'Prompt will display here after entering topics and submit',
                     )
                   : (_ctrl.isPromptTextGenerating)
                   ? Text('generating...')
-                  : Text(_ctrl.propmtText),
+                  : Column(
+                      children: [
+                        if (widget.testTask == TestTask.writingTask1) ...[
+                          Text(_ctrl.diagramIntroduction),
+                          if (_ctrl.diagramBytes.isNotEmpty)
+                            Image.memory(_ctrl.diagramBytes),
+                          Text(_ctrl.propmtText),
+                        ],
+                        if (widget.testTask == TestTask.writingTask2) ...[
+                          Text(_ctrl.propmtText),
+                        ],
+                      ],
+                    ),
             ),
             SizedBox(height: 20),
             FilledButton(
               onPressed: _ctrl.isStartButtonEnabled ? _onPressedStart : null,
               child: const Text('Start'),
             ),
+            SizedBox(height: 40),
           ],
         );
       },
