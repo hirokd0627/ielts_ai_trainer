@@ -27,11 +27,15 @@ class SpeakingChatInputScreen extends StatefulWidget {
   /// The task type.
   final TestTask testTask;
 
+  /// ID issued when the initial prompt was generated.
+  final String initialChatId;
+
   const SpeakingChatInputScreen({
     super.key,
     required this.initialPromptText,
     required this.topics,
     required this.testTask,
+    required this.initialChatId,
   });
 
   @override
@@ -67,6 +71,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
       promptText: widget.initialPromptText,
       topics: widget.topics,
       testTask: widget.testTask,
+      initialChatId: widget.initialChatId,
     );
 
     _ctrl.addMessage(false, widget.initialPromptText);
@@ -112,7 +117,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
     _scrollToBottom();
 
     // Generates and adds the AI's reply.
-    await _ctrl.generateNextPrompt(userMessage);
+    await _ctrl.generateSubsequentPrompt(userMessage);
 
     // Scrolls to the AI's message.
     _scrollToBottom();
@@ -275,7 +280,9 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
                       children: [
                         Expanded(
                           child: HoverHighlightTextField(
-                            enabled: _ctrl.isControlsEnabled,
+                            enabled:
+                                _ctrl.isControlsEnabled &&
+                                _ctrl.isReplyTextFieldEnabled,
                             onChanged: _onChangedText,
                             controller: _textCtrl,
                             hintText: 'Type your reply here...',

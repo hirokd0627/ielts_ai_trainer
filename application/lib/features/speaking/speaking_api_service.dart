@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:faker/faker.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_chat_answer.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_speech_answer.dart';
+import 'package:ielts_ai_trainer/shared/http/api_requester.dart';
 
 /// API service for the Speaking screens, generating prompts and evaluating answers.
-class SpeakingApiService {
+class SpeakingApiService with ApiRequester {
   /// Generates prompt text based on the given topics.
   Future<SpeakingPromptResponse> generatePromptText(
     int topicCount,
@@ -27,11 +30,33 @@ class SpeakingApiService {
     );
   }
 
+  /// Generates initial prompt based on the given topics.
+  Future<SpeakingReply> generateInitialChatReply(
+    int topicCount,
+    List<String> topics,
+  ) async {
+    final data = {'topic_count': topicCount, 'topics': topics};
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest(
+      'speaking/part1/generate-prompt',
+      dataJson,
+    );
+    return SpeakingReply.fromJson(
+      jsonDecode(resp.body) as Map<String, dynamic>,
+    );
+  }
+
   /// Generates a reply message used in Speaking Part 1 & 3.
-  Future<SpeakingReplyResponse> generateChatReply(String userMessage) async {
-    // TODO: dummy data
-    await Future.delayed(const Duration(seconds: 2));
-    return SpeakingReplyResponse(message: faker.lorem.sentences(2).join("\n"));
+  Future<SpeakingReply> generateChatReply(String chatId, String reply) async {
+    final data = {'prompt_id': chatId, 'reply': reply};
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest(
+      'speaking/part1/generate-prompt',
+      dataJson,
+    );
+    return SpeakingReply.fromJson(
+      jsonDecode(resp.body) as Map<String, dynamic>,
+    );
   }
 
   /// Grades the given speaking chat answer.
@@ -95,11 +120,40 @@ class SpeakingPromptResponse {
 }
 
 /// Response for speaking reply generation.
-class SpeakingReplyResponse {
+class SpeakingReply {
+  /// ID to identify a convarsation.
+  final String chatId;
+
   /// Generated reply message.
   final String message;
 
-  const SpeakingReplyResponse({required this.message});
+  /// Whether a conversation is ended.
+  final bool isChatEnded;
+
+  /// Topics to generate the first reply.
+  final List<String>? topics;
+
+  const SpeakingReply({
+    required this.message,
+    required this.chatId,
+    required this.isChatEnded,
+    required this.topics,
+  });
+
+  factory SpeakingReply.fromJson(Map<String, dynamic> json) {
+    final topics = json.containsKey('topics')
+        ? (json['topics'] as List<dynamic>)
+              .map((topic) => topic.toString())
+              .toList()
+        : null;
+
+    return SpeakingReply(
+      chatId: json['prompt_id'],
+      message: json['question'],
+      isChatEnded: json['end_mark'],
+      topics: topics,
+    );
+  }
 }
 
 /// Result of grading a speaking chat answer.

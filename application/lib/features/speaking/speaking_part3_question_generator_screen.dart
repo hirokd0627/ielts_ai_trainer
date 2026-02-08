@@ -30,22 +30,22 @@ class SpeakingPart3QuestionGeneratorScreen extends StatefulWidget {
 class _SpeakingPart3QuestionGeneratorScreenState
     extends State<SpeakingPart3QuestionGeneratorScreen> {
   /// API service to generate prompt text
-  final SpeakingApiService _apiSrv = SpeakingApiService();
+  // final SpeakingApiService _apiSrv = SpeakingApiService();
 
-  /// Called when the Generate button is pressed.
-  /// Generates prompt text using the given topics.
-  /// Returns a record containing the generated prompt text and the topics used.
-  Future<({List<String> topics, String promptText})> _generatePromptText(
-    int topicCount,
-    List<String> topics,
-  ) async {
-    final resp = await _apiSrv.generatePromptText(topicCount, topics);
-    // TODO: error handling
-    return (topics: resp.topics, promptText: resp.promptText);
-  }
+  // /// Called when the Generate button is pressed.
+  // /// Generates prompt text using the given topics.
+  // /// Returns a record containing the generated prompt text and the topics used.
+  // Future<({List<String> topics, String promptText})> _generatePromptText(
+  //   int topicCount,
+  //   List<String> topics,
+  // ) async {
+  //   final resp = await _apiSrv.generatePromptText(topicCount, topics);
+  //   // TODO: error handling
+  //   return (topics: resp.topics, promptText: resp.promptText);
+  // }
 
   /// Called when the Start button is pressed.
-  void _onTappedStart(String promptText, List<String> topics) {
+  void _onTappedStart(String promptText, List<String> topics, String chatId) {
     context.go(
       speakingPart3AnswerInputScreenRoutePath,
       extra: RouterExtra({'initialPromptText': promptText, 'topics': topics}),
@@ -56,7 +56,7 @@ class _SpeakingPart3QuestionGeneratorScreenState
   Widget build(BuildContext context) {
     return BaseScreenScaffold(
       body: SpeakingQuestionGeneratorScreen(
-        generatePromptText: _generatePromptText,
+        // generatePromptText: _generatePromptText,
         onTappedStart: _onTappedStart,
         testTask: TestTask.speakingPart3,
         promptText: widget.promptText,

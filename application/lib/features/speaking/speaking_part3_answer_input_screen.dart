@@ -30,6 +30,7 @@ class _SpeakingPart3AnswerInputScreenState
       initialPromptText: widget.initialPromptText,
       topics: widget.topics,
       testTask: TestTask.speakingPart3,
+      initialChatId: '0', // TODO: implement
     );
   }
 }

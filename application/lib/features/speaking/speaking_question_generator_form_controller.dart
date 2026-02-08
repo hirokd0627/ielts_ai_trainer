@@ -4,19 +4,20 @@ import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 
 /// Controller for SpeakingQuestionGeneratorForm.
 class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
+  /// API service to generate prompt text.
+  final SpeakingApiService _apiSrv = SpeakingApiService();
+
   /// Entered topics.
   final List<String> _topics;
 
   /// Topics used when generating the prompt text.
   final List<String> _usedTopics;
 
-  /// Function to generate prompt text.
-  /// Returns a record containing prompt text and topics used.
-  final Future<({List<String> topics, String promptText})> Function(
-    int topicCount,
-    List<String> topics,
-  )
-  _generatePromptText;
+  // /// Function to generate prompt text.
+  // /// Returns a record containing prompt text and topics used.
+  // final Future<({List<String> topics, String promptText, String chatId})>
+  // Function(int topicCount, List<String> topics)
+  // _generatePromptText;
 
   /// The task type.
   final TestTask _testTask;
@@ -31,17 +32,18 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
   /// 0: not generated, 1: generating, 2: generated
   int _promptTextState = 0;
 
+  /// ID to identify conversation.
+  String _chatId = '';
+
   SpeakingQuestionGeneratorFormController({
     required SpeakingApiService apiSrv,
-    required Future<({List<String> topics, String promptText})> Function(
-      int topicCount,
-      List<String> topics,
-    )
-    generatePromptText,
+    // required Future<({List<String> topics, String promptText, String chatId})>
+    // Function(int topicCount, List<String> topics)
+    // generatePromptText,
     required TestTask testTask,
     String? promptText,
     List<String>? topics,
-  }) : _generatePromptText = generatePromptText,
+  }) : //_generatePromptText = generatePromptText,
        _topics = topics != null ? List.from(topics) : [],
        _usedTopics = topics != null ? List.from(topics) : [],
        _topicCount = topics?.length ?? 0,
@@ -89,6 +91,8 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
     return _promptTextState == 2;
   }
 
+  String get chatId => _chatId;
+
   /// Sets the number of topics.
   set topicCount(int value) {
     _topicCount = value;
@@ -131,7 +135,6 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
 
   /// Generates prompt text using the entered topics.
   Future<void> generatePromptText() async {
-    // TODO: dummy data
     _promptTextState = 1;
     notifyListeners();
 
@@ -143,15 +146,19 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
         _testTask == TestTask.speakingPart3) {
       topicCount = _topics.isEmpty ? 1 : _topics.length;
     }
-    final generated = await _generatePromptText(topicCount, _topics);
-    _promptText = generated.promptText;
+
+    final resp = await _apiSrv.generateInitialChatReply(topicCount, topics);
+
+    _promptText = resp.message;
 
     _usedTopics.clear();
-    _usedTopics.addAll(generated.topics); // store topics used generating
+    _usedTopics.addAll(resp.topics!); // store topics used generating
 
     // show used topics on screen
     _topics.clear();
-    _topics.addAll(generated.topics);
+    _topics.addAll(resp.topics!);
+
+    _chatId = resp.chatId;
 
     _promptTextState = 2;
     notifyListeners();

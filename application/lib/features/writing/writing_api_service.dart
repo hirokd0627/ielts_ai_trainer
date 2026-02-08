@@ -3,21 +3,15 @@ import 'dart:convert';
 import 'package:faker/faker.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
-import 'package:http/http.dart' as http;
+import 'package:ielts_ai_trainer/shared/http/api_requester.dart';
 
 /// API service for Writing Task screens.
-class WritingApiService {
-  /// API key.
-  static const String _apiKey = String.fromEnvironment('API_KEY');
-
-  /// API base URL.
-  static const String _apiBaseUrl = String.fromEnvironment('API_BASE_URL');
-
+class WritingApiService with ApiRequester {
   /// Generates Writing Task 1 prompt based on the given topics.
   Future<WritingTask1Prompt> generateTask1Prompt(List<String> topics) async {
     final data = {'topics': topics};
     final dataJson = jsonEncode(data);
-    final resp = await _sendPostRequest(
+    final resp = await sendPostRequest(
       'writing/task1/generate-prompt',
       dataJson,
     );
@@ -30,7 +24,7 @@ class WritingApiService {
   Future<WritingTask2Prompt> generateTask2Prompt(List<String> topics) async {
     final data = {'topics': topics};
     final dataJson = jsonEncode(data);
-    final resp = await _sendPostRequest(
+    final resp = await sendPostRequest(
       'writing/task2/generate-prompt',
       dataJson,
     );
@@ -58,20 +52,6 @@ class WritingApiService {
           (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
       score: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
       feedback: faker.lorem.sentences(3).join("\n"),
-    );
-  }
-
-  /// Send a POST request to the backend API.
-  Future<http.Response> _sendPostRequest(String endpoint, Object json) {
-    print(_apiBaseUrl);
-    print(_apiKey);
-    return http.post(
-      Uri.parse('$_apiBaseUrl/$endpoint'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'X-API-KEY': _apiKey,
-      },
-      body: json,
     );
   }
 }

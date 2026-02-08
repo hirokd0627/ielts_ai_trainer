@@ -61,14 +61,22 @@ class SpeakingChatInputController extends ChangeNotifier {
   /// The map _messages index to recording state: 0 = not started, 1 = recording, 2 = recorded, 3 = rerecording.
   final Map<int, int> _recordingState = {};
 
+  /// Whether conversation is ended.
+  bool _isChatEnded = false;
+
+  /// ID generated when the last question was generated.
+  String _currentChatId = '';
+
   SpeakingChatInputController({
     required SpeakingAnswerRepository speakingAnswerRepository,
     required String promptText,
     required List<String> topics,
     required TestTask testTask,
+    required String initialChatId,
   }) : _repo = speakingAnswerRepository,
        _topics = topics,
-       _testTask = testTask {
+       _testTask = testTask,
+       _currentChatId = initialChatId {
     _recordingSrv = UtteranceRecordingService(
       onPlayerComplete: _onPlayerComplete,
     );
@@ -96,13 +104,16 @@ class SpeakingChatInputController extends ChangeNotifier {
 
   int get _userMessageCount => _messages.where((e) => e.isUser).toList().length;
 
+  bool get isReplyTextFieldEnabled => !_isChatEnded;
+
   bool get isSubmitButtonEnabled => _userMessageCount >= _minSubmitMessageCount;
 
   /// Returns the remaining count to submit the answer.
   int get replyCountUntilSubmitEnabled =>
       _minSubmitMessageCount - _userMessageCount;
 
-  bool get isMessageInputEnabled => _currentMessageText.isNotEmpty;
+  bool get isMessageInputEnabled =>
+      _currentMessageText.isNotEmpty && !_isChatEnded;
 
   bool get isRecording =>
       _recordingState.containsValue(1) || _recordingState.containsValue(3);
@@ -115,6 +126,8 @@ class SpeakingChatInputController extends ChangeNotifier {
       !isRecording && !isPlaying && !_isGeneratingPromptText;
 
   String get currentMessageText => _currentMessageText;
+
+  bool get isChatEnded => _isChatEnded;
 
   set currentMessageText(String value) {
     _currentMessageText = value;
@@ -204,13 +217,17 @@ class SpeakingChatInputController extends ChangeNotifier {
   }
 
   /// Generates a reply.
-  Future<void> generateNextPrompt(String reply) async {
+  Future<void> generateSubsequentPrompt(String reply) async {
     _setIsGeneratingPromptText(true);
 
     try {
-      final resp = await _apiSrv.generateChatReply(reply);
+      final resp = await _apiSrv.generateChatReply(_currentChatId, reply);
       addMessage(false, resp.message);
       _recordingState[_messages.length - 1] = 0;
+      if (resp.isChatEnded) {
+        _isChatEnded = true;
+      }
+      _currentChatId = resp.chatId;
     } finally {
       _setIsGeneratingPromptText(false);
       notifyListeners();

@@ -9,17 +9,16 @@ import 'package:ielts_ai_trainer/shared/views/texts.dart';
 
 /// Question Generator Form for Speaking Tasks.
 class SpeakingQuestionGeneratorForm extends StatefulWidget {
-  /// Function to generate prompt text.
-  /// Called when the Generate button is tapped.
-  /// Returns a record containing prompt text and a topics used.
-  final Future<({List<String> topics, String promptText})> Function(
-    int topicCount,
-    List<String> topics,
-  )
-  generatePromptText;
+  // /// Function to generate prompt text.
+  // /// Called when the Generate button is tapped.
+  // /// Returns a record containing prompt text and a topics used.
+  // final Future<({List<String> topics, String promptText, String chatId})>
+  // Function(int topicCount, List<String> topics)
+  // generatePromptText;
 
   /// Called when the Start button is tapped.
-  final void Function(String promptText, List<String> topics) onTappedStart;
+  final void Function(String promptText, List<String> topics, String chatId)
+  onTappedStart;
 
   /// The task type.
   final TestTask testTask;
@@ -32,7 +31,7 @@ class SpeakingQuestionGeneratorForm extends StatefulWidget {
 
   const SpeakingQuestionGeneratorForm({
     super.key,
-    required this.generatePromptText,
+    // required this.generatePromptText,
     required this.onTappedStart,
     required this.testTask,
     this.promptText,
@@ -70,7 +69,7 @@ class _SpeakingQuestionGeneratorFormState
     _ctrl = SpeakingQuestionGeneratorFormController(
       testTask: widget.testTask,
       apiSrv: SpeakingApiService(),
-      generatePromptText: widget.generatePromptText,
+      // generatePromptText: widget.generatePromptText,
       promptText: widget.promptText,
       topics: widget.topics,
     );
@@ -140,7 +139,7 @@ class _SpeakingQuestionGeneratorFormState
       return;
     }
 
-    widget.onTappedStart(_ctrl.promptText, _ctrl.usedTopics);
+    widget.onTappedStart(_ctrl.promptText, _ctrl.usedTopics, _ctrl.chatId);
   }
 
   /// Validates the entered topics, optionally including a new value.

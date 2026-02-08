@@ -139,14 +139,55 @@ Do not limit to the expressions on the above expressions, but allow to use a var
             "instruction": prompt.instruction,
         }
 
-    def _generate_topics(self) -> list[str]:
+    def generate_initial_speaking_part1_prompt(
+        self, topic_count: int, topics: list[str] | None = None
+    ) -> dict:
+        """TODO"""
+        topics = topics.copy() if topics else []
+
+        # Generates topics if it is not specified.
+        if not topics:
+            count = topic_count - len(topics)
+            if count > 0:
+                topics.extend(self._generate_topics(count))
+
+        # Generate the first question.
+        prompt = self._generate_speaking_part1_prompt(topics=topics)
+
+        return {
+            "prompt_id": prompt["prompt_id"],
+            "question": prompt["question"],
+            "end_mark": False,
+            "topics": topics,
+        }
+
+    def generate_subsequent_speaking_part1_prompt(
+        self, prompt_id: str, user_reply: str | None = None
+    ) -> dict:
+
+        # Generate the subsequent question.
+        prompt = self._generate_speaking_part1_prompt(
+            prompt_id=prompt_id, reply=user_reply
+        )
+
+        return {
+            "prompt_id": prompt["prompt_id"],
+            "question": prompt["question"],
+            "end_mark": prompt["end_mark"],
+        }
+
+    def _generate_topics(self, count: int) -> list[str]:
         """Generates topics to use prompt generation.
+
+        Args:
+            count (int): The number of topics to generate.
 
         Returns:
             List[str]: The list of topics.
         """
         # curretly use fixed prompt
-        return ["oil"]
+        dummy = ["oil", "home", "food"]
+        return dummy[0:count]
 
     def _generate_writing_task1_digram_prompt(
         self, question_type: str, topics: list[str]
@@ -204,3 +245,112 @@ Do not limit to the expressions on the above expressions, but allow to use a var
         # )
 
         # return result.data[0].b64_json
+
+    def _generate_speaking_part1_prompt(
+        self, topics: list[str] = None, prompt_id: int = 0, reply: str = ""
+    ) -> dict:
+        instructions = """
+You are an examiner for IELTS Speaking Part 1.
+Your all questions must be in line with the exmanee's replys and be a natural conversation.
+
+Rules of flow:
+- You must output exactly three questions for each given topic in the order provided.
+- A single turn consists of one simple question.
+- Do not end the session until you have asked the number of topics * 3 questions in total.
+- After the number of topics * 3 questions in total, put the question field to "Thank you, that's the end of Part 1."
+
+Definition of Topic:
+- Topic is provided in the input as "Topics: <topic1, topic2, ...>".
+- The minimum number of topics is one.
+- The maximum number of topics is three.
+
+Constraints for 'question' field:
+- You must ask only one thing. 
+- You must only one simple question per turn.
+- Do not make combined questions.
+- Never use 'and' or 'or' to combine two things at once.
+- Do not include a topic transition in this field. Put only a question. 
+
+Constraints for 'transition' field:
+- When moving to a new topic in the given topics, You must put a sentence for transition in this field like 'Next, I'd like to talk about <insert the given topic here>'.
+- Otherwise, put an empty "" in this field.
+- Do not any output if the conversation is moving between differenct details of the same topic.
+
+Constrains for 'end_mark' field:
+- Put 'true' when put the question field to "Thank you, that's the end of Part 1." after the all questions.
+- Othwerwise, put 'false'.
+
+Constrains for 'topic' field:
+- Put topic word of the question. 
+- When the last question after the all questions, put empty "".
+        """
+
+        class Message(BaseModel):
+            question: str
+            transition: str
+            end_mark: bool
+
+        initial = topics is not None
+
+        prompt = {}
+
+        if initial:
+            prompt_input = """
+            Start mock test of IELTS Speaking Part 1.
+            You are the examinar.
+            Topics: {}.
+            """.format(",".join(topics))
+
+            response = self.client.responses.parse(
+                model="gpt-5-nano",
+                # reasoning={"effort": "medium"},
+                reasoning={"effort": "low"},
+                # reasoning={"effort": "minimal"},
+                instructions=instructions,
+                input=prompt_input,
+                text_format=Message,
+            )
+
+            msg = response.output_parsed
+            prompt["prompt_id"] = response.id
+            prompt["question"] = msg.question
+
+            # debug
+            print(
+                """
+            previous_response_id: {}
+            question: {}
+                """.format(prompt_id, msg.question)
+            )
+
+        else:
+            response = self.client.responses.parse(
+                model="gpt-5-nano",
+                # reasoning={"effort": "medium"},
+                reasoning={"effort": "low"},
+                # reasoning={"effort": "minimal"},
+                instructions=instructions,
+                input=reply,
+                text_format=Message,
+                previous_response_id=prompt_id,
+            )
+
+            msg = response.output_parsed
+            prompt["prompt_id"] = response.id
+            if msg.transition:
+                prompt["question"] = "{}\n{}".format(msg.transition, msg.question)
+            else:
+                prompt["question"] = msg.question
+            prompt["end_mark"] = msg.end_mark
+
+            # debug
+            print(
+                """
+            previous_response_id: {}
+            question: {}
+            transition: {}
+            end_mark: {}
+                """.format(prompt_id, msg.question, msg.transition, msg.end_mark)
+            )
+
+        return prompt

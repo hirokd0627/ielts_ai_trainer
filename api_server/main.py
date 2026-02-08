@@ -77,6 +77,38 @@ def writing_task2_generate_prompt():
     return jsonify(resp_json)
 
 
+@app.route("/speaking/part1/generate-prompt", methods=["POST"])
+@auth_required
+def speaking_part1_generate_prompt():
+    """API for generating prompt for Speaking Part 1."""
+
+    json = request.get_json()
+
+    initial_generation = "prompt_id" not in json
+
+    if initial_generation:
+        _validate_parameters(json, ["topic_count"])
+    else:
+        _validate_parameters(json, ["prompt_id", "reply"])
+
+    try:
+        chatgpt = ChatGptService()
+
+        if initial_generation:
+            topics = json.get("topics", None)
+            resp_json = chatgpt.generate_initial_speaking_part1_prompt(
+                topic_count=json["topic_count"], topics=topics
+            )
+        else:
+            resp_json = chatgpt.generate_subsequent_speaking_part1_prompt(
+                prompt_id=json["prompt_id"], user_reply=json["reply"]
+            )
+    except Exception:
+        raise AppException("failed to generate prompt: {}".format(json))
+
+    return jsonify(resp_json)
+
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Exception handler to return error information in JSON format."""
@@ -90,3 +122,9 @@ def handle_exception(e):
     )
     response.content_type = "application/json"
     return response
+
+
+def _validate_parameters(json: dict, names: list[str]):
+    for name in names:
+        if name not in json:
+            raise AppException("Missing parameter: {}".format(name))
