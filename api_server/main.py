@@ -109,6 +109,25 @@ def speaking_part1_generate_prompt():
     return jsonify(resp_json)
 
 
+@app.route("/speaking/part2/generate-prompt", methods=["POST"])
+@auth_required
+def speaking_part2_generate_prompt():
+    """API for generating prompt for Speaking Part 2."""
+
+    json = request.get_json()
+
+    try:
+        chatgpt = ChatGptService()
+
+        resp_json = chatgpt.generate_speaking_part2_prompt(
+            topic=json.get("topic", None)
+        )
+    except Exception:
+        raise AppException("failed to generate prompt: {}".format(json))
+
+    return jsonify(resp_json)
+
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Exception handler to return error information in JSON format."""

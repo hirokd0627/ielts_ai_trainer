@@ -354,3 +354,72 @@ Constrains for 'topic' field:
             )
 
         return prompt
+
+    def generate_speaking_part2_prompt(self, topic: str = None) -> dict:
+
+        # Generates topics if it is not specified.
+        if not topic:
+            topic = self._generate_topics(1)[0]
+
+        instructions = """
+You are an examiner for IELTS Speaking Part 2.
+You must output a Speaking Part 2 Cue Card based on the topic provided in the input.
+Topic is provided as 'Topic: <topic>.' 
+
+Non negotiable constraints:
+- You must output details of the Speaking Part 2 Cue Card into the five fields: main_task, q1, q2, q3, q4.
+- Ensure all fields (main_task, q1, q2, q3, and q4) must maintain tense consistency with the provided topic.
+- Use formal expression consistent with official IELTS Speaking test materials.
+- You must generate outputs followed by the Field Definitions.
+
+Field Definitions:
+- main_task: The sentence indicates that the examinee should explain their experiences about the given topic. The sentence must be easy to answer, without being too specific. You must make the sentence specific enough to include room for q1, q2, q3, and q4 to explain the main_task in detail, but do not include interrogatives words. The sentence must starts with "Describe ...", and include the topic given in the input. The number of words must be less than 20. (e.g., Describe a taffic rule that was introduced in your country and that your thought was a very good idea.)
+- q1: The concise interrogative sentence to identify the main subject in main_task. The sentence must start with 'What' or 'Who'. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g.,  what the work of art is)
+- q2: The concise interrogative sentence to ask background the main subject in main_task. The sentence must start with 'When' or 'Where'. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g., when you first saw it)
+- q3: The concise interrogative sentence to ask the details of the main subject in main_task. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g., what you know about it)
+- q4: The concise interrogative sentence to ask the reason why the examinee feel. The sentence must start with 'Why'. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g., why you like it.)
+"""
+
+        class Response(BaseModel):
+            main_task: str
+            q1: str
+            q2: str
+            q3: str
+            q4: str
+
+        prompt_input = """
+Generate details of the Speaking Part 2 Cue Card into the five fields: main_task, q1, q2, q3, q4.
+Topic: {}.
+        """.format(topic)
+
+        response = self.client.responses.parse(
+            model="gpt-5-nano",
+            # reasoning={"effort": "medium"},
+            reasoning={"effort": "low"},
+            # reasoning={"effort": "minimal"},
+            instructions=instructions,
+            input=prompt_input,
+            text_format=Response,
+        )
+
+        res = response.output_parsed
+
+        # debug
+        print(
+            """
+            main_task: {}
+            q1: {}
+            q2: {}
+            q3: {}
+            q4: {}
+            """.format(res.main_task, res.q1, res.q2, res.q3, res.q4)
+        )
+
+        return {
+            "topic": topic,
+            "main_task": res.main_task,
+            "q1": res.q1,
+            "q2": res.q2,
+            "q3": res.q3,
+            "q4": res.q4,
+        }

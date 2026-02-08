@@ -147,18 +147,33 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
       topicCount = _topics.isEmpty ? 1 : _topics.length;
     }
 
-    final resp = await _apiSrv.generateInitialChatReply(topicCount, topics);
+    if (_testTask == TestTask.speakingPart1) {
+      final resp = await _apiSrv.generateInitialChatReply(topicCount, topics);
 
-    _promptText = resp.message;
+      _promptText = resp.message;
 
-    _usedTopics.clear();
-    _usedTopics.addAll(resp.topics!); // store topics used generating
+      _usedTopics.clear();
+      _usedTopics.addAll(resp.topics!); // store topics used generating
 
-    // show used topics on screen
-    _topics.clear();
-    _topics.addAll(resp.topics!);
+      // show used topics on screen
+      _topics.clear();
+      _topics.addAll(resp.topics!);
 
-    _chatId = resp.chatId;
+      _chatId = resp.chatId;
+    } else {
+      final resp = await _apiSrv.generatePart2Prompt(
+        topics.isNotEmpty ? topics.first : '',
+      );
+
+      _promptText = resp.prompt;
+
+      _usedTopics.clear();
+      _usedTopics.add(resp.topic); // store topics used generating
+
+      // show used topics on screen
+      _topics.clear();
+      _topics.add(resp.topic);
+    }
 
     _promptTextState = 2;
     notifyListeners();

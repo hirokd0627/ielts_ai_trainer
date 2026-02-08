@@ -59,6 +59,19 @@ class SpeakingApiService with ApiRequester {
     );
   }
 
+  /// Generates prompt for Part 2.
+  Future<Part2Response> generatePart2Prompt(String topic) async {
+    final data = {'topic': topic};
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest(
+      'speaking/part2/generate-prompt',
+      dataJson,
+    );
+    return Part2Response.fromJson(
+      jsonDecode(resp.body) as Map<String, dynamic>,
+    );
+  }
+
   /// Grades the given speaking chat answer.
   Future<SpeakingChatGradingResponse> gradeChatAnswer({
     required SpeakingChatAnswer answer,
@@ -153,6 +166,31 @@ class SpeakingReply {
       isChatEnded: json['end_mark'],
       topics: topics,
     );
+  }
+}
+
+/// Response for speaking reply generation.
+class Part2Response {
+  /// Generated prompt.
+  final String prompt;
+
+  /// Topic to generate a prompt.
+  final String topic;
+
+  const Part2Response({required this.prompt, required this.topic});
+
+  factory Part2Response.fromJson(Map<String, dynamic> json) {
+    final prompt =
+        '''
+${json['main_task']}
+    You should say:
+        ${json['q1']}
+        ${json['q2']}
+        ${json['q3']}
+and explain ${json['q4']}
+''';
+
+    return Part2Response(prompt: prompt, topic: json['topic']);
   }
 }
 
