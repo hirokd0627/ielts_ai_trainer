@@ -28,14 +28,14 @@ class SpeakingChatInputScreen extends StatefulWidget {
   final TestTask testTask;
 
   /// ID issued when the initial prompt was generated.
-  final String initialChatId;
+  final String initialInteractionId;
 
   const SpeakingChatInputScreen({
     super.key,
     required this.initialPromptText,
     required this.topics,
     required this.testTask,
-    required this.initialChatId,
+    required this.initialInteractionId,
   });
 
   @override
@@ -71,7 +71,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
       promptText: widget.initialPromptText,
       topics: widget.topics,
       testTask: widget.testTask,
-      initialChatId: widget.initialChatId,
+      initialInteractionId: widget.initialInteractionId,
     );
 
     _ctrl.addMessage(false, widget.initialPromptText);
@@ -117,7 +117,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
     _scrollToBottom();
 
     // Generates and adds the AI's reply.
-    await _ctrl.generateSubsequentPrompt(userMessage);
+    await _ctrl.generateQuestion(userMessage);
 
     // Scrolls to the AI's message.
     _scrollToBottom();

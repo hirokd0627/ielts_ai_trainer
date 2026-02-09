@@ -60,12 +60,12 @@ final speakingRoutes = [
       final extra = RouterExtra.validate(state, [
         'initialPromptText',
         'topics',
-        'chatId',
+        'interactionId',
       ]);
       return SpeakingPart1AnswerInputScreen(
         initialPromptText: extra.getValue('initialPromptText'),
         topics: extra.getValue('topics'),
-        initialChatId: extra.getValue('chatId'),
+        initialInteractionId: extra.getValue('interactionId'),
       );
     },
   ),
@@ -124,10 +124,12 @@ final speakingRoutes = [
       final extra = RouterExtra.validate(state, [
         'initialPromptText',
         'topics',
+        'interactionId',
       ]);
       return SpeakingPart3AnswerInputScreen(
         initialPromptText: extra.getValue('initialPromptText'),
         topics: extra.getValue('topics'),
+        initialInteractionId: extra.getValue('interactionId'),
       );
     },
   ),

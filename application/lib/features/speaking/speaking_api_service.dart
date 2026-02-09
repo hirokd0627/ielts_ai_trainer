@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:faker/faker.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_chat_answer.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_speech_answer.dart';
+import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/http/api_requester.dart';
 
 /// API service for the Speaking screens, generating prompts and evaluating answers.
@@ -47,8 +48,11 @@ class SpeakingApiService with ApiRequester {
   }
 
   /// Generates a reply message used in Speaking Part 1 & 3.
-  Future<SpeakingReply> generateChatReply(String chatId, String reply) async {
-    final data = {'prompt_id': chatId, 'reply': reply};
+  Future<SpeakingReply> generateChatReply(
+    String interactionId,
+    String reply,
+  ) async {
+    final data = {'prompt_id': interactionId, 'reply': reply};
     final dataJson = jsonEncode(data);
     final resp = await sendPostRequest(
       'speaking/part1/generate-prompt',
@@ -70,6 +74,85 @@ class SpeakingApiService with ApiRequester {
     return Part2Response.fromJson(
       jsonDecode(resp.body) as Map<String, dynamic>,
     );
+  }
+
+  /// Generates topics for Writing tasks and Speaking parts.
+  Future<List<String>> generateTopics(int count) async {
+    final data = {'count': count};
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest('generate-topics', dataJson);
+    final json = jsonDecode(resp.body) as Map<String, dynamic>;
+
+    if (!json.containsKey('topics')) {
+      throw FormatException('Missing response element: topics');
+    }
+
+    return (json['topics'] as List<dynamic>)
+        .map((topic) => topic.toString())
+        .toList();
+  }
+
+  /// Generates initial question based on the given topics.
+  Future<SpeakingPart3Response> generateSpeakingPart3InitialQuestion(
+    String topic,
+  ) async {
+    final data = {'topic': topic};
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest(
+      'speaking/part3/generate-prompt',
+      dataJson,
+    );
+    return SpeakingPart3Response.fromJson(
+      jsonDecode(resp.body) as Map<String, dynamic>,
+    );
+  }
+
+  /// Generates a reply message used in Speaking Part 3.
+  Future<SpeakingPart3Response> generateSpeakingPart3Reply(
+    String interactionId,
+    String reply,
+  ) async {
+    final data = {'prompt_id': interactionId, 'reply': reply};
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest(
+      'speaking/part3/generate-prompt',
+      dataJson,
+    );
+    return SpeakingPart3Response.fromJson(
+      jsonDecode(resp.body) as Map<String, dynamic>,
+    );
+  }
+
+  /// Gets the topic transition message.
+  Future<String> generateTopicTransitionMessage(String topic) async {
+    final data = {'topic': topic};
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest(
+      'speaking/generate-transition-message',
+      dataJson,
+    );
+
+    final json = jsonDecode(resp.body);
+    return json['message'];
+  }
+
+  /// Gets the closing message.
+  Future<String> generateClosingMessage(TestTask testTask) async {
+    final part = testTask == TestTask.speakingPart1
+        ? 1
+        : testTask == TestTask.speakingPart2
+        ? 2
+        : 3;
+
+    final data = {'part': part};
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest(
+      'speaking/generate-closing-message',
+      dataJson,
+    );
+
+    final json = jsonDecode(resp.body);
+    return json['message'];
   }
 
   /// Grades the given speaking chat answer.
@@ -135,7 +218,7 @@ class SpeakingPromptResponse {
 /// Response for speaking reply generation.
 class SpeakingReply {
   /// ID to identify a convarsation.
-  final String chatId;
+  final String interactionId;
 
   /// Generated reply message.
   final String message;
@@ -148,7 +231,7 @@ class SpeakingReply {
 
   const SpeakingReply({
     required this.message,
-    required this.chatId,
+    required this.interactionId,
     required this.isChatEnded,
     required this.topics,
   });
@@ -161,7 +244,7 @@ class SpeakingReply {
         : null;
 
     return SpeakingReply(
-      chatId: json['prompt_id'],
+      interactionId: json['prompt_id'],
       message: json['question'],
       isChatEnded: json['end_mark'],
       topics: topics,
@@ -194,6 +277,27 @@ and explain ${json['q4']}
   }
 }
 
+/// Response for speaking Part 3 reply generation.
+class SpeakingPart3Response {
+  /// Last ID to identify the current conversation.
+  final String interactionId;
+
+  /// Generated reply question.
+  final String question;
+
+  const SpeakingPart3Response({
+    required this.interactionId,
+    required this.question,
+  });
+
+  factory SpeakingPart3Response.fromJson(Map<String, dynamic> json) {
+    return SpeakingPart3Response(
+      interactionId: json['prompt_id'],
+      question: json['question'],
+    );
+  }
+}
+
 /// Result of grading a speaking chat answer.
 class SpeakingChatGradingResponse {
   final double fluency;
@@ -213,6 +317,25 @@ class SpeakingChatGradingResponse {
     required this.feedback,
     required this.utteranceFluency,
   });
+}
+
+/// Response for topic generation.
+class TopicResponse {
+  /// Generated topics.
+  final List<String> topics;
+
+  const TopicResponse({required this.topics});
+
+  factory TopicResponse.fromJson(Map<String, dynamic> json) {
+    if (!json.containsKey('topics')) {
+      throw FormatException('Missing response element: topics');
+    }
+
+    final topics = (json['topics'] as List<dynamic>)
+        .map((topic) => topic.toString())
+        .toList();
+    return TopicResponse(topics: topics);
+  }
 }
 
 /// Result of grading a speaking speech answer.

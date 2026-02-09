@@ -12,6 +12,19 @@ class ChatGptService:
     def __init__(self):
         self.client = OpenAI()
 
+    def generate_topics(self, count: int) -> list[str]:
+        """Generates topics to use prompt generation.
+
+        Args:
+            count (int): The number of topics to generate.
+
+        Returns:
+            List[str]: The list of topics.
+        """
+        # curretly use fixed prompt
+        dummy = ["oil", "home", "food"]
+        return dummy[0:count]
+
     def generate_writing_task1_prompt(
         self, question_type: str, topics: list[str] | None = None
     ) -> dict:
@@ -175,19 +188,6 @@ Do not limit to the expressions on the above expressions, but allow to use a var
             "question": prompt["question"],
             "end_mark": prompt["end_mark"],
         }
-
-    def _generate_topics(self, count: int) -> list[str]:
-        """Generates topics to use prompt generation.
-
-        Args:
-            count (int): The number of topics to generate.
-
-        Returns:
-            List[str]: The list of topics.
-        """
-        # curretly use fixed prompt
-        dummy = ["oil", "home", "food"]
-        return dummy[0:count]
 
     def _generate_writing_task1_digram_prompt(
         self, question_type: str, topics: list[str]
@@ -423,3 +423,99 @@ Topic: {}.
             "q3": res.q3,
             "q4": res.q4,
         }
+
+    def generate_initial_speaking_part3_prompt(self, topic: str) -> dict:
+        """TODO"""
+        prompt = self._generate_speaking_part3_prompt(topic=topic)
+
+        return {
+            "prompt_id": prompt["prompt_id"],
+            "question": prompt["question"],
+        }
+
+    def generate_subsequent_speaking_part3_prompt(
+        self, prompt_id: str, reply: str | None = None
+    ) -> dict:
+        """TODO"""
+        prompt = self._generate_speaking_part3_prompt(prompt_id=prompt_id, reply=reply)
+
+        return {
+            "prompt_id": prompt["prompt_id"],
+            "question": prompt["question"],
+        }
+
+    def _generate_speaking_part3_prompt(
+        self, topic: str = None, prompt_id: int = None, reply: str = None
+    ) -> dict:
+        instructions = """
+You are an examiner for IELTS Speaking Part 3, and output questions.
+
+Constraints on the output questions:
+- You must output exactly one question per response.
+- You must generate questions based on the given topic in the input.
+- You must output each question sentence into the 'question' field.
+- Questions must be abstract questions in society or people in general, not about the examinee's personal experiences.
+- Each question includes only one issue, not including multiple issues.
+- Each question must be in line with the examinee's previous replies and be a natural conversation.
+- Each question must consist of only one sentence.
+- Do not end the session until you have asked the three questions in total.
+- Never use 'and' or 'or' to combine two things at once.
+- You may use 'if' and 'when' to assume issue conditions.
+- Do not include greetings or feedback in questions.
+
+Constraints on the output format:
+- Put the question sentence into the 'question' field.
+
+Constraints on the given topic:
+- The topic for the test is given as 'topic: <topic>.'.
+        """
+
+        class Message(BaseModel):
+            question: str
+
+        initial = prompt_id is None
+
+        prompt = {}
+
+        if initial:
+            prompt_input = """
+Start mock test of IELTS Speaking Part 3.
+You are the examinar.
+Topic: {}.
+            """.format(topic)
+
+            response = self.client.responses.parse(
+                model="gpt-5-nano",
+                # reasoning={"effort": "medium"},
+                reasoning={"effort": "low"},
+                # reasoning={"effort": "minimal"},
+                instructions=instructions,
+                text_format=Message,
+                input=prompt_input,
+            )
+        else:
+            response = self.client.responses.parse(
+                model="gpt-5-nano",
+                # reasoning={"effort": "medium"},
+                reasoning={"effort": "low"},
+                # reasoning={"effort": "minimal"},
+                instructions=instructions,
+                text_format=Message,
+                input=reply,
+                previous_response_id=prompt_id,
+            )
+
+        msg = response.output_parsed
+
+        # debug
+        print(
+            """
+        previous_response_id: {}
+        question: {}
+            """.format(prompt_id, msg.question)
+        )
+
+        prompt["prompt_id"] = response.id
+        prompt["question"] = msg.question
+
+        return prompt

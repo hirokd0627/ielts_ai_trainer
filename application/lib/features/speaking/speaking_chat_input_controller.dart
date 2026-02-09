@@ -65,18 +65,27 @@ class SpeakingChatInputController extends ChangeNotifier {
   bool _isChatEnded = false;
 
   /// ID generated when the last question was generated.
-  String _currentChatId = '';
+  String _currentInteractionId = '';
+
+  /// The number of reply count to the question related to the current topic.
+  int _currentReplyCount = 0;
+
+  /// Required reply count to move to the next topic.
+  static const int _requiredReplyCount = 3;
+
+  /// Index of topics to use in the current conversation.
+  int _currentTopicIndex = 0;
 
   SpeakingChatInputController({
     required SpeakingAnswerRepository speakingAnswerRepository,
     required String promptText,
     required List<String> topics,
     required TestTask testTask,
-    required String initialChatId,
+    required String initialInteractionId,
   }) : _repo = speakingAnswerRepository,
        _topics = topics,
        _testTask = testTask,
-       _currentChatId = initialChatId {
+       _currentInteractionId = initialInteractionId {
     _recordingSrv = UtteranceRecordingService(
       onPlayerComplete: _onPlayerComplete,
     );
@@ -217,17 +226,61 @@ class SpeakingChatInputController extends ChangeNotifier {
   }
 
   /// Generates a reply.
-  Future<void> generateSubsequentPrompt(String reply) async {
+  Future<void> generateQuestion(String reply) async {
     _setIsGeneratingPromptText(true);
 
+    // TODO: transition sentence
+
     try {
-      final resp = await _apiSrv.generateChatReply(_currentChatId, reply);
-      addMessage(false, resp.message);
-      _recordingState[_messages.length - 1] = 0;
-      if (resp.isChatEnded) {
-        _isChatEnded = true;
+      _currentReplyCount += 1;
+
+      final changeTopic = _currentReplyCount >= _requiredReplyCount;
+      if (changeTopic) {
+        _currentTopicIndex += 1;
+
+        // TODO: to show generating, display loading icon in message area.
+        // 1. addLoading();
+        // 2. getmessage(); e.g., final msg = await _apiSrv.generateClosingMessage(_testTask);
+        // 3. addMessage(...);
+
+        if (_currentTopicIndex >= _topics.length) {
+          // TODO: check
+          // Add closing message.
+          final msg = await _apiSrv.generateClosingMessage(_testTask);
+          addMessage(false, msg);
+          notifyListeners();
+
+          _isChatEnded = true;
+        } else {
+          // TODO: check
+          // Add transition message.
+          final transition = await _apiSrv.generateTopicTransitionMessage(
+            _topics[_currentTopicIndex - 1],
+          );
+          addMessage(false, transition);
+          notifyListeners();
+
+          // Add question.
+          final resp = await _apiSrv.generateSpeakingPart3InitialQuestion(
+            _topics[_currentTopicIndex],
+          );
+          addMessage(false, resp.question);
+          _recordingState[_messages.length - 1] = 0;
+
+          _currentInteractionId = resp.interactionId;
+          _currentReplyCount = 0;
+        }
+      } else {
+        // Add question.
+        final resp = await _apiSrv.generateSpeakingPart3Reply(
+          _currentInteractionId,
+          reply,
+        );
+        addMessage(false, resp.question);
+        _recordingState[_messages.length - 1] = 0;
+
+        _currentInteractionId = resp.interactionId;
       }
-      _currentChatId = resp.chatId;
     } finally {
       _setIsGeneratingPromptText(false);
       notifyListeners();

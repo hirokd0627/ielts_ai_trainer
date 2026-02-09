@@ -13,12 +13,6 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
   /// Topics used when generating the prompt text.
   final List<String> _usedTopics;
 
-  // /// Function to generate prompt text.
-  // /// Returns a record containing prompt text and topics used.
-  // final Future<({List<String> topics, String promptText, String chatId})>
-  // Function(int topicCount, List<String> topics)
-  // _generatePromptText;
-
   /// The task type.
   final TestTask _testTask;
 
@@ -33,11 +27,11 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
   int _promptTextState = 0;
 
   /// ID to identify conversation.
-  String _chatId = '';
+  String _interactionId = '';
 
   SpeakingQuestionGeneratorFormController({
     required SpeakingApiService apiSrv,
-    // required Future<({List<String> topics, String promptText, String chatId})>
+    // required Future<({List<String> topics, String promptText, String interactionId})>
     // Function(int topicCount, List<String> topics)
     // generatePromptText,
     required TestTask testTask,
@@ -61,7 +55,8 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
 
   /// Whether the Generate button is enabled.
   bool get isGenerateButtonEnabled {
-    if (_testTask == TestTask.speakingPart1) {
+    if (_testTask == TestTask.speakingPart1 ||
+        _testTask == TestTask.speakingPart3) {
       // Part 1 requires the number of topics to be selected.
       return _topicCount > 0 &&
           _topics.length <= _topicCount &&
@@ -91,7 +86,7 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
     return _promptTextState == 2;
   }
 
-  String get chatId => _chatId;
+  String get interactionId => _interactionId;
 
   /// Sets the number of topics.
   set topicCount(int value) {
@@ -123,7 +118,8 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
         ? _topics.length
         : _topics.length + 1; // consider the number of items to be added
     int maxTopicCount = 10;
-    if (_testTask == TestTask.speakingPart1) {
+    if (_testTask == TestTask.speakingPart1 ||
+        _testTask == TestTask.speakingPart3) {
       maxTopicCount = _topicCount;
     }
     if (candidateTopicCount > maxTopicCount) {
@@ -134,33 +130,42 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
   }
 
   /// Generates prompt text using the entered topics.
-  Future<void> generatePromptText() async {
+  Future<void> generateInitialQuestion() async {
     _promptTextState = 1;
     notifyListeners();
 
-    // TODO: error handling
+    // Generates topics if not entered.
     // Part 1 specifies the number of topics.
     // For Part 2 and Part 3, use the provided topics. If none are specified, one topic is generated at random.
-    int topicCount = _topicCount;
-    if (_testTask == TestTask.speakingPart2 ||
+    int addTopicCount = 0;
+    if (_testTask == TestTask.speakingPart1 ||
         _testTask == TestTask.speakingPart3) {
-      topicCount = _topics.isEmpty ? 1 : _topics.length;
+      addTopicCount = _topicCount - _topics.length;
+    } else if (_testTask == TestTask.speakingPart2) {
+      addTopicCount = 1;
     }
+    final topics = addTopicCount > 0
+        ? [..._topics, ...(await _apiSrv.generateTopics(addTopicCount))]
+        : [..._topics];
 
-    if (_testTask == TestTask.speakingPart1) {
-      final resp = await _apiSrv.generateInitialChatReply(topicCount, topics);
+    // store topics used generating
+    _usedTopics.clear();
+    _usedTopics.addAll(topics);
 
-      _promptText = resp.message;
+    if (_testTask == TestTask.speakingPart1 ||
+        _testTask == TestTask.speakingPart3) {
+      final resp = await _apiSrv.generateSpeakingPart3InitialQuestion(
+        topics[0],
+      );
 
-      _usedTopics.clear();
-      _usedTopics.addAll(resp.topics!); // store topics used generating
+      _promptText = resp.question;
 
       // show used topics on screen
       _topics.clear();
-      _topics.addAll(resp.topics!);
+      _topics.addAll(topics);
 
-      _chatId = resp.chatId;
-    } else {
+      _interactionId = resp.interactionId;
+    } else if (_testTask == TestTask.speakingPart2) {
       final resp = await _apiSrv.generatePart2Prompt(
         topics.isNotEmpty ? topics.first : '',
       );
