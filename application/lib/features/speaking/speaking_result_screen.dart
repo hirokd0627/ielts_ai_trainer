@@ -247,26 +247,6 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                                 ? () => _onPressedPlay(1)
                                 : null,
                           ),
-                          // OutlinedButton(
-                          //   onPressed: _ctrl.isPlayButtonEnabledAt(1)
-                          //       ? () => _onPressedPlay(1)
-                          //       : null,
-                          //   style: ButtonStyle(
-                          //     side: WidgetStateProperty.resolveWith((states) {
-                          //       if (states.contains(WidgetState.hovered)) {
-                          //         return BorderSide(
-                          //           color: AppColors.focusColor,
-                          //           width: 1,
-                          //         );
-                          //       }
-                          //       return BorderSide(
-                          //         color: AppColors.checkboxBorderColor,
-                          //         width: 1,
-                          //       );
-                          //     }),
-                          //   ),
-                          //   child: Text(_ctrl.getPlayButtonLabelAt(1)),
-                          // ),
                         ] else ...[
                           // Part 1 or Part 3
                           // Conversation

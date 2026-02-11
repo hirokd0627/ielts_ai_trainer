@@ -56,22 +56,25 @@ def writing_task1_generate_prompt():
 
     json = request.get_json()
 
-    topics = json.get("topics", None)
+    _validate_parameters(json, ["topics", "diagram_type"])
 
     chatgpt = ChatGptService()
 
     try:
-        prompt = chatgpt.generate_writing_task1_prompt(topics)
+        prompt = chatgpt.generate_writing_task1_prompt(
+            json["diagram_type"], json["topics"]
+        )
         resp_json = {
             "topics": prompt["topics"],
             "introduction": prompt["introduction"],
-            "diagram_description": prompt["description"],
+            "diagram_description": prompt["diagram_description"],
+            "diagram_data": prompt["diagram_data"],
             # Task 1 instruction is fixed.
             "instruction": "Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
-            "img_b64": prompt["img_b64"],
         }
 
-    except Exception:
+    except Exception as e:
+        print(e)
         raise AppException("failed to generate prompt: {}".format(json))
 
     return jsonify(resp_json)
@@ -84,18 +87,21 @@ def writing_task2_generate_prompt():
 
     json = request.get_json()
 
-    topics = json.get("topics", None)
+    _validate_parameters(json, ["topics", "essay_type"])
 
     chatgpt = ChatGptService()
 
     try:
-        prompt = chatgpt.generate_writing_task2_prompt(topics)
+        prompt = chatgpt.generate_writing_task2_prompt(
+            json["essay_type"], json["topics"]
+        )
         resp_json = {
             "topics": prompt["topics"],
             "statement": prompt["statement"],
             "instruction": prompt["instruction"],
         }
-    except Exception:
+    except Exception as e:
+        print(e)
         raise AppException("failed to generate prompt: {}".format(json))
 
     return jsonify(resp_json)

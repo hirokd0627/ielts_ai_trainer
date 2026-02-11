@@ -323,26 +323,6 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
                                   ? _onPressedCancel
                                   : null,
                             ),
-                            // OutlinedButton(
-                            //   onPressed: _ctrl.isControlsEnabled
-                            //       ? _onPressedCancel
-                            //       : null,
-                            //   style: ButtonStyle(
-                            //     side: WidgetStateProperty.resolveWith((states) {
-                            //       if (states.contains(WidgetState.hovered)) {
-                            //         return BorderSide(
-                            //           color: AppColors.focusColor,
-                            //           width: 1,
-                            //         );
-                            //       }
-                            //       return BorderSide(
-                            //         color: AppColors.checkboxBorderColor,
-                            //         width: 1,
-                            //       );
-                            //     }),
-                            //   ),
-                            //   child: const Text('Quit'),
-                            // ),
                             SizedBox(width: 20),
                             FilledButton(
                               onPressed:

@@ -3,33 +3,34 @@ import 'dart:convert';
 import 'package:faker/faker.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_chat_answer.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_speech_answer.dart';
+import 'package:ielts_ai_trainer/shared/api/common_api_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/http/api_requester.dart';
 
 /// API service for the Speaking screens, generating prompts and evaluating answers.
-class SpeakingApiService with ApiRequester {
-  /// Generates prompt text based on the given topics.
-  Future<SpeakingPromptResponse> generatePromptText(
-    int topicCount,
-    List<String> topics,
-  ) async {
-    // TODO: dummy data
+class SpeakingApiService with ApiRequester, TopicApiService {
+  // /// Generates prompt text based on the given topics.
+  // Future<SpeakingPromptResponse> generatePromptText(
+  //   int topicCount,
+  //   List<String> topics,
+  // ) async {
+  //   // TODO: dummy data
 
-    // If the number of topics is less than topicCount, generates topics to fill the gap.
-    var usedTopics = [...topics];
-    if (topicCount > topics.length) {
-      final faker = Faker();
-      for (int i = topics.length; i < topicCount; i++) {
-        usedTopics.add(faker.lorem.word());
-      }
-    }
+  //   // If the number of topics is less than topicCount, generates topics to fill the gap.
+  //   var usedTopics = [...topics];
+  //   if (topicCount > topics.length) {
+  //     final faker = Faker();
+  //     for (int i = topics.length; i < topicCount; i++) {
+  //       usedTopics.add(faker.lorem.word());
+  //     }
+  //   }
 
-    await Future.delayed(const Duration(seconds: 2));
-    return SpeakingPromptResponse(
-      promptText: faker.lorem.sentences(3).join("\n"),
-      topics: usedTopics,
-    );
-  }
+  //   await Future.delayed(const Duration(seconds: 2));
+  //   return SpeakingPromptResponse(
+  //     promptText: faker.lorem.sentences(3).join("\n"),
+  //     topics: usedTopics,
+  //   );
+  // }
 
   // /// Generates initial prompt based on the given topics.
   // Future<SpeakingReply> generateInitialChatReply(
@@ -63,35 +64,6 @@ class SpeakingApiService with ApiRequester {
   //   );
   // }
 
-  /// Generates Part2 cue card content.
-  Future<Part2Response> generatePart2CuecardContent(String topic) async {
-    final data = {'topic': topic};
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest(
-      'speaking/part2/generate-prompt',
-      dataJson,
-    );
-    return Part2Response.fromJson(
-      jsonDecode(resp.body) as Map<String, dynamic>,
-    );
-  }
-
-  /// Generates topics for Writing tasks and Speaking parts.
-  Future<List<String>> generateTopics(int count) async {
-    final data = {'count': count};
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest('generate-topics', dataJson);
-    final json = jsonDecode(resp.body) as Map<String, dynamic>;
-
-    if (!json.containsKey('topics')) {
-      throw FormatException('Missing response element: topics');
-    }
-
-    return (json['topics'] as List<dynamic>)
-        .map((topic) => topic.toString())
-        .toList();
-  }
-
   /// Generates initial question of Part 1 or Part 3.
   Future<SpeakingQuestionResponse> generateInitialQuestion(
     int partNo,
@@ -110,6 +82,21 @@ class SpeakingApiService with ApiRequester {
       partNo,
       interactionId: interactionId,
       reply: reply,
+    );
+  }
+
+  /// Generates Part2 cue card content.
+  Future<SpeakingCuecardResponse> generatePart2CuecardContent(
+    String topic,
+  ) async {
+    final data = {'topic': topic};
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest(
+      'speaking/part2/generate-prompt',
+      dataJson,
+    );
+    return SpeakingCuecardResponse.fromJson(
+      jsonDecode(resp.body) as Map<String, dynamic>,
     );
   }
 
@@ -217,88 +204,82 @@ class SpeakingApiService with ApiRequester {
   }
 }
 
-/// Response for speaking prompt generation.
-class SpeakingPromptResponse {
-  /// Generated prompt text.
-  final String promptText;
+// /// Response for speaking prompt generation.
+// class SpeakingPromptResponse {
+//   /// Generated prompt text.
+//   final String promptText;
 
-  /// Topics used to generate the prompt text.
+//   /// Topics used to generate the prompt text.
+//   final List<String> topics;
+
+//   const SpeakingPromptResponse({
+//     required this.promptText,
+//     required this.topics,
+//   });
+// }
+
+// /// Response for speaking reply generation.
+// class SpeakingReply {
+//   /// ID to identify a convarsation.
+//   final String interactionId;
+
+//   /// Generated reply message.
+//   final String message;
+
+//   /// Whether a conversation is ended.
+//   final bool isChatEnded;
+
+//   /// Topics to generate the first reply.
+//   final List<String>? topics;
+
+//   const SpeakingReply({
+//     required this.message,
+//     required this.interactionId,
+//     required this.isChatEnded,
+//     required this.topics,
+//   });
+
+//   factory SpeakingReply.fromJson(Map<String, dynamic> json) {
+//     final topics = json.containsKey('topics')
+//         ? (json['topics'] as List<dynamic>)
+//               .map((topic) => topic.toString())
+//               .toList()
+//         : null;
+
+//     return SpeakingReply(
+//       interactionId: json['prompt_id'],
+//       message: json['question'],
+//       isChatEnded: json['end_mark'],
+//       topics: topics,
+//     );
+//   }
+// }
+
+/// Response for topic generation.
+class TopicResponse {
+  /// Generated topics.
   final List<String> topics;
 
-  const SpeakingPromptResponse({
-    required this.promptText,
-    required this.topics,
-  });
-}
+  const TopicResponse({required this.topics});
 
-/// Response for speaking reply generation.
-class SpeakingReply {
-  /// ID to identify a convarsation.
-  final String interactionId;
+  factory TopicResponse.fromJson(Map<String, dynamic> json) {
+    if (!json.containsKey('topics')) {
+      throw FormatException('Missing response element: topics');
+    }
 
-  /// Generated reply message.
-  final String message;
-
-  /// Whether a conversation is ended.
-  final bool isChatEnded;
-
-  /// Topics to generate the first reply.
-  final List<String>? topics;
-
-  const SpeakingReply({
-    required this.message,
-    required this.interactionId,
-    required this.isChatEnded,
-    required this.topics,
-  });
-
-  factory SpeakingReply.fromJson(Map<String, dynamic> json) {
-    final topics = json.containsKey('topics')
-        ? (json['topics'] as List<dynamic>)
-              .map((topic) => topic.toString())
-              .toList()
-        : null;
-
-    return SpeakingReply(
-      interactionId: json['prompt_id'],
-      message: json['question'],
-      isChatEnded: json['end_mark'],
-      topics: topics,
-    );
+    final topics = (json['topics'] as List<dynamic>)
+        .map((topic) => topic.toString())
+        .toList();
+    return TopicResponse(topics: topics);
   }
 }
 
-/// Response for speaking reply generation.
-class Part2Response {
-  /// Generated prompt.
-  final String prompt;
-
-  /// Topic to generate a prompt.
-  final String topic;
-
-  const Part2Response({required this.prompt, required this.topic});
-
-  factory Part2Response.fromJson(Map<String, dynamic> json) {
-    final prompt =
-        '''
-${json['main_task']}
-    You should say:
-        ${json['q1']}
-        ${json['q2']}
-        ${json['q3']}
-and explain ${json['q4']}
-''';
-
-    return Part2Response(prompt: prompt, topic: json['topic']);
-  }
-}
-
-/// Response for speaking Part 3 reply generation.
+/// Response of generateInitialQuestion and generateSubsequentQuestion.
 class SpeakingQuestionResponse {
   /// Last ID to identify the current conversation.
   final String interactionId;
 
-  /// Generated reply question.
+  /// Generated question sentence.
   final String question;
 
   const SpeakingQuestionResponse({
@@ -311,6 +292,31 @@ class SpeakingQuestionResponse {
       interactionId: json['prompt_id'],
       question: json['question'],
     );
+  }
+}
+
+/// Response of generatePart2CuecardContent.
+class SpeakingCuecardResponse {
+  /// Generated prompt.
+  final String prompt;
+
+  /// Topic to generate a prompt.
+  final String topic;
+
+  const SpeakingCuecardResponse({required this.prompt, required this.topic});
+
+  factory SpeakingCuecardResponse.fromJson(Map<String, dynamic> json) {
+    final prompt =
+        '''
+${json['main_task']}
+    You should say:
+        ${json['q1']}
+        ${json['q2']}
+        ${json['q3']}
+and explain ${json['q4']}
+''';
+
+    return SpeakingCuecardResponse(prompt: prompt, topic: json['topic']);
   }
 }
 
@@ -333,25 +339,6 @@ class SpeakingChatGradingResponse {
     required this.feedback,
     required this.utteranceFluency,
   });
-}
-
-/// Response for topic generation.
-class TopicResponse {
-  /// Generated topics.
-  final List<String> topics;
-
-  const TopicResponse({required this.topics});
-
-  factory TopicResponse.fromJson(Map<String, dynamic> json) {
-    if (!json.containsKey('topics')) {
-      throw FormatException('Missing response element: topics');
-    }
-
-    final topics = (json['topics'] as List<dynamic>)
-        .map((topic) => topic.toString())
-        .toList();
-    return TopicResponse(topics: topics);
-  }
 }
 
 /// Result of grading a speaking speech answer.

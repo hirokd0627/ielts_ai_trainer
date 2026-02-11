@@ -254,28 +254,6 @@ class _SpeakingPart2AnswerInputScreenState
                                   ? _onRecordingButtonPressed
                                   : null,
                             ),
-                            // OutlinedButton(
-                            //   onPressed: _ctrl.isRecordingButtonEnabled
-                            //       ? _onRecordingButtonPressed
-                            //       : null,
-                            //   style: ButtonStyle(
-                            //     side: WidgetStateProperty.resolveWith((states) {
-                            //       if (states.contains(WidgetState.hovered)) {
-                            //         return BorderSide(
-                            //           color: AppColors.focusColor,
-                            //           width: 1,
-                            //         );
-                            //       }
-                            //       return BorderSide(
-                            //         color: AppColors.checkboxBorderColor,
-                            //         width: 1,
-                            //       );
-                            //     }),
-                            //   ),
-                            //   child: _ctrl.isRecording || _ctrl.isReRecording
-                            //       ? const Text('Stop')
-                            //       : const Text('Recording'),
-                            // ),
                             if (_ctrl.isRecorded || _ctrl.isReRecording)
                               SizedBox(width: 10),
                             if (_ctrl.isRecorded || _ctrl.isReRecording)
@@ -286,31 +264,6 @@ class _SpeakingPart2AnswerInputScreenState
                                     ? null
                                     : _onPlayButtonPressed,
                               ),
-                            // OutlinedButton(
-                            //   onPressed:
-                            //       _ctrl.isRecording || _ctrl.isReRecording
-                            //       ? null
-                            //       : _onPlayButtonPressed,
-                            //   style: ButtonStyle(
-                            //     side: WidgetStateProperty.resolveWith((
-                            //       states,
-                            //     ) {
-                            //       if (states.contains(WidgetState.hovered)) {
-                            //         return BorderSide(
-                            //           color: AppColors.focusColor,
-                            //           width: 1,
-                            //         );
-                            //       }
-                            //       return BorderSide(
-                            //         color: AppColors.checkboxBorderColor,
-                            //         width: 1,
-                            //       );
-                            //     }),
-                            //   ),
-                            //   child: (_ctrl.isStop)
-                            //       ? const Text('Play')
-                            //       : const Text('Stop'),
-                            // ),
                           ],
                         ),
                       ),

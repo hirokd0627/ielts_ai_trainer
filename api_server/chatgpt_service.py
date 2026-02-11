@@ -27,12 +27,12 @@ class ChatGptService:
         return dummy[0:count]
 
     def generate_writing_task1_prompt(
-        self, question_type: str, topics: list[str] | None = None
+        self, diagram_type: str, topics: list[str]
     ) -> dict:
         """Generates prompt for Writing Task 2.
 
         Args:
-            question_type (str): Type of question.
+            diagram_type (str): Type of diagram.
             topics (str): Topic of question.
 
         Returns:
@@ -41,35 +41,27 @@ class ChatGptService:
                     prompt.
                 - 'introduction' (str): Introduction sentence put before
                     a diagram.
-                - 'description' (str): Description of a diagram.
-                - 'img_b64' (str): Base64 encoded bytes of a diagram.
+                - 'diagram_description' (str): Description of a diagram.
+                - 'diagram_data' (str): Base64 encoded bytes of a diagram.
         """
-        topics = topics.copy() if topics else []
-
-        # Generates topics if it is not specified.
-        if not topics:
-            topics = self._generate_topics()
-
         # Generates prompt for a diagram.
-        img_prompt = self._generate_writing_task1_digram_prompt(question_type, topics)
+        img_prompt = self._generate_writing_task1_digram_prompt(diagram_type, topics)
 
         # Generates a diagram image.
-        img_b64 = self._generate_image(question_type, img_prompt)
+        img_b64 = self._generate_diagram(diagram_type, img_prompt)
 
         return {
             "topics": topics,
-            "introduction": img_prompt["diagram_introduction"],
-            "description": img_prompt["diagram_description"],
-            "img_b64": img_b64,
+            "introduction": img_prompt["introduction"],
+            "diagram_description": img_prompt["diagram_description"],
+            "diagram_data": img_b64,
         }
 
-    def generate_writing_task2_prompt(
-        self, question_type: str, topics: list[str] | None = None
-    ) -> dict:
+    def generate_writing_task2_prompt(self, essay_type: str, topics: list[str]) -> dict:
         """Generates prompt for Writing Task 2.
 
         Args:
-            question_type (str): Type of question.
+            essay_type (str): Type of essay.
             topic (str): Topic of question.
 
         Returns:
@@ -79,12 +71,6 @@ class ChatGptService:
                 - 'statement' (str): Statement sentence including topics.
                 - 'instruction' (str): Dommand for statement.
         """
-        topics = topics.copy() if topics else []
-
-        # generate topics if it is not specified
-        if not topics:
-            topics = self._generate_topics()
-
         # generate prompt
         instructions = """
 You are an test item writer for IELTS Writing Task 2.
@@ -184,18 +170,18 @@ Do not limit to the expressions on the above expressions, but allow to use a var
         }
 
     def _generate_writing_task1_digram_prompt(
-        self, question_type: str, topics: list[str]
+        self, diagram_type: str, topics: list[str]
     ) -> dict:
         """Generates the prompt for generating a diagram image for Writing Task 1.
 
         Args:
-            question_type (str): Type of question.
+            diagram_type (str): Type of diagram.
             topics (str): Topic of question.
 
         Returns:
             Dict[str, str]: Generated prompt parts.
                 - 'prompt': Prompt for generating a diagram.
-                - 'diagram_introduction' (str): Introduction put before
+                - 'introduction' (str): Introduction put before
                     a diagram.
                 - 'diagram_description' (str): Description as text for
                     a diagram.
@@ -203,11 +189,11 @@ Do not limit to the expressions on the above expressions, but allow to use a var
         # NOTE: curretly use fixed prompt
         return {
             "prompt": "Create a clean, publication-ready image of a table diagram illustrating crude oil production. The table should have 4 rows for countries: Saudi Arabia, United States, Russia, China; and 3 columns for years: 2015, 2016, 2017, with a header row reading: Country | 2015 | 2016 | 2017. Include a caption: 'Oil production (mbpd)'. Fill each cell with the values (in million barrels per day) as follows: Saudi Arabia — 2015: 11.0, 2016: 11.2, 2017: 11.4; United States — 2015: 9.4, 2016: 9.3, 2017: 9.1; Russia — 2015: 11.0, 2016: 11.1, 2017: 11.2; China — 2015: 4.2, 2016: 4.0, 2017: 3.9. Ensure numbers are displayed with one decimal place and units (mbpd) are clearly indicated. Use a neutral blue-gray color palette, clear gridlines, and legible typography suitable for IELTS Task 1 practice, with a landscape orientation.",
-            "diagram_introduction": "The diagram below details the annual crude oil production by four top producers (Saudi Arabia, United States, Russia, and China) for the years 2015–2017.",
+            "introduction": "The diagram below details the annual crude oil production by four top producers (Saudi Arabia, United States, Russia, and China) for the years 2015–2017.",
             "diagram_description": "The values in the table are, Row: Saudi Arabia; Column: 2015; Value: 11.0; This value represents Saudi Arabia's crude oil production in 2015 in mbpd. Row: Saudi Arabia; Column: 2016; Value: 11.2; This value represents Saudi Arabia's crude oil production in 2016 in mbpd. Row: Saudi Arabia; Column: 2017; Value: 11.4; This value represents Saudi Arabia's crude oil production in 2017 in mbpd. Row: United States; Column: 2015; Value: 9.4; This value represents the United States' crude oil production in 2015 in mbpd. Row: United States; Column: 2016; Value: 9.3; This value represents the United States' crude oil production in 2016 in mbpd. Row: United States; Column: 2017; Value: 9.1; This value represents the United States' crude oil production in 2017 in mbpd. Row: Russia; Column: 2015; Value: 11.0; This value represents Russia's crude oil production in 2015 in mbpd. Row: Russia; Column: 2016; Value: 11.1; This value represents Russia's crude oil production in 2016 in mbpd. Row: Russia; Column: 2017; Value: 11.2; This value represents Russia's crude oil production in 2017 in mbpd. Row: China; Column: 2015; Value: 4.2; This value represents China's crude oil production in 2015 in mbpd. Row: China; Column: 2016; Value: 4.0; This value represents China's crude oil production in 2016 in mbpd. Row: China; Column: 2017; Value: 3.9; This value represents China's crude oil production in 2017 in mbpd.",
         }
 
-    def _generate_diagram_image(self, question_type: str, img_prompt: dict) -> str:
+    def _generate_diagram(self, question_type: str, img_prompt: dict) -> str:
         """Generates a diagram image for Writing Task 1.
 
         Args:

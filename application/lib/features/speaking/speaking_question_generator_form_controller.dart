@@ -140,33 +140,33 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
     } else if (_testTask == TestTask.speakingPart2) {
       addTopicCount = 1;
     }
-    final topics = addTopicCount > 0
-        ? [..._topics, ...(await _apiSrv.generateTopics(addTopicCount))]
-        : [..._topics];
+    final targetTopics = addTopicCount > 0
+        ? [...topics, ...(await _apiSrv.generateTopics(addTopicCount))]
+        : [...topics];
 
     // Generate question.
     if (_testTask == TestTask.speakingPart1 ||
         _testTask == TestTask.speakingPart3) {
       final resp = await _apiSrv.generateInitialQuestion(
         _testTask.number,
-        topics[0],
+        targetTopics[0],
       );
       _promptText = resp.question;
       _interactionId = resp.interactionId;
     } else if (_testTask == TestTask.speakingPart2) {
       final resp = await _apiSrv.generatePart2CuecardContent(
-        topics.isNotEmpty ? topics.first : '',
+        targetTopics.isNotEmpty ? targetTopics.first : '',
       );
       _promptText = resp.prompt;
     }
 
     // Store topics to show on screen.
     _topics.clear();
-    _topics.addAll(topics);
+    _topics.addAll(targetTopics);
 
     // Store topics used in generating
     _usedTopics.clear();
-    _usedTopics.addAll(topics);
+    _usedTopics.addAll(targetTopics);
 
     // Update screen.
     _promptTextState = 2;

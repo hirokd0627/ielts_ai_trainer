@@ -229,8 +229,6 @@ class SpeakingChatInputController extends ChangeNotifier {
   Future<void> generateQuestion(String reply) async {
     _setIsGeneratingPromptText(true);
 
-    // TODO: working on transition sentence
-
     try {
       _currentReplyCount += 1;
 

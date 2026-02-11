@@ -127,26 +127,6 @@ class ChatRow extends StatelessWidget {
                               ? null
                               : () => onPressedRecording!(index!),
                         ),
-                      // OutlinedButton(
-                      //   onPressed: onPressedRecording == null && index != null
-                      //       ? null
-                      //       : () => onPressedRecording!(index!),
-                      //   style: ButtonStyle(
-                      //     side: WidgetStateProperty.resolveWith((states) {
-                      //       if (states.contains(WidgetState.hovered)) {
-                      //         return BorderSide(
-                      //           color: AppColors.focusColor,
-                      //           width: 1,
-                      //         );
-                      //       }
-                      //       return BorderSide(
-                      //         color: AppColors.checkboxBorderColor,
-                      //         width: 1,
-                      //       );
-                      //     }),
-                      //   ),
-                      //   child: Text(recordingButtonLabel),
-                      // ),
                       if (isResultView && fluencyScore != null) ...[
                         Text('Fluency: $fluencyScore'),
                       ],
@@ -158,26 +138,6 @@ class ChatRow extends StatelessWidget {
                               ? null
                               : () => onPressedPlay!(index!),
                         ),
-                      // OutlinedButton(
-                      //   onPressed: onPressedPlay == null && index != null
-                      //       ? null
-                      //       : () => onPressedPlay!(index!),
-                      //   style: ButtonStyle(
-                      //     side: WidgetStateProperty.resolveWith((states) {
-                      //       if (states.contains(WidgetState.hovered)) {
-                      //         return BorderSide(
-                      //           color: AppColors.focusColor,
-                      //           width: 1,
-                      //         );
-                      //       }
-                      //       return BorderSide(
-                      //         color: AppColors.checkboxBorderColor,
-                      //         width: 1,
-                      //       );
-                      //     }),
-                      //   ),
-                      //   child: Text(playingButtonLabel),
-                      // ),
                     ],
                   ),
                 ],

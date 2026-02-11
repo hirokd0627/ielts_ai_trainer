@@ -33,27 +33,27 @@ class WritingTask1QuestionGeneratorScreen extends StatefulWidget {
 /// State for WritingTask1QuestionGeneratorScreen
 class _WritingTask1QuestionGeneratorScreenState
     extends State<WritingTask1QuestionGeneratorScreen> {
-  /// Called when start button is tapped.
-  void _onTappedStart(
-    String promptText,
-    List<String> topics,
-    dynamic promptType,
-  ) {
-    context.go(
-      writingTask1AnswerInputScreenRoutePath,
-      extra: RouterExtra({
-        'promptText': promptText,
-        'topics': topics,
-        'promptType': promptType,
-      }),
-    );
-  }
+  // /// Called when start button is tapped.
+  // void _onTappedStart(
+  //   String promptText,
+  //   List<String> topics,
+  //   dynamic promptType,
+  // ) {
+  //   context.go(
+  //     writingTask1AnswerInputScreenRoutePath,
+  //     extra: RouterExtra({
+  //       'promptText': promptText,
+  //       'topics': topics,
+  //       'promptType': promptType,
+  //     }),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
     return BaseScreenScaffold(
       body: WritingQuestionGeneratorScreen(
-        onTappedStart: _onTappedStart,
+        // onTappedStart: _onTappedStart,
         testTask: TestTask.writingTask1,
         promptType: widget.promptType,
         promptText: widget.promptText,
