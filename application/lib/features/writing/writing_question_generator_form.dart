@@ -13,14 +13,6 @@ import 'package:ielts_ai_trainer/shared/views/texts.dart';
 
 /// Question Generator Form for Writing Tasks.
 class WritingQuestionGeneratorForm extends StatefulWidget {
-  // /// Called when start button is tapped.
-  // final void Function(
-  //   String promptText,
-  //   List<String> topics,
-  //   WritingPromptType promptType,
-  // )
-  // onTappedStart;
-
   /// The task type.
   final TestTask testTask;
 
@@ -35,7 +27,6 @@ class WritingQuestionGeneratorForm extends StatefulWidget {
 
   const WritingQuestionGeneratorForm({
     super.key,
-    // required this.onTappedStart,
     required this.testTask,
     this.promptText,
     this.topics,

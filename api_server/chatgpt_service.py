@@ -1,53 +1,52 @@
 import base64
 import time
-from tkinter import W
 
 from openai import OpenAI
 from pydantic import BaseModel
 
 
 class ChatGptService:
-    """A service class to generate prompt and evaluate answers for IELTS
-    Writing and Specaking practice using Chat GPT API"""
+    """A service class to generate prompts and evaluate user's answers for
+    IELTS Writing and Specaking practice using Chat GPT API"""
 
     def __init__(self):
         self.client = OpenAI()
 
     def generate_topics(self, count: int) -> list[str]:
-        """Generates topics to use prompt generation.
+        """Generate topics for prompt generation.
 
         Args:
-            count (int): The number of topics to generate.
+            count: Number of topics to generate.
 
         Returns:
-            List[str]: The list of topics.
+            List of generated topics.
         """
-        # curretly use fixed prompt
+        # TODO: use fixed data currently.
         dummy = ["oil", "home", "food"]
         return dummy[0:count]
 
     def generate_writing_task1_prompt(
         self, diagram_type: str, topics: list[str]
     ) -> dict:
-        """Generates prompt for Writing Task 2.
+        """Generate Writing Task 1 prompt.
 
         Args:
-            diagram_type (str): Type of diagram.
-            topics (str): Topic of question.
+            diagram_type: Type of diagram to be generated.
+            topics: List of topics to include in prompt.
 
         Returns:
-            Dict[str, str]: Generated prompt parts.
-                - 'topics (list)': The list of topics to used in generating
-                    prompt.
-                - 'introduction' (str): Introduction sentence put before
-                    a diagram.
-                - 'diagram_description' (str): Description of a diagram.
-                - 'diagram_data' (str): Base64 encoded bytes of a diagram.
+            Generated prompt components:
+                - topics (list): List of topics used in generating prompt.
+                - introduction (str): Introduction sentence put before diagram.
+                - diagram_description (str): Description of diagram.
+                - diagram_data (str): Base64 encoded string of diagram.
         """
-        # Generates prompt for a diagram.
-        img_prompt = self._generate_writing_task1_digram_prompt(diagram_type, topics)
+        # Generate prompt for a diagram.
+        img_prompt = self._generate_writing_task1_digram_prompt(
+            diagram_type, topics
+        )
 
-        # Generates a diagram image.
+        # Generate a diagram image.
         img_b64 = self._generate_diagram(diagram_type, img_prompt)
 
         return {
@@ -57,21 +56,21 @@ class ChatGptService:
             "diagram_data": img_b64,
         }
 
-    def generate_writing_task2_prompt(self, essay_type: str, topics: list[str]) -> dict:
-        """Generates prompt for Writing Task 2.
+    def generate_writing_task2_prompt(
+        self, essay_type: str, topics: list[str]
+    ) -> dict:
+        """Generate Writing Task 2 prompt.
 
         Args:
-            essay_type (str): Type of essay.
-            topic (str): Topic of question.
+            essay_type: Type of essay.
+            topics: Topics for essay.
 
         Returns:
-            Dict[str, str]: Generated prompt parts.
-                - 'topics (list)': The list of topics to used in generating
-                    prompt.
-                - 'statement' (str): Statement sentence including topics.
-                - 'instruction' (str): Dommand for statement.
+            Generated prompt components:
+                - topics (list): List of topics used in generating prompt.
+                - statement (str): Statement sentence including topics.
+                - instruction (str): Instruction for statement.
         """
-        # generate prompt
         instructions = """
 You are an test item writer for IELTS Writing Task 2.
 You must output two distinct parts of the prompt for IELTS Writing Task 2, a statement and an instruction.
@@ -139,8 +138,20 @@ Do not limit to the expressions on the above expressions, but allow to use a var
             "instruction": prompt.instruction,
         }
 
-    def generate_speaking_initial_question(self, part_no: int, topic: str) -> dict:
-        """TODO"""
+    def generate_speaking_initial_question(
+        self, part_no: int, topic: str
+    ) -> dict:
+        """Generate initial question for Speaking Part 1 and Part 3.
+
+        Args:
+            part_no: Speaking Part number to generate.
+            topic: Topic to include in question.
+
+        Returns:
+            Generated question components:
+                - prompt_id (str): ChatGPT prompt ID to continue interaction.
+                - question (str): Generated question sentence.
+        """
         if part_no == 1:
             prompt = self._generate_speaking_part1_question(topic=topic)
         elif part_no == 3:
@@ -154,7 +165,18 @@ Do not limit to the expressions on the above expressions, but allow to use a var
     def generate_speaking_subsequent_question(
         self, part_no: int, prompt_id: str, user_reply: str
     ) -> dict:
-        """TODO"""
+        """Generate subsequent question for Speaking Part 1 and Part 3.
+
+        Args:
+            part_no: Speaking Part number to generate.
+            prompt_id: Previous ChatGPT prompt ID.
+            user_reply: User's answer to previous question.
+
+        Returns:
+            Generated question components:
+                - prompt_id (str): ChatGPT prompt ID to continue interaction.
+                - question (str): Generated question sentence.
+        """
         if part_no == 1:
             prompt = self._generate_speaking_part1_question(
                 prompt_id=prompt_id, reply=user_reply
@@ -172,41 +194,40 @@ Do not limit to the expressions on the above expressions, but allow to use a var
     def _generate_writing_task1_digram_prompt(
         self, diagram_type: str, topics: list[str]
     ) -> dict:
-        """Generates the prompt for generating a diagram image for Writing Task 1.
+        """Generate ChatGPT prompt to create diagram for Writing Task 1.
 
         Args:
-            diagram_type (str): Type of diagram.
-            topics (str): Topic of question.
+            diagram_type: Type of diagram.
+            topics: Topics to include in diagram.
 
         Returns:
-            Dict[str, str]: Generated prompt parts.
-                - 'prompt': Prompt for generating a diagram.
-                - 'introduction' (str): Introduction put before
-                    a diagram.
-                - 'diagram_description' (str): Description as text for
-                    a diagram.
+            Generated prompt components:
+                - prompt (str): Prompt to generate diagram.
+                - introduction (str): Introduction to be put before diagram.
+                - diagram_description (str): Description as text of diagram.
         """
-        # NOTE: curretly use fixed prompt
+        # TODO: use fixed data currently.
         return {
             "prompt": "Create a clean, publication-ready image of a table diagram illustrating crude oil production. The table should have 4 rows for countries: Saudi Arabia, United States, Russia, China; and 3 columns for years: 2015, 2016, 2017, with a header row reading: Country | 2015 | 2016 | 2017. Include a caption: 'Oil production (mbpd)'. Fill each cell with the values (in million barrels per day) as follows: Saudi Arabia — 2015: 11.0, 2016: 11.2, 2017: 11.4; United States — 2015: 9.4, 2016: 9.3, 2017: 9.1; Russia — 2015: 11.0, 2016: 11.1, 2017: 11.2; China — 2015: 4.2, 2016: 4.0, 2017: 3.9. Ensure numbers are displayed with one decimal place and units (mbpd) are clearly indicated. Use a neutral blue-gray color palette, clear gridlines, and legible typography suitable for IELTS Task 1 practice, with a landscape orientation.",
             "introduction": "The diagram below details the annual crude oil production by four top producers (Saudi Arabia, United States, Russia, and China) for the years 2015–2017.",
             "diagram_description": "The values in the table are, Row: Saudi Arabia; Column: 2015; Value: 11.0; This value represents Saudi Arabia's crude oil production in 2015 in mbpd. Row: Saudi Arabia; Column: 2016; Value: 11.2; This value represents Saudi Arabia's crude oil production in 2016 in mbpd. Row: Saudi Arabia; Column: 2017; Value: 11.4; This value represents Saudi Arabia's crude oil production in 2017 in mbpd. Row: United States; Column: 2015; Value: 9.4; This value represents the United States' crude oil production in 2015 in mbpd. Row: United States; Column: 2016; Value: 9.3; This value represents the United States' crude oil production in 2016 in mbpd. Row: United States; Column: 2017; Value: 9.1; This value represents the United States' crude oil production in 2017 in mbpd. Row: Russia; Column: 2015; Value: 11.0; This value represents Russia's crude oil production in 2015 in mbpd. Row: Russia; Column: 2016; Value: 11.1; This value represents Russia's crude oil production in 2016 in mbpd. Row: Russia; Column: 2017; Value: 11.2; This value represents Russia's crude oil production in 2017 in mbpd. Row: China; Column: 2015; Value: 4.2; This value represents China's crude oil production in 2015 in mbpd. Row: China; Column: 2016; Value: 4.0; This value represents China's crude oil production in 2016 in mbpd. Row: China; Column: 2017; Value: 3.9; This value represents China's crude oil production in 2017 in mbpd.",
         }
 
-    def _generate_diagram(self, question_type: str, img_prompt: dict) -> str:
-        """Generates a diagram image for Writing Task 1.
+    def _generate_diagram(
+        self, diagram_type: str, diagram_prompt: dict
+    ) -> str:
+        """Generate diagram for Writing Task 1.
 
         Args:
-            question_type (str): Type of question.
-            image_prompt (dict): Prompt to generate an image.
-                - 'prompt': Prompt for generating a diagram.
-                - 'diagram_description' (str): Description as text for
-                    a diagram.
+            diagram_type: Type of diagram to be generated.
+            diagram_prompt: ChatGPT prompt components:
+                - prompt (str): Prompt to generate diagram.
+                - diagram_description (str): Description as text of diagram.
 
         Returns:
-            str: Base64 encoded bytes of a diagram image.
+            Base64 encoded string of diagram.
         """
-        # Test
+        # TODO: return fixed data currently
         with open("./assets/test_w1.png", "rb") as f:
             img_bytes = f.read()
         time.sleep(5)
@@ -229,6 +250,20 @@ Do not limit to the expressions on the above expressions, but allow to use a var
     def _generate_speaking_part1_question(
         self, topic: str = None, prompt_id: int = None, reply: str = None
     ) -> dict:
+        """Generate question for Speaking Part 1.
+
+        Args:
+            topic: Topic to include in question. Required for initial question.
+            prompt_id: Previous ChatGPT prompt ID. Required for subsequent
+                question.
+            reply: User's answer to previous question. Required for subsequent
+                question.
+
+        Returns:
+            Generated question components:
+                - prompt_id (str): ChatGPT prompt ID to continue interaction.
+                - question (str): Generated question sentence.
+        """
         # TODO: adjust prompt for Part 1
         instructions = """
 You are an examiner for IELTS Speaking Part 3, and output questions.
@@ -303,40 +338,48 @@ Topics: {}.
 
         return prompt
 
-    def generate_speaking_part2_prompt(self, topic: str = None) -> dict:
+    def generate_speaking_part2_cuecard(self, topic: str) -> dict:
+        """Generate Cue card content for Speaking Part 2.
 
-        # Generates topics if it is not specified.
-        if not topic:
-            topic = self._generate_topics(1)[0]
+        Args:
+            topic: Topic for cue card.
 
+        Returns:
+            Generated cue card content:
+                - instruction (str): Main instruction to describe.
+                - q1 (str): First question for task.
+                - q2 (str): Second question for task.
+                - q3 (str): Third question for task.
+                - q4 (str): Fourth question for task.
+        """
         instructions = """
 You are an examiner for IELTS Speaking Part 2.
 You must output a Speaking Part 2 Cue Card based on the topic provided in the input.
 Topic is provided as 'Topic: <topic>.' 
 
 Non negotiable constraints:
-- You must output details of the Speaking Part 2 Cue Card into the five fields: main_task, q1, q2, q3, q4.
-- Ensure all fields (main_task, q1, q2, q3, and q4) must maintain tense consistency with the provided topic.
+- You must output details of the Speaking Part 2 Cue Card into the five fields: instruction, q1, q2, q3, q4.
+- Ensure all fields (instruction, q1, q2, q3, and q4) must maintain tense consistency with the provided topic.
 - Use formal expression consistent with official IELTS Speaking test materials.
 - You must generate outputs followed by the Field Definitions.
 
 Field Definitions:
-- main_task: The sentence indicates that the examinee should explain their experiences about the given topic. The sentence must be easy to answer, without being too specific. You must make the sentence specific enough to include room for q1, q2, q3, and q4 to explain the main_task in detail, but do not include interrogatives words. The sentence must starts with "Describe ...", and include the topic given in the input. The number of words must be less than 20. (e.g., Describe a taffic rule that was introduced in your country and that your thought was a very good idea.)
-- q1: The concise interrogative sentence to identify the main subject in main_task. The sentence must start with 'What' or 'Who'. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g.,  what the work of art is)
-- q2: The concise interrogative sentence to ask background the main subject in main_task. The sentence must start with 'When' or 'Where'. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g., when you first saw it)
-- q3: The concise interrogative sentence to ask the details of the main subject in main_task. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g., what you know about it)
+- instruction: The sentence indicates that the examinee should explain their experiences about the given topic. The sentence must be easy to answer, without being too specific. You must make the sentence specific enough to include room for q1, q2, q3, and q4 to explain the instruction in detail, but do not include interrogatives words. The sentence must starts with "Describe ...", and include the topic given in the input. The number of words must be less than 20. (e.g., Describe a taffic rule that was introduced in your country and that your thought was a very good idea.)
+- q1: The concise interrogative sentence to identify the main subject in instruction. The sentence must start with 'What' or 'Who'. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g.,  what the work of art is)
+- q2: The concise interrogative sentence to ask background the main subject in instruction. The sentence must start with 'When' or 'Where'. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g., when you first saw it)
+- q3: The concise interrogative sentence to ask the details of the main subject in instruction. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g., what you know about it)
 - q4: The concise interrogative sentence to ask the reason why the examinee feel. The sentence must start with 'Why'. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g., why you like it.)
 """
 
         class Response(BaseModel):
-            main_task: str
+            instruction: str
             q1: str
             q2: str
             q3: str
             q4: str
 
         prompt_input = """
-Generate details of the Speaking Part 2 Cue Card into the five fields: main_task, q1, q2, q3, q4.
+Generate details of the Speaking Part 2 Cue Card into the five fields: instruction, q1, q2, q3, q4.
 Topic: {}.
         """.format(topic)
 
@@ -355,17 +398,17 @@ Topic: {}.
         # debug
         print(
             """
-            main_task: {}
+            instruction: {}
             q1: {}
             q2: {}
             q3: {}
             q4: {}
-            """.format(res.main_task, res.q1, res.q2, res.q3, res.q4)
+            """.format(res.instruction, res.q1, res.q2, res.q3, res.q4)
         )
 
         return {
             "topic": topic,
-            "main_task": res.main_task,
+            "instruction": res.instruction,
             "q1": res.q1,
             "q2": res.q2,
             "q3": res.q3,
@@ -375,6 +418,20 @@ Topic: {}.
     def _generate_speaking_part3_question(
         self, topic: str = None, prompt_id: int = None, reply: str = None
     ) -> dict:
+        """Generate question for Speaking Part 3.
+
+        Args:
+            topic: Topic to include in question. Required for initial question.
+            prompt_id: Previous ChatGPT prompt ID. Required for subsequent
+                question.
+            reply: User's answer to previous question. Required for subsequent
+                question.
+
+        Returns:
+            Generated question components:
+                - prompt_id (str): ChatGPT prompt ID to continue interaction.
+                - question (str): Generated question sentence.
+        """
         instructions = """
 You are an examiner for IELTS Speaking Part 3, and output questions.
 

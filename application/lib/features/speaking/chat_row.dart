@@ -92,7 +92,6 @@ class ChatRow extends StatelessWidget {
           ? MainAxisAlignment.end
           : MainAxisAlignment.start,
       children: [
-        // AI avator icon
         if (!isUser) _avatarIcon(),
         // Message, Recording button, and Play button.
         Flexible(

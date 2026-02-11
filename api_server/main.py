@@ -1,4 +1,4 @@
-from random import choice, randint
+from random import choice
 import time
 
 from flask import Flask, request, jsonify, json
@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from exceptions import AppException
 from chatgpt_service import ChatGptService
 
-# Loads environment variables from .env file.
+# Load environment variables from .env file.
 load_dotenv()
 
 # Ref. https://flask.palletsprojects.com/en/stable/api/#flask.Request
@@ -18,6 +18,7 @@ app = Flask(__name__)
 @app.route("/hello", methods=["GET"])
 @auth_required
 def hello():
+    """API for health check."""
     if request.args.get("duration") is not None:
         duration = int(request.args.get("duration"))
         time.sleep(duration)
@@ -32,12 +33,10 @@ def generate_topics():
     """API for generating topics for Writing and Speaking."""
 
     json = request.get_json()
-
     _validate_parameters(json, ["count"])
 
-    chatgpt = ChatGptService()
-
     try:
+        chatgpt = ChatGptService()
         topics = chatgpt.generate_topics(json["count"])
         resp_json = {
             "topics": topics,
@@ -55,12 +54,10 @@ def writing_task1_generate_prompt():
     """API for generating prompt for Writing Task 1."""
 
     json = request.get_json()
-
     _validate_parameters(json, ["topics", "diagram_type"])
 
-    chatgpt = ChatGptService()
-
     try:
+        chatgpt = ChatGptService()
         prompt = chatgpt.generate_writing_task1_prompt(
             json["diagram_type"], json["topics"]
         )
@@ -70,7 +67,9 @@ def writing_task1_generate_prompt():
             "diagram_description": prompt["diagram_description"],
             "diagram_data": prompt["diagram_data"],
             # Task 1 instruction is fixed.
-            "instruction": "Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+            "instruction": "Summarise the information by selecting and "
+            "reporting the main features, and make comparisons where "
+            "relevant.",
         }
 
     except Exception as e:
@@ -86,12 +85,10 @@ def writing_task2_generate_prompt():
     """API for generating prompt for Writing Task 2."""
 
     json = request.get_json()
-
     _validate_parameters(json, ["topics", "essay_type"])
 
-    chatgpt = ChatGptService()
-
     try:
+        chatgpt = ChatGptService()
         prompt = chatgpt.generate_writing_task2_prompt(
             json["essay_type"], json["topics"]
         )
@@ -110,22 +107,22 @@ def writing_task2_generate_prompt():
 @app.route("/speaking/part1/generate-question", methods=["POST"])
 @auth_required
 def speaking_part1_generate_question():
-    """API for generating questions for Speaking Part 1."""
+    """API for generating question for Speaking Part 1."""
     return _speaking_generate_question(1, request.get_json())
 
 
-@app.route("/speaking/part2/generate-prompt", methods=["POST"])
+@app.route("/speaking/part2/generate-cuecard", methods=["POST"])
 @auth_required
-def speaking_part2_generate_prompt():
-    """API for generating prompt for Speaking Part 2."""
+def speaking_part2_generate_cuecard():
+    """API for generating cur card content for Speaking Part 2."""
 
     json = request.get_json()
+    _validate_parameters(json, "topic")
 
     try:
         chatgpt = ChatGptService()
-
-        resp_json = chatgpt.generate_speaking_part2_prompt(
-            topic=json.get("topic", None)
+        resp_json = chatgpt.generate_speaking_part2_cuecard(
+            topic=json["topic"]
         )
     except Exception:
         raise AppException("failed to generate prompt: {}".format(json))
@@ -136,20 +133,19 @@ def speaking_part2_generate_prompt():
 @app.route("/speaking/part3/generate-question", methods=["POST"])
 @auth_required
 def speaking_part3_generate_question():
-    """API for generating questions for Speaking Part 3."""
+    """API for generating question for Speaking Part 3."""
     return _speaking_generate_question(3, request.get_json())
 
 
 @app.route("/speaking/generate-transition-message", methods=["POST"])
 @auth_required
 def speaking_transition_message():
-    """API for getting transition message for Speaking Part 3."""
+    """API for getting transition message for Speaking Part 1 and Part 3."""
 
     json = request.get_json()
-
     _validate_parameters(json, ["topic"])
 
-    # It’s simple enough to do without an AI.
+    # Randomly select from pre-generated sentences.
     options = [
         s.format(json["topic"])
         for s in [
@@ -173,13 +169,12 @@ def speaking_transition_message():
 @app.route("/speaking/generate-closing-message", methods=["POST"])
 @auth_required
 def speaking_closing_message():
-    """API for getting closing message for Speaking Part 3."""
+    """API for getting closing message for Speaking Part 1 and Part 3."""
 
     json = request.get_json()
-
     _validate_parameters(json, ["part"])
 
-    # It’s simple enough to do without an AI.
+    # Randomly select from pre-generated sentences.
     options = [
         s.format(json["part"])
         for s in [
@@ -216,13 +211,32 @@ def handle_exception(e):
 
 
 def _validate_parameters(json: dict, names: list[str]):
+    """Validate POST parameters.
+
+    Args:
+        json: POST parameters.
+        names: List of key name in json to verify.
+
+    Raises:
+        AppException: if key name in names is not in json.
+    """
     for name in names:
         if name not in json:
             raise AppException("Missing parameter: {}".format(name))
 
 
 def _speaking_generate_question(part_no: int, json: any):
-    """API for generating questions."""
+    """API for generating question for Speaking Part 1 and Part 3.
+
+    Args:
+        part_no: Speaking Part number, 1 or 3.
+        json: POST parameters.
+
+    Returns:
+        Generated question components:
+            - prompt_id (str): ChatGPT prompt ID to continue interaction.
+            - question (str): Generated question sentence.
+    """
 
     initial_generation = "prompt_id" not in json
 
@@ -238,28 +252,12 @@ def _speaking_generate_question(part_no: int, json: any):
             resp_json = chatgpt.generate_speaking_initial_question(
                 part_no=part_no, topic=json["topic"]
             )
-            # resp_json = (
-            # chatgpt.generate_speaking_initial_question(
-            # part_no=part_no, topic=json["topic"]
-            # )
-            # chatgpt.generate_speaking_part1_initial_question(topic=json["topic"])
-            # if part_no == 1
-            # else chatgpt.generate_speaking_part3_initial_question(
-            #     topic=json["topic"]
-            # )
         else:
             resp_json = chatgpt.generate_speaking_subsequent_question(
-                part_no=part_no, prompt_id=json["prompt_id"], user_reply=json["reply"]
+                part_no=part_no,
+                prompt_id=json["prompt_id"],
+                user_reply=json["reply"],
             )
-            # resp_json = (
-            # chatgpt.generate_speaking_art1_subsequent_question(
-            #     prompt_id=json["prompt_id"], user_reply=json["reply"]
-            # )
-            # if part_no == 1
-            # else chatgpt.generate_speaking_part3_subsequent_question(
-            #     prompt_id=json["prompt_id"], user_reply=json["reply"]
-            # )
-            # )
     except Exception as e:
         print(e)
         raise AppException("failed to generate prompt: {}".format(json))

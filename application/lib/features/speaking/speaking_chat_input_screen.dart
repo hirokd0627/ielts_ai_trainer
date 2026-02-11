@@ -27,7 +27,7 @@ class SpeakingChatInputScreen extends StatefulWidget {
   /// The task type.
   final TestTask testTask;
 
-  /// ID issued when the initial prompt was generated.
+  /// ID issued when initial prompt was generated.
   final String initialInteractionId;
 
   const SpeakingChatInputScreen({

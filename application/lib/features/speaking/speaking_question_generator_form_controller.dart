@@ -4,7 +4,7 @@ import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 
 /// Controller for SpeakingQuestionGeneratorForm.
 class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
-  /// API service to generate prompt text.
+  /// API service to generate prompt.
   final SpeakingApiService _apiSrv = SpeakingApiService();
 
   /// Entered topics.

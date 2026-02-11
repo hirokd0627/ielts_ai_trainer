@@ -9,62 +9,7 @@ import 'package:ielts_ai_trainer/shared/http/api_requester.dart';
 
 /// API service for the Speaking screens, generating prompts and evaluating answers.
 class SpeakingApiService with ApiRequester, TopicApiService {
-  // /// Generates prompt text based on the given topics.
-  // Future<SpeakingPromptResponse> generatePromptText(
-  //   int topicCount,
-  //   List<String> topics,
-  // ) async {
-  //   // TODO: dummy data
-
-  //   // If the number of topics is less than topicCount, generates topics to fill the gap.
-  //   var usedTopics = [...topics];
-  //   if (topicCount > topics.length) {
-  //     final faker = Faker();
-  //     for (int i = topics.length; i < topicCount; i++) {
-  //       usedTopics.add(faker.lorem.word());
-  //     }
-  //   }
-
-  //   await Future.delayed(const Duration(seconds: 2));
-  //   return SpeakingPromptResponse(
-  //     promptText: faker.lorem.sentences(3).join("\n"),
-  //     topics: usedTopics,
-  //   );
-  // }
-
-  // /// Generates initial prompt based on the given topics.
-  // Future<SpeakingReply> generateInitialChatReply(
-  //   int topicCount,
-  //   List<String> topics,
-  // ) async {
-  //   final data = {'topic_count': topicCount, 'topics': topics};
-  //   final dataJson = jsonEncode(data);
-  //   final resp = await sendPostRequest(
-  //     'speaking/part1/generate-prompt',
-  //     dataJson,
-  //   );
-  //   return SpeakingReply.fromJson(
-  //     jsonDecode(resp.body) as Map<String, dynamic>,
-  //   );
-  // }
-
-  // /// Generates a reply message used in Speaking Part 1 & 3.
-  // Future<SpeakingReply> generateChatReply(
-  //   String interactionId,
-  //   String reply,
-  // ) async {
-  //   final data = {'prompt_id': interactionId, 'reply': reply};
-  //   final dataJson = jsonEncode(data);
-  //   final resp = await sendPostRequest(
-  //     'speaking/part1/generate-prompt',
-  //     dataJson,
-  //   );
-  //   return SpeakingReply.fromJson(
-  //     jsonDecode(resp.body) as Map<String, dynamic>,
-  //   );
-  // }
-
-  /// Generates initial question of Part 1 or Part 3.
+  /// Generates initial question of Part 1 and Part 3.
   Future<SpeakingQuestionResponse> generateInitialQuestion(
     int partNo,
     String topic,
@@ -72,7 +17,7 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     return await _generateQuestion(partNo, topic: topic);
   }
 
-  /// Generates a subsequent question of Part 1 or Part 3 following the initial question.
+  /// Generates subsequent question of Part 1 and Part 3 following the initial question.
   Future<SpeakingQuestionResponse> generateSubsequentQuestion(
     int partNo,
     String interactionId,
@@ -92,7 +37,7 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     final data = {'topic': topic};
     final dataJson = jsonEncode(data);
     final resp = await sendPostRequest(
-      'speaking/part2/generate-prompt',
+      'speaking/part2/generate-cuecard',
       dataJson,
     );
     return SpeakingCuecardResponse.fromJson(
@@ -100,7 +45,7 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     );
   }
 
-  /// Generates a question of Part 1 or Part 3.
+  /// Generates question of Part 1 and Part 3.
   Future<SpeakingQuestionResponse> _generateQuestion(
     int partNo, {
     String? topic,
@@ -126,7 +71,7 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     );
   }
 
-  /// Gets the topic transition message.
+  /// Generates topic transition message for Part 1 and Part 3.
   Future<String> generateTopicTransitionMessage(String topic) async {
     final data = {'topic': topic};
     final dataJson = jsonEncode(data);
@@ -139,7 +84,7 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     return json['message'];
   }
 
-  /// Gets the closing message.
+  /// Generates closing message for Part 1 and Part 3.
   Future<String> generateClosingMessage(TestTask testTask) async {
     final part = testTask == TestTask.speakingPart1
         ? 1
@@ -204,57 +149,6 @@ class SpeakingApiService with ApiRequester, TopicApiService {
   }
 }
 
-// /// Response for speaking prompt generation.
-// class SpeakingPromptResponse {
-//   /// Generated prompt text.
-//   final String promptText;
-
-//   /// Topics used to generate the prompt text.
-//   final List<String> topics;
-
-//   const SpeakingPromptResponse({
-//     required this.promptText,
-//     required this.topics,
-//   });
-// }
-
-// /// Response for speaking reply generation.
-// class SpeakingReply {
-//   /// ID to identify a convarsation.
-//   final String interactionId;
-
-//   /// Generated reply message.
-//   final String message;
-
-//   /// Whether a conversation is ended.
-//   final bool isChatEnded;
-
-//   /// Topics to generate the first reply.
-//   final List<String>? topics;
-
-//   const SpeakingReply({
-//     required this.message,
-//     required this.interactionId,
-//     required this.isChatEnded,
-//     required this.topics,
-//   });
-
-//   factory SpeakingReply.fromJson(Map<String, dynamic> json) {
-//     final topics = json.containsKey('topics')
-//         ? (json['topics'] as List<dynamic>)
-//               .map((topic) => topic.toString())
-//               .toList()
-//         : null;
-
-//     return SpeakingReply(
-//       interactionId: json['prompt_id'],
-//       message: json['question'],
-//       isChatEnded: json['end_mark'],
-//       topics: topics,
-//     );
-//   }
-// }
-
 /// Response for topic generation.
 class TopicResponse {
   /// Generated topics.
@@ -308,7 +202,7 @@ class SpeakingCuecardResponse {
   factory SpeakingCuecardResponse.fromJson(Map<String, dynamic> json) {
     final prompt =
         '''
-${json['main_task']}
+${json['instruction']}
     You should say:
         ${json['q1']}
         ${json['q2']}

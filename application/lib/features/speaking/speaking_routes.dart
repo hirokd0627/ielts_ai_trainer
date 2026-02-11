@@ -92,7 +92,6 @@ final speakingRoutes = [
     path: speakingPart2AnswerInputScreenRoutePath,
     builder: (BuildContext context, GoRouterState state) {
       final extra = RouterExtra.validate(state, ['promptText', 'topics']);
-
       return SpeakingPart2AnswerInputScreen(
         promptText: extra.getValue('promptText'),
         topics: extra.getValue('topics'),

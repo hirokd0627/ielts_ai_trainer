@@ -61,19 +61,19 @@ class SpeakingChatInputController extends ChangeNotifier {
   /// The map _messages index to recording state: 0 = not started, 1 = recording, 2 = recorded, 3 = rerecording.
   final Map<int, int> _recordingState = {};
 
-  /// Whether conversation is ended.
+  /// Whether conversation has ended.
   bool _isChatEnded = false;
 
-  /// ID generated when the last question was generated.
+  /// ID of most recent interaction.
   String _currentInteractionId = '';
 
-  /// The number of reply count to the question related to the current topic.
+  /// Number of replies required to advance to next topic.
   int _currentReplyCount = 0;
 
-  /// Required reply count to move to the next topic.
+  /// Required reply count to move to next topic.
   static const int _requiredReplyCount = 3;
 
-  /// Index of topics to use in the current conversation.
+  /// Index of current topic in topic list.
   int _currentTopicIndex = 0;
 
   SpeakingChatInputController({
@@ -236,17 +236,16 @@ class SpeakingChatInputController extends ChangeNotifier {
       if (changeTopic) {
         _currentTopicIndex += 1;
 
-        // Completed all questions.
         if (_currentTopicIndex >= _topics.length) {
+          // Completed all questions.
           // Add closing message.
           final msg = await _apiSrv.generateClosingMessage(_testTask);
           addMessage(false, msg);
           notifyListeners();
 
           _isChatEnded = true;
-
-          // Move to next topic.
         } else {
+          // Move to next topic.
           // Add transition message.
           final transition = await _apiSrv.generateTopicTransitionMessage(
             _topics[_currentTopicIndex - 1],
@@ -265,9 +264,8 @@ class SpeakingChatInputController extends ChangeNotifier {
           _currentInteractionId = resp.interactionId;
           _currentReplyCount = 0;
         }
-
-        // Ask subsequent question.
       } else {
+        // Ask subsequent question.
         // Add question.
         final resp = await _apiSrv.generateSubsequentQuestion(
           _testTask.number,
