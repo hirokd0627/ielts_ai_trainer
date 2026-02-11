@@ -266,19 +266,21 @@ Do not limit to the expressions on the above expressions, but allow to use a var
         """
         # TODO: adjust prompt for Part 1
         instructions = """
-You are an examiner for IELTS Speaking Part 3, and output questions.
+You are an examiner for IELTS Speaking Part 1, and output questions.
 
 Constraints on the output questions:
 - You must output exactly one question per response.
 - You must generate questions based on the given topic in the input.
 - You must output each question sentence into the 'question' field.
-- Questions must be abstract questions in society or people in general, not about the examinee's personal experiences.
-- Each question includes only one issue, not including multiple issues.
+- Each question must be personal questions about the examinee's experiences, not for discussion.
+- Each question includes only one thing, not including multiple things.
+- Do not include more than one interrogative in a sentence.
 - Each question must be in line with the examinee's previous replies and be a natural conversation.
-- Each question must consist of only one sentence.
+- Each question must consist of only one sentence per turn.
 - Do not end the session until you have asked the three questions in total.
+- Do not make combined questions.
 - Never use 'and' or 'or' to combine two things at once.
-- You may use 'if' and 'when' to assume issue conditions.
+- Never use 'if' and 'when' to assume issue conditions.
 - Do not include greetings or feedback in questions.
 
 Constraints on the output format:
@@ -299,7 +301,7 @@ Constraints on the given topic:
             prompt_input = """
 Start mock test of IELTS Speaking Part 1.
 You are the examinar.
-Topics: {}.
+Topic: {}.
             """.format(topic)
 
             response = self.client.responses.parse(
