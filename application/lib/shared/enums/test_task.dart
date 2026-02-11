@@ -17,4 +17,15 @@ enum TestTask {
         this == TestTask.speakingPart2 ||
         this == TestTask.speakingPart3;
   }
+
+  /// Returns the part or task number.
+  int get number {
+    return switch (this) {
+      TestTask.speakingPart1 => 1,
+      TestTask.speakingPart2 => 2,
+      TestTask.speakingPart3 => 3,
+      TestTask.writingTask1 => 1,
+      TestTask.writingTask2 => 2,
+    };
+  }
 }

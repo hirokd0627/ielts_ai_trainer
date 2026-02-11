@@ -229,7 +229,7 @@ class SpeakingChatInputController extends ChangeNotifier {
   Future<void> generateQuestion(String reply) async {
     _setIsGeneratingPromptText(true);
 
-    // TODO: transition sentence
+    // TODO: working on transition sentence
 
     try {
       _currentReplyCount += 1;
@@ -238,21 +238,17 @@ class SpeakingChatInputController extends ChangeNotifier {
       if (changeTopic) {
         _currentTopicIndex += 1;
 
-        // TODO: to show generating, display loading icon in message area.
-        // 1. addLoading();
-        // 2. getmessage(); e.g., final msg = await _apiSrv.generateClosingMessage(_testTask);
-        // 3. addMessage(...);
-
+        // Completed all questions.
         if (_currentTopicIndex >= _topics.length) {
-          // TODO: check
           // Add closing message.
           final msg = await _apiSrv.generateClosingMessage(_testTask);
           addMessage(false, msg);
           notifyListeners();
 
           _isChatEnded = true;
+
+          // Move to next topic.
         } else {
-          // TODO: check
           // Add transition message.
           final transition = await _apiSrv.generateTopicTransitionMessage(
             _topics[_currentTopicIndex - 1],
@@ -261,7 +257,8 @@ class SpeakingChatInputController extends ChangeNotifier {
           notifyListeners();
 
           // Add question.
-          final resp = await _apiSrv.generateSpeakingPart3InitialQuestion(
+          final resp = await _apiSrv.generateInitialQuestion(
+            _testTask.number,
             _topics[_currentTopicIndex],
           );
           addMessage(false, resp.question);
@@ -270,9 +267,12 @@ class SpeakingChatInputController extends ChangeNotifier {
           _currentInteractionId = resp.interactionId;
           _currentReplyCount = 0;
         }
+
+        // Ask subsequent question.
       } else {
         // Add question.
-        final resp = await _apiSrv.generateSpeakingPart3Reply(
+        final resp = await _apiSrv.generateSubsequentQuestion(
+          _testTask.number,
           _currentInteractionId,
           reply,
         );

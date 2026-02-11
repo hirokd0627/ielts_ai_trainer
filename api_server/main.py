@@ -101,36 +101,11 @@ def writing_task2_generate_prompt():
     return jsonify(resp_json)
 
 
-@app.route("/speaking/part1/generate-prompt", methods=["POST"])
+@app.route("/speaking/part1/generate-question", methods=["POST"])
 @auth_required
-def speaking_part1_generate_prompt():
-    """API for generating prompt for Speaking Part 1."""
-
-    json = request.get_json()
-
-    initial_generation = "prompt_id" not in json
-
-    if initial_generation:
-        _validate_parameters(json, ["topic"])
-    else:
-        _validate_parameters(json, ["prompt_id", "reply"])
-
-    try:
-        chatgpt = ChatGptService()
-
-        if initial_generation:
-            topics = json.get("topics", None)
-            resp_json = chatgpt.generate_initial_speaking_part1_prompt(
-                topic_count=json["topic_count"], topics=topics
-            )
-        else:
-            resp_json = chatgpt.generate_subsequent_speaking_part1_prompt(
-                prompt_id=json["prompt_id"], user_reply=json["reply"]
-            )
-    except Exception:
-        raise AppException("failed to generate prompt: {}".format(json))
-
-    return jsonify(resp_json)
+def speaking_part1_generate_question():
+    """API for generating questions for Speaking Part 1."""
+    return _speaking_generate_question(1, request.get_json())
 
 
 @app.route("/speaking/part2/generate-prompt", methods=["POST"])
@@ -152,6 +127,73 @@ def speaking_part2_generate_prompt():
     return jsonify(resp_json)
 
 
+@app.route("/speaking/part3/generate-question", methods=["POST"])
+@auth_required
+def speaking_part3_generate_question():
+    """API for generating questions for Speaking Part 3."""
+    return _speaking_generate_question(3, request.get_json())
+
+
+@app.route("/speaking/generate-transition-message", methods=["POST"])
+@auth_required
+def speaking_transition_message():
+    """API for getting transition message for Speaking Part 3."""
+
+    json = request.get_json()
+
+    _validate_parameters(json, ["topic"])
+
+    # It’s simple enough to do without an AI.
+    options = [
+        s.format(json["topic"])
+        for s in [
+            "That's interesting. Now, let's talk about {}.",
+            "I see. Now, I'd like to ask you some questions about {}.",
+            "Right. Let's move on to the subject of {}.",
+            "Thank you. Now, turning to the topic of {}...",
+            "All right. Let's change the subject and talk about {}.",
+            "That's a good point. Now, let's consider {}.",
+            "I understand. Now, regarding {}...",
+            "Very well. Let's look at {} instead.",
+            "Okay. Now, I'd like to move on to {}.",
+            "Interesting. Now, let's discuss {} more generally.",
+        ]
+    ]
+    message = choice(options)
+
+    return jsonify({"message": message})
+
+
+@app.route("/speaking/generate-closing-message", methods=["POST"])
+@auth_required
+def speaking_closing_message():
+    """API for getting closing message for Speaking Part 3."""
+
+    json = request.get_json()
+
+    _validate_parameters(json, ["part"])
+
+    # It’s simple enough to do without an AI.
+    options = [
+        s.format(json["part"])
+        for s in [
+            "Thank you. That is the end of Part {}.",
+            "All right. That concludes Part {}.",
+            "Thank you. We'll finish Part {} there.",
+            "Okay, that's all for Part {}.",
+            "Thank you. Now, let's leave Part {} there.",
+            "Very well. That's the end of Part {}.",
+            "Thanks. That's everything for Part {}.",
+            "Thank you. That's all the questions I have for Part {}.",
+            "Thank you. That completes everything for Part {}.",
+            "Thank you. We have finished Part {}.",
+        ]
+    ]
+    message = choice(options)
+
+    return jsonify({"message": message})
+
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Exception handler to return error information in JSON format."""
@@ -167,80 +209,53 @@ def handle_exception(e):
     return response
 
 
-@app.route("/speaking/part3/generate-prompt", methods=["POST"])
-@auth_required
-def speaking_part3_generate_prompt():
-    """API for generating prompt for Speaking Part 3."""
-
-    json = request.get_json()
-
-    initial_generation = "prompt_id" not in json
-
-    try:
-        if initial_generation:
-            _validate_parameters(json, ["topic"])
-        else:
-            _validate_parameters(json, ["prompt_id", "reply"])
-
-        chatgpt = ChatGptService()
-
-        if initial_generation:
-            resp_json = chatgpt.generate_initial_speaking_part3_prompt(
-                topic=json["topic"],
-            )
-        else:
-            resp_json = chatgpt.generate_subsequent_speaking_part3_prompt(
-                prompt_id=json["prompt_id"], reply=json["reply"]
-            )
-    except Exception:
-        raise AppException("failed to generate prompt: {}".format(json))
-
-    return jsonify(resp_json)
-
-
-@app.route("/speaking/generate-transition-message", methods=["GET"])
-@auth_required
-def speaking_transition_message():
-    """API for getting transition message for Speaking Part 3."""
-
-    json = request.get_json()
-
-    _validate_parameters(json, ["topic"])
-
-    # It’s simple enough to do without an AI.
-    message = choice(
-        [
-            # TODO: messages
-            "Now, let's move on {}.".format(json["topic"]),
-            "Now, let's talk about {}.".format(json["topic"]),
-        ]
-    )
-
-    return jsonify({"message": message})
-
-
-@app.route("/speaking/generate-closing-message", methods=["GET"])
-@auth_required
-def speaking_closing_message():
-    """API for getting closing message for Speaking Part 3."""
-
-    json = request.get_json()
-
-    _validate_parameters(json, ["part"])
-
-    # It’s simple enough to do without an AI.
-    message = choice(
-        [
-            # TODO: messages
-            "Thank you. That ends the Part {}.".format(json["part"]),
-            "All right. Part {} is done.".format(json["part"]),
-        ]
-    )
-
-    return jsonify({"message": message})
-
-
 def _validate_parameters(json: dict, names: list[str]):
     for name in names:
         if name not in json:
             raise AppException("Missing parameter: {}".format(name))
+
+
+def _speaking_generate_question(part_no: int, json: any):
+    """API for generating questions."""
+
+    initial_generation = "prompt_id" not in json
+
+    if initial_generation:
+        _validate_parameters(json, ["topic"])
+    else:
+        _validate_parameters(json, ["prompt_id", "reply"])
+
+    try:
+        chatgpt = ChatGptService()
+
+        if initial_generation:
+            resp_json = chatgpt.generate_speaking_initial_question(
+                part_no=part_no, topic=json["topic"]
+            )
+            # resp_json = (
+            # chatgpt.generate_speaking_initial_question(
+            # part_no=part_no, topic=json["topic"]
+            # )
+            # chatgpt.generate_speaking_part1_initial_question(topic=json["topic"])
+            # if part_no == 1
+            # else chatgpt.generate_speaking_part3_initial_question(
+            #     topic=json["topic"]
+            # )
+        else:
+            resp_json = chatgpt.generate_speaking_subsequent_question(
+                part_no=part_no, prompt_id=json["prompt_id"], user_reply=json["reply"]
+            )
+            # resp_json = (
+            # chatgpt.generate_speaking_art1_subsequent_question(
+            #     prompt_id=json["prompt_id"], user_reply=json["reply"]
+            # )
+            # if part_no == 1
+            # else chatgpt.generate_speaking_part3_subsequent_question(
+            #     prompt_id=json["prompt_id"], user_reply=json["reply"]
+            # )
+            # )
+    except Exception as e:
+        print(e)
+        raise AppException("failed to generate prompt: {}".format(json))
+
+    return jsonify(resp_json)

@@ -31,14 +31,10 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
 
   SpeakingQuestionGeneratorFormController({
     required SpeakingApiService apiSrv,
-    // required Future<({List<String> topics, String promptText, String interactionId})>
-    // Function(int topicCount, List<String> topics)
-    // generatePromptText,
     required TestTask testTask,
     String? promptText,
     List<String>? topics,
-  }) : //_generatePromptText = generatePromptText,
-       _topics = topics != null ? List.from(topics) : [],
+  }) : _topics = topics != null ? List.from(topics) : [],
        _usedTopics = topics != null ? List.from(topics) : [],
        _topicCount = topics?.length ?? 0,
        _promptText = promptText ?? '',
@@ -112,8 +108,8 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
       return 'The entered topic has already been added.';
     }
 
-    // Part 1 allows adding topics up to the specified topic count.
-    // Part 2 and Part 3 allow adding topics up to a maximum of 10.
+    // Part 1 and Part 3 allow adding topics up to the specified topic count.
+    // Part 2 allows adding topics up to a maximum of 10.
     int candidateTopicCount = newTopic == null
         ? _topics.length
         : _topics.length + 1; // consider the number of items to be added
@@ -131,12 +127,12 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
 
   /// Generates prompt text using the entered topics.
   Future<void> generateInitialQuestion() async {
+    // Update screen.
     _promptTextState = 1;
     notifyListeners();
 
-    // Generates topics if not entered.
-    // Part 1 specifies the number of topics.
-    // For Part 2 and Part 3, use the provided topics. If none are specified, one topic is generated at random.
+    // Generate topics if not entered.
+    // Part 1 and Part 3 specifies the number of topics, Part 2 uses only one topic.
     int addTopicCount = 0;
     if (_testTask == TestTask.speakingPart1 ||
         _testTask == TestTask.speakingPart3) {
@@ -148,38 +144,31 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
         ? [..._topics, ...(await _apiSrv.generateTopics(addTopicCount))]
         : [..._topics];
 
-    // store topics used generating
+    // Generate question.
+    if (_testTask == TestTask.speakingPart1 ||
+        _testTask == TestTask.speakingPart3) {
+      final resp = await _apiSrv.generateInitialQuestion(
+        _testTask.number,
+        topics[0],
+      );
+      _promptText = resp.question;
+      _interactionId = resp.interactionId;
+    } else if (_testTask == TestTask.speakingPart2) {
+      final resp = await _apiSrv.generatePart2CuecardContent(
+        topics.isNotEmpty ? topics.first : '',
+      );
+      _promptText = resp.prompt;
+    }
+
+    // Store topics to show on screen.
+    _topics.clear();
+    _topics.addAll(topics);
+
+    // Store topics used in generating
     _usedTopics.clear();
     _usedTopics.addAll(topics);
 
-    if (_testTask == TestTask.speakingPart1 ||
-        _testTask == TestTask.speakingPart3) {
-      final resp = await _apiSrv.generateSpeakingPart3InitialQuestion(
-        topics[0],
-      );
-
-      _promptText = resp.question;
-
-      // show used topics on screen
-      _topics.clear();
-      _topics.addAll(topics);
-
-      _interactionId = resp.interactionId;
-    } else if (_testTask == TestTask.speakingPart2) {
-      final resp = await _apiSrv.generatePart2Prompt(
-        topics.isNotEmpty ? topics.first : '',
-      );
-
-      _promptText = resp.prompt;
-
-      _usedTopics.clear();
-      _usedTopics.add(resp.topic); // store topics used generating
-
-      // show used topics on screen
-      _topics.clear();
-      _topics.add(resp.topic);
-    }
-
+    // Update screen.
     _promptTextState = 2;
     notifyListeners();
   }

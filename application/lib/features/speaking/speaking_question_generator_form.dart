@@ -28,7 +28,6 @@ class SpeakingQuestionGeneratorForm extends StatefulWidget {
 
   const SpeakingQuestionGeneratorForm({
     super.key,
-    // required this.generatePromptText,
     required this.onTappedStart,
     required this.testTask,
     this.promptText,
@@ -66,7 +65,6 @@ class _SpeakingQuestionGeneratorFormState
     _ctrl = SpeakingQuestionGeneratorFormController(
       testTask: widget.testTask,
       apiSrv: SpeakingApiService(),
-      // generatePromptText: widget.generatePromptText,
       promptText: widget.promptText,
       topics: widget.topics,
     );
@@ -200,8 +198,7 @@ class _SpeakingQuestionGeneratorFormState
                 ],
               ),
             // Topics
-            // For Part 2 and Part 3, use the provided topics.
-            // If none are specified, one topic is generated at random.
+            // If none are specified, topics are generated at random.
             Container(
               margin: EdgeInsets.only(bottom: 4),
               child: FieldLabel('Topics'),

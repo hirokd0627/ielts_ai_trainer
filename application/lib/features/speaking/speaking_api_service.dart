@@ -31,40 +31,40 @@ class SpeakingApiService with ApiRequester {
     );
   }
 
-  /// Generates initial prompt based on the given topics.
-  Future<SpeakingReply> generateInitialChatReply(
-    int topicCount,
-    List<String> topics,
-  ) async {
-    final data = {'topic_count': topicCount, 'topics': topics};
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest(
-      'speaking/part1/generate-prompt',
-      dataJson,
-    );
-    return SpeakingReply.fromJson(
-      jsonDecode(resp.body) as Map<String, dynamic>,
-    );
-  }
+  // /// Generates initial prompt based on the given topics.
+  // Future<SpeakingReply> generateInitialChatReply(
+  //   int topicCount,
+  //   List<String> topics,
+  // ) async {
+  //   final data = {'topic_count': topicCount, 'topics': topics};
+  //   final dataJson = jsonEncode(data);
+  //   final resp = await sendPostRequest(
+  //     'speaking/part1/generate-prompt',
+  //     dataJson,
+  //   );
+  //   return SpeakingReply.fromJson(
+  //     jsonDecode(resp.body) as Map<String, dynamic>,
+  //   );
+  // }
 
-  /// Generates a reply message used in Speaking Part 1 & 3.
-  Future<SpeakingReply> generateChatReply(
-    String interactionId,
-    String reply,
-  ) async {
-    final data = {'prompt_id': interactionId, 'reply': reply};
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest(
-      'speaking/part1/generate-prompt',
-      dataJson,
-    );
-    return SpeakingReply.fromJson(
-      jsonDecode(resp.body) as Map<String, dynamic>,
-    );
-  }
+  // /// Generates a reply message used in Speaking Part 1 & 3.
+  // Future<SpeakingReply> generateChatReply(
+  //   String interactionId,
+  //   String reply,
+  // ) async {
+  //   final data = {'prompt_id': interactionId, 'reply': reply};
+  //   final dataJson = jsonEncode(data);
+  //   final resp = await sendPostRequest(
+  //     'speaking/part1/generate-prompt',
+  //     dataJson,
+  //   );
+  //   return SpeakingReply.fromJson(
+  //     jsonDecode(resp.body) as Map<String, dynamic>,
+  //   );
+  // }
 
-  /// Generates prompt for Part 2.
-  Future<Part2Response> generatePart2Prompt(String topic) async {
+  /// Generates Part2 cue card content.
+  Future<Part2Response> generatePart2CuecardContent(String topic) async {
     final data = {'topic': topic};
     final dataJson = jsonEncode(data);
     final resp = await sendPostRequest(
@@ -92,33 +92,49 @@ class SpeakingApiService with ApiRequester {
         .toList();
   }
 
-  /// Generates initial question based on the given topics.
-  Future<SpeakingPart3Response> generateSpeakingPart3InitialQuestion(
+  /// Generates initial question of Part 1 or Part 3.
+  Future<SpeakingQuestionResponse> generateInitialQuestion(
+    int partNo,
     String topic,
   ) async {
-    final data = {'topic': topic};
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest(
-      'speaking/part3/generate-prompt',
-      dataJson,
-    );
-    return SpeakingPart3Response.fromJson(
-      jsonDecode(resp.body) as Map<String, dynamic>,
-    );
+    return await _generateQuestion(partNo, topic: topic);
   }
 
-  /// Generates a reply message used in Speaking Part 3.
-  Future<SpeakingPart3Response> generateSpeakingPart3Reply(
+  /// Generates a subsequent question of Part 1 or Part 3 following the initial question.
+  Future<SpeakingQuestionResponse> generateSubsequentQuestion(
+    int partNo,
     String interactionId,
     String reply,
   ) async {
-    final data = {'prompt_id': interactionId, 'reply': reply};
+    return await _generateQuestion(
+      partNo,
+      interactionId: interactionId,
+      reply: reply,
+    );
+  }
+
+  /// Generates a question of Part 1 or Part 3.
+  Future<SpeakingQuestionResponse> _generateQuestion(
+    int partNo, {
+    String? topic,
+    String? reply,
+    String? interactionId,
+  }) async {
+    if (partNo != 1 && partNo != 3) {
+      throw ArgumentError('part must be between 1 or 3');
+    }
+
+    final initial = topic != null;
+    final data = initial
+        ? {'topic': topic}
+        : {'prompt_id': interactionId, 'reply': reply};
+
     final dataJson = jsonEncode(data);
     final resp = await sendPostRequest(
-      'speaking/part3/generate-prompt',
+      'speaking/part$partNo/generate-question',
       dataJson,
     );
-    return SpeakingPart3Response.fromJson(
+    return SpeakingQuestionResponse.fromJson(
       jsonDecode(resp.body) as Map<String, dynamic>,
     );
   }
@@ -278,20 +294,20 @@ and explain ${json['q4']}
 }
 
 /// Response for speaking Part 3 reply generation.
-class SpeakingPart3Response {
+class SpeakingQuestionResponse {
   /// Last ID to identify the current conversation.
   final String interactionId;
 
   /// Generated reply question.
   final String question;
 
-  const SpeakingPart3Response({
+  const SpeakingQuestionResponse({
     required this.interactionId,
     required this.question,
   });
 
-  factory SpeakingPart3Response.fromJson(Map<String, dynamic> json) {
-    return SpeakingPart3Response(
+  factory SpeakingQuestionResponse.fromJson(Map<String, dynamic> json) {
+    return SpeakingQuestionResponse(
       interactionId: json['prompt_id'],
       question: json['question'],
     );

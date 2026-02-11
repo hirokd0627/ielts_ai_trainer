@@ -30,7 +30,6 @@ class SpeakingQuestionGeneratorScreen extends StatefulWidget {
 
   const SpeakingQuestionGeneratorScreen({
     super.key,
-    // required this.generatePromptText,
     required this.onTappedStart,
     required this.testTask,
     this.promptText,
@@ -93,7 +92,6 @@ class _SpeakingQuestionGeneratorScreenState
               SizedBox(height: 20),
               // Question Generator Form
               SpeakingQuestionGeneratorForm(
-                // generatePromptText: widget.generatePromptText,
                 onTappedStart: widget.onTappedStart,
                 testTask: widget.testTask,
                 promptText: widget.promptText,

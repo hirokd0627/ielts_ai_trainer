@@ -44,7 +44,6 @@ class _SpeakingPart2QuestionGeneratorScreenState
   Widget build(BuildContext context) {
     return BaseScreenScaffold(
       body: SpeakingQuestionGeneratorScreen(
-        // generatePromptText: _generatePromptText,
         onTappedStart: _onTappedStart,
         testTask: TestTask.speakingPart2,
         promptText: widget.promptText,

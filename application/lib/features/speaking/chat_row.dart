@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
+import 'package:ielts_ai_trainer/shared/views/buttons.dart';
 
 /// A widget displays a chat message in a chat-like style.
 class ChatRow extends StatelessWidget {
@@ -95,82 +95,94 @@ class ChatRow extends StatelessWidget {
         // AI avator icon
         if (!isUser) _avatarIcon(),
         // Message, Recording button, and Play button.
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: messageBackgroundColor,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            crossAxisAlignment: (isUser)
-                ? CrossAxisAlignment.end
-                : CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [Text(text, style: TextStyle(fontSize: fontSize))],
-              ),
-              // Shows a recording and play button only if in a user message.
-              if (isUser && (showRecordingButton || showPlayButton)) ...[
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                    // Recording buttoon
-                    if (showRecordingButton)
-                      // TODO: make this outlinebutton reusable.
-                      OutlinedButton(
-                        onPressed: onPressedRecording == null && index != null
-                            ? null
-                            : () => onPressedRecording!(index!),
-                        style: ButtonStyle(
-                          side: WidgetStateProperty.resolveWith((states) {
-                            if (states.contains(WidgetState.hovered)) {
-                              return BorderSide(
-                                color: AppColors.focusColor,
-                                width: 1,
-                              );
-                            }
-                            return BorderSide(
-                              color: AppColors.checkboxBorderColor,
-                              width: 1,
-                            );
-                          }),
+        Flexible(
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.75,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: messageBackgroundColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Question or reply text.
+                Text(text, style: TextStyle(fontSize: fontSize)),
+                // Shows a recording and play button only if in a user message.
+                if (isUser && (showRecordingButton || showPlayButton)) ...[
+                  SizedBox(height: 10),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    alignment: WrapAlignment.end,
+                    children: [
+                      // Recording buttoon
+                      if (showRecordingButton)
+                        buildOutlinedButton(
+                          recordingButtonLabel,
+                          onPressed: onPressedRecording == null && index != null
+                              ? null
+                              : () => onPressedRecording!(index!),
                         ),
-                        child: Text(recordingButtonLabel),
-                      ),
-                    // Margin between a recording and play buttons.
-                    if (showRecordingButton && showPlayButton)
-                      SizedBox(width: 10),
-                    if (isResultView && fluencyScore != null) ...[
-                      Text('Fluency: $fluencyScore'),
-                      SizedBox(width: 10),
+                      // OutlinedButton(
+                      //   onPressed: onPressedRecording == null && index != null
+                      //       ? null
+                      //       : () => onPressedRecording!(index!),
+                      //   style: ButtonStyle(
+                      //     side: WidgetStateProperty.resolveWith((states) {
+                      //       if (states.contains(WidgetState.hovered)) {
+                      //         return BorderSide(
+                      //           color: AppColors.focusColor,
+                      //           width: 1,
+                      //         );
+                      //       }
+                      //       return BorderSide(
+                      //         color: AppColors.checkboxBorderColor,
+                      //         width: 1,
+                      //       );
+                      //     }),
+                      //   ),
+                      //   child: Text(recordingButtonLabel),
+                      // ),
+                      if (isResultView && fluencyScore != null) ...[
+                        Text('Fluency: $fluencyScore'),
+                      ],
+                      // Play button
+                      if (showPlayButton)
+                        buildOutlinedButton(
+                          playingButtonLabel,
+                          onPressed: onPressedPlay == null && index != null
+                              ? null
+                              : () => onPressedPlay!(index!),
+                        ),
+                      // OutlinedButton(
+                      //   onPressed: onPressedPlay == null && index != null
+                      //       ? null
+                      //       : () => onPressedPlay!(index!),
+                      //   style: ButtonStyle(
+                      //     side: WidgetStateProperty.resolveWith((states) {
+                      //       if (states.contains(WidgetState.hovered)) {
+                      //         return BorderSide(
+                      //           color: AppColors.focusColor,
+                      //           width: 1,
+                      //         );
+                      //       }
+                      //       return BorderSide(
+                      //         color: AppColors.checkboxBorderColor,
+                      //         width: 1,
+                      //       );
+                      //     }),
+                      //   ),
+                      //   child: Text(playingButtonLabel),
+                      // ),
                     ],
-                    // Play button
-                    if (showPlayButton)
-                      // TODO: make this outlinebutton reusable.
-                      OutlinedButton(
-                        onPressed: onPressedPlay == null && index != null
-                            ? null
-                            : () => onPressedPlay!(index!),
-                        style: ButtonStyle(
-                          side: WidgetStateProperty.resolveWith((states) {
-                            if (states.contains(WidgetState.hovered)) {
-                              return BorderSide(
-                                color: AppColors.focusColor,
-                                width: 1,
-                              );
-                            }
-                            return BorderSide(
-                              color: AppColors.checkboxBorderColor,
-                              width: 1,
-                            );
-                          }),
-                        ),
-                        child: Text(playingButtonLabel),
-                      ),
-                  ],
-                ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
         // User avator icon

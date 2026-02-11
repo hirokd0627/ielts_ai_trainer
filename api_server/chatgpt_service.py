@@ -1,5 +1,6 @@
 import base64
 import time
+from tkinter import W
 
 from openai import OpenAI
 from pydantic import BaseModel
@@ -152,41 +153,34 @@ Do not limit to the expressions on the above expressions, but allow to use a var
             "instruction": prompt.instruction,
         }
 
-    def generate_initial_speaking_part1_prompt(
-        self, topic_count: int, topics: list[str] | None = None
-    ) -> dict:
+    def generate_speaking_initial_question(self, part_no: int, topic: str) -> dict:
         """TODO"""
-        topics = topics.copy() if topics else []
-
-        # Generates topics if it is not specified.
-        if not topics:
-            count = topic_count - len(topics)
-            if count > 0:
-                topics.extend(self._generate_topics(count))
-
-        # Generate the first question.
-        prompt = self._generate_speaking_part1_prompt(topics=topics)
+        if part_no == 1:
+            prompt = self._generate_speaking_part1_question(topic=topic)
+        elif part_no == 3:
+            prompt = self._generate_speaking_part3_question(topic=topic)
 
         return {
             "prompt_id": prompt["prompt_id"],
             "question": prompt["question"],
-            "end_mark": False,
-            "topics": topics,
         }
 
-    def generate_subsequent_speaking_part1_prompt(
-        self, prompt_id: str, user_reply: str | None = None
+    def generate_speaking_subsequent_question(
+        self, part_no: int, prompt_id: str, user_reply: str
     ) -> dict:
-
-        # Generate the subsequent question.
-        prompt = self._generate_speaking_part1_prompt(
-            prompt_id=prompt_id, reply=user_reply
-        )
+        """TODO"""
+        if part_no == 1:
+            prompt = self._generate_speaking_part1_question(
+                prompt_id=prompt_id, reply=user_reply
+            )
+        elif part_no == 3:
+            prompt = self._generate_speaking_part3_question(
+                prompt_id=prompt_id, reply=user_reply
+            )
 
         return {
             "prompt_id": prompt["prompt_id"],
             "question": prompt["question"],
-            "end_mark": prompt["end_mark"],
         }
 
     def _generate_writing_task1_digram_prompt(
@@ -246,60 +240,46 @@ Do not limit to the expressions on the above expressions, but allow to use a var
 
         # return result.data[0].b64_json
 
-    def _generate_speaking_part1_prompt(
-        self, topics: list[str] = None, prompt_id: int = 0, reply: str = ""
+    def _generate_speaking_part1_question(
+        self, topic: str = None, prompt_id: int = None, reply: str = None
     ) -> dict:
+        # TODO: adjust prompt for Part 1
         instructions = """
-You are an examiner for IELTS Speaking Part 1.
-Your all questions must be in line with the exmanee's replys and be a natural conversation.
+You are an examiner for IELTS Speaking Part 3, and output questions.
 
-Rules of flow:
-- You must output exactly three questions for each given topic in the order provided.
-- A single turn consists of one simple question.
-- Do not end the session until you have asked the number of topics * 3 questions in total.
-- After the number of topics * 3 questions in total, put the question field to "Thank you, that's the end of Part 1."
-
-Definition of Topic:
-- Topic is provided in the input as "Topics: <topic1, topic2, ...>".
-- The minimum number of topics is one.
-- The maximum number of topics is three.
-
-Constraints for 'question' field:
-- You must ask only one thing. 
-- You must only one simple question per turn.
-- Do not make combined questions.
+Constraints on the output questions:
+- You must output exactly one question per response.
+- You must generate questions based on the given topic in the input.
+- You must output each question sentence into the 'question' field.
+- Questions must be abstract questions in society or people in general, not about the examinee's personal experiences.
+- Each question includes only one issue, not including multiple issues.
+- Each question must be in line with the examinee's previous replies and be a natural conversation.
+- Each question must consist of only one sentence.
+- Do not end the session until you have asked the three questions in total.
 - Never use 'and' or 'or' to combine two things at once.
-- Do not include a topic transition in this field. Put only a question. 
+- You may use 'if' and 'when' to assume issue conditions.
+- Do not include greetings or feedback in questions.
 
-Constraints for 'transition' field:
-- When moving to a new topic in the given topics, You must put a sentence for transition in this field like 'Next, I'd like to talk about <insert the given topic here>'.
-- Otherwise, put an empty "" in this field.
-- Do not any output if the conversation is moving between differenct details of the same topic.
+Constraints on the output format:
+- Put the question sentence into the 'question' field.
 
-Constrains for 'end_mark' field:
-- Put 'true' when put the question field to "Thank you, that's the end of Part 1." after the all questions.
-- Othwerwise, put 'false'.
-
-Constrains for 'topic' field:
-- Put topic word of the question. 
-- When the last question after the all questions, put empty "".
+Constraints on the given topic:
+- The topic for the test is given as 'topic: <topic>.'.
         """
 
         class Message(BaseModel):
             question: str
-            transition: str
-            end_mark: bool
 
-        initial = topics is not None
+        initial = prompt_id is None
 
         prompt = {}
 
         if initial:
             prompt_input = """
-            Start mock test of IELTS Speaking Part 1.
-            You are the examinar.
-            Topics: {}.
-            """.format(",".join(topics))
+Start mock test of IELTS Speaking Part 1.
+You are the examinar.
+Topics: {}.
+            """.format(topic)
 
             response = self.client.responses.parse(
                 model="gpt-5-nano",
@@ -307,22 +287,9 @@ Constrains for 'topic' field:
                 reasoning={"effort": "low"},
                 # reasoning={"effort": "minimal"},
                 instructions=instructions,
-                input=prompt_input,
                 text_format=Message,
+                input=prompt_input,
             )
-
-            msg = response.output_parsed
-            prompt["prompt_id"] = response.id
-            prompt["question"] = msg.question
-
-            # debug
-            print(
-                """
-            previous_response_id: {}
-            question: {}
-                """.format(prompt_id, msg.question)
-            )
-
         else:
             response = self.client.responses.parse(
                 model="gpt-5-nano",
@@ -330,28 +297,23 @@ Constrains for 'topic' field:
                 reasoning={"effort": "low"},
                 # reasoning={"effort": "minimal"},
                 instructions=instructions,
-                input=reply,
                 text_format=Message,
+                input=reply,
                 previous_response_id=prompt_id,
             )
 
-            msg = response.output_parsed
-            prompt["prompt_id"] = response.id
-            if msg.transition:
-                prompt["question"] = "{}\n{}".format(msg.transition, msg.question)
-            else:
-                prompt["question"] = msg.question
-            prompt["end_mark"] = msg.end_mark
+        msg = response.output_parsed
 
-            # debug
-            print(
-                """
-            previous_response_id: {}
-            question: {}
-            transition: {}
-            end_mark: {}
-                """.format(prompt_id, msg.question, msg.transition, msg.end_mark)
-            )
+        # debug
+        print(
+            """
+        previous_response_id: {}
+        question: {}
+            """.format(prompt_id, msg.question)
+        )
+
+        prompt["prompt_id"] = response.id
+        prompt["question"] = msg.question
 
         return prompt
 
@@ -424,27 +386,7 @@ Topic: {}.
             "q4": res.q4,
         }
 
-    def generate_initial_speaking_part3_prompt(self, topic: str) -> dict:
-        """TODO"""
-        prompt = self._generate_speaking_part3_prompt(topic=topic)
-
-        return {
-            "prompt_id": prompt["prompt_id"],
-            "question": prompt["question"],
-        }
-
-    def generate_subsequent_speaking_part3_prompt(
-        self, prompt_id: str, reply: str | None = None
-    ) -> dict:
-        """TODO"""
-        prompt = self._generate_speaking_part3_prompt(prompt_id=prompt_id, reply=reply)
-
-        return {
-            "prompt_id": prompt["prompt_id"],
-            "question": prompt["question"],
-        }
-
-    def _generate_speaking_part3_prompt(
+    def _generate_speaking_part3_question(
         self, topic: str = None, prompt_id: int = None, reply: str = None
     ) -> dict:
         instructions = """
