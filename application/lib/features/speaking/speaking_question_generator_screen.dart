@@ -11,17 +11,13 @@ import 'package:provider/provider.dart';
 
 /// Question Generator Screen for Part 1, Part 2, and Part 3.
 class SpeakingQuestionGeneratorScreen extends StatefulWidget {
-  /// Function to generate prompt text.
-  /// Called when the Generate button is tapped.
-  /// Returns a record containing prompt text and a topics used.
-  final Future<({List<String> topics, String promptText})> Function(
-    int topicCount,
-    List<String> topics,
-  )
-  generatePromptText;
-
   /// Called when the Start button is tapped.
-  final void Function(String promptText, List<String> topics) onTappedStart;
+  final void Function(
+    String promptText,
+    List<String> topics,
+    String interactionId,
+  )
+  onTappedStart;
 
   /// The task type.
   final TestTask testTask;
@@ -34,7 +30,6 @@ class SpeakingQuestionGeneratorScreen extends StatefulWidget {
 
   const SpeakingQuestionGeneratorScreen({
     super.key,
-    required this.generatePromptText,
     required this.onTappedStart,
     required this.testTask,
     this.promptText,
@@ -97,7 +92,6 @@ class _SpeakingQuestionGeneratorScreenState
               SizedBox(height: 20),
               // Question Generator Form
               SpeakingQuestionGeneratorForm(
-                generatePromptText: widget.generatePromptText,
                 onTappedStart: widget.onTappedStart,
                 testTask: widget.testTask,
                 promptText: widget.promptText,

@@ -9,6 +9,7 @@ import 'package:ielts_ai_trainer/features/speaking/speaking_routes.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
+import 'package:ielts_ai_trainer/shared/views/buttons.dart';
 import 'package:ielts_ai_trainer/shared/views/hover_highlight_text_field.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 import 'package:provider/provider.dart';
@@ -245,55 +246,23 @@ class _SpeakingPart2AnswerInputScreenState
                         bottom: 10,
                         child: Row(
                           children: [
-                            OutlinedButton(
+                            buildOutlinedButton(
+                              _ctrl.isRecording || _ctrl.isReRecording
+                                  ? 'Stop'
+                                  : 'Recording',
                               onPressed: _ctrl.isRecordingButtonEnabled
                                   ? _onRecordingButtonPressed
                                   : null,
-                              style: ButtonStyle(
-                                side: WidgetStateProperty.resolveWith((states) {
-                                  if (states.contains(WidgetState.hovered)) {
-                                    return BorderSide(
-                                      color: AppColors.focusColor,
-                                      width: 1,
-                                    );
-                                  }
-                                  return BorderSide(
-                                    color: AppColors.checkboxBorderColor,
-                                    width: 1,
-                                  );
-                                }),
-                              ),
-                              child: _ctrl.isRecording || _ctrl.isReRecording
-                                  ? const Text('Stop')
-                                  : const Text('Recording'),
                             ),
                             if (_ctrl.isRecorded || _ctrl.isReRecording)
                               SizedBox(width: 10),
                             if (_ctrl.isRecorded || _ctrl.isReRecording)
-                              OutlinedButton(
+                              buildOutlinedButton(
+                                _ctrl.isStop ? 'Play' : 'Stop',
                                 onPressed:
                                     _ctrl.isRecording || _ctrl.isReRecording
                                     ? null
                                     : _onPlayButtonPressed,
-                                style: ButtonStyle(
-                                  side: WidgetStateProperty.resolveWith((
-                                    states,
-                                  ) {
-                                    if (states.contains(WidgetState.hovered)) {
-                                      return BorderSide(
-                                        color: AppColors.focusColor,
-                                        width: 1,
-                                      );
-                                    }
-                                    return BorderSide(
-                                      color: AppColors.checkboxBorderColor,
-                                      width: 1,
-                                    );
-                                  }),
-                                ),
-                                child: (_ctrl.isStop)
-                                    ? const Text('Play')
-                                    : const Text('Stop'),
                               ),
                           ],
                         ),

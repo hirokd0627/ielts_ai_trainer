@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
+import 'package:ielts_ai_trainer/shared/api/writing_prompt_type_api_extension.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
@@ -115,35 +116,44 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
     return '';
   }
 
-  /// Generates the prompt text using the entered topics.
+  /// Generates prompt text using the entered topics.
   Future<void> generatePromptText() async {
+    // Update screen.
     _promptTextState = 1;
     notifyListeners();
 
-    late List<String> promptTopics;
+    // Generate a topic if not entered.
+    final targetTopics = topics.isEmpty
+        ? [...topics, ...(await _apiSrv.generateTopics(1))]
+        : [...topics];
+
+    // Generate prompt.
     if (_testTask == TestTask.writingTask1) {
-      final prompt = await _apiSrv.generateTask1Prompt(topics);
-      promptTopics = prompt.topics;
-
-      _promptText = prompt.prompt;
+      final prompt = await _apiSrv.generateTask1Prompt(
+        _promptType!.diagramType,
+        targetTopics,
+      );
+      _promptText = prompt.instruction;
       _diagramIntroduction = prompt.introduction;
-      _diagramBytes = base64Decode(prompt.imageBase64); // base64 to bytes
+      _diagramBytes = base64Decode(prompt.diagramData); // base64 to bytes
     } else {
-      final prompt = await _apiSrv.generateTask2Prompt(topics);
-      promptTopics = prompt.topics;
-
+      final prompt = await _apiSrv.generateTask2Prompt(
+        _promptType!.essayType,
+        targetTopics,
+      );
       _promptText = "${prompt.statement}\n\n${prompt.instruction}";
     }
 
-    // Update topics
-    _usedTopics.clear();
-    _usedTopics.addAll(promptTopics); // store topics used generating
-    // show used topics on screen
+    // Store topics to show on screen.
     _topics.clear();
-    _topics.addAll(promptTopics);
+    _topics.addAll(targetTopics);
 
+    // Store topics used in generating
+    _usedTopics.clear();
+    _usedTopics.addAll(targetTopics);
+
+    // Update screen.
     _promptTextState = 2;
-
     notifyListeners();
   }
 }

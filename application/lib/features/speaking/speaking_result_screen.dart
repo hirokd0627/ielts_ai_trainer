@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 import 'package:ielts_ai_trainer/features/speaking/chat_row.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_answer_repository.dart';
@@ -10,6 +9,7 @@ import 'package:ielts_ai_trainer/features/speaking/speaking_result_controller.da
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
+import 'package:ielts_ai_trainer/shared/views/buttons.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 import 'package:provider/provider.dart';
 
@@ -240,25 +240,11 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                             child: Text(_ctrl.answerText),
                           ),
                           // Play button
-                          OutlinedButton(
+                          buildOutlinedButton(
+                            _ctrl.getPlayButtonLabelAt(1),
                             onPressed: _ctrl.isPlayButtonEnabledAt(1)
                                 ? () => _onPressedPlay(1)
                                 : null,
-                            style: ButtonStyle(
-                              side: WidgetStateProperty.resolveWith((states) {
-                                if (states.contains(WidgetState.hovered)) {
-                                  return BorderSide(
-                                    color: AppColors.focusColor,
-                                    width: 1,
-                                  );
-                                }
-                                return BorderSide(
-                                  color: AppColors.checkboxBorderColor,
-                                  width: 1,
-                                );
-                              }),
-                            ),
-                            child: Text(_ctrl.getPlayButtonLabelAt(1)),
                           ),
                         ] else ...[
                           // Part 1 or Part 3

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/app/router_extra.dart';
-import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_question_generator_screen.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_routes.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
@@ -29,23 +28,12 @@ class SpeakingPart2QuestionGeneratorScreen extends StatefulWidget {
 /// State for SpeakingPart2QuestionGeneratorScreen
 class _SpeakingPart2QuestionGeneratorScreenState
     extends State<SpeakingPart2QuestionGeneratorScreen> {
-  /// API service to generate prompt text.
-  final SpeakingApiService _apiSrv = SpeakingApiService();
-
-  /// Called when the Generate button is pressed.
-  /// Generates prompt text using the given topics.
-  /// Returns a record containing the generated prompt text and the topics used.
-  Future<({List<String> topics, String promptText})> _generatePromptText(
-    int topicCount,
-    List<String> topics,
-  ) async {
-    final resp = await _apiSrv.generatePromptText(topicCount, topics);
-    // TODO: error handling
-    return (topics: resp.topics, promptText: resp.promptText);
-  }
-
   /// Called when the Start button is pressed.
-  void _onTappedStart(String promptText, List<String> topics) {
+  void _onTappedStart(
+    String promptText,
+    List<String> topics,
+    String interactionId,
+  ) {
     context.go(
       speakingPart2AnswerInputScreenRoutePath,
       extra: RouterExtra({'promptText': promptText, 'topics': topics}),
@@ -56,7 +44,6 @@ class _SpeakingPart2QuestionGeneratorScreenState
   Widget build(BuildContext context) {
     return BaseScreenScaffold(
       body: SpeakingQuestionGeneratorScreen(
-        generatePromptText: _generatePromptText,
         onTappedStart: _onTappedStart,
         testTask: TestTask.speakingPart2,
         promptText: widget.promptText,

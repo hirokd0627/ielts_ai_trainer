@@ -1,40 +1,41 @@
 import 'dart:convert';
 
 import 'package:faker/faker.dart';
+import 'package:ielts_ai_trainer/shared/api/common_api_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
-import 'package:http/http.dart' as http;
+import 'package:ielts_ai_trainer/shared/http/api_requester.dart';
 
-/// API service for Writing Task screens.
-class WritingApiService {
-  /// API key.
-  static const String _apiKey = String.fromEnvironment('API_KEY');
-
-  /// API base URL.
-  static const String _apiBaseUrl = String.fromEnvironment('API_BASE_URL');
-
-  /// Generates Writing Task 1 prompt based on the given topics.
-  Future<WritingTask1Prompt> generateTask1Prompt(List<String> topics) async {
-    final data = {'topics': topics};
+/// API service for the Writing screens, generating prompts and evaluating answers.
+class WritingApiService with ApiRequester, TopicApiService {
+  /// Generates Writing Task 1 prompt based on the given diagram type and topics.
+  Future<WritingTask1Response> generateTask1Prompt(
+    String diagramType,
+    List<String> topics,
+  ) async {
+    final data = {'diagram_type': diagramType, 'topics': topics};
     final dataJson = jsonEncode(data);
-    final resp = await _sendPostRequest(
+    final resp = await sendPostRequest(
       'writing/task1/generate-prompt',
       dataJson,
     );
-    return WritingTask1Prompt.fromJson(
+    return WritingTask1Response.fromJson(
       jsonDecode(resp.body) as Map<String, dynamic>,
     );
   }
 
-  /// Generates Writing Task 2 prompt based on the given topics.
-  Future<WritingTask2Prompt> generateTask2Prompt(List<String> topics) async {
-    final data = {'topics': topics};
+  /// Generates Writing Task 2 prompt based on the given essay type and topics.
+  Future<WritingTask2Response> generateTask2Prompt(
+    String essayType,
+    List<String> topics,
+  ) async {
+    final data = {'essay_type': essayType, 'topics': topics};
     final dataJson = jsonEncode(data);
-    final resp = await _sendPostRequest(
+    final resp = await sendPostRequest(
       'writing/task2/generate-prompt',
       dataJson,
     );
-    return WritingTask2Prompt.fromJson(
+    return WritingTask2Response.fromJson(
       jsonDecode(resp.body) as Map<String, dynamic>,
     );
   }
@@ -60,54 +61,40 @@ class WritingApiService {
       feedback: faker.lorem.sentences(3).join("\n"),
     );
   }
-
-  /// Send a POST request to the backend API.
-  Future<http.Response> _sendPostRequest(String endpoint, Object json) {
-    print(_apiBaseUrl);
-    print(_apiKey);
-    return http.post(
-      Uri.parse('$_apiBaseUrl/$endpoint'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'X-API-KEY': _apiKey,
-      },
-      body: json,
-    );
-  }
 }
 
-/// Generated Wwriting Task 1 prompt from the backend API.
-class WritingTask1Prompt {
-  /// Prompt text.
-  final String prompt;
+/// Response of generateTask1Prompt.
+class WritingTask1Response {
+  /// Prompt introduction.
+  final String introduction;
+
+  /// Base64 encoded string of the diagram.
+  final String diagramData;
+
+  /// Description of the diagram.
+  final String diagramDescription;
+
+  /// Prompt instruction.
+  final String instruction;
 
   /// Topics used to generate the prompt text.
   final List<String> topics;
 
-  /// Base64 encoded string of the diagram.
-  final String imageBase64;
-
-  /// Introduction for the diagram.
-  final String introduction;
-
-  /// Description of the diagram.
-  final String description;
-
-  const WritingTask1Prompt({
-    required this.prompt,
-    required this.topics,
-    required this.imageBase64,
+  const WritingTask1Response({
     required this.introduction,
-    required this.description,
+    required this.diagramData,
+    required this.diagramDescription,
+    required this.instruction,
+    required this.topics,
   });
 
-  factory WritingTask1Prompt.fromJson(Map<String, dynamic> json) {
+  factory WritingTask1Response.fromJson(Map<String, dynamic> json) {
     for (var name in [
       'topics',
       'instruction',
       'introduction',
       'diagram_description',
-      'img_b64',
+      'diagram_data',
     ]) {
       if (!json.containsKey(name)) {
         throw Exception('Missing required key: $name');
@@ -118,18 +105,18 @@ class WritingTask1Prompt {
         .map((topic) => topic.toString())
         .toList();
 
-    return WritingTask1Prompt(
-      prompt: json['instruction'],
+    return WritingTask1Response(
+      instruction: json['instruction'],
       topics: topics,
-      imageBase64: json['img_b64'],
+      diagramData: json['diagram_data'],
       introduction: json['introduction'],
-      description: json['diagram_description'],
+      diagramDescription: json['diagram_description'],
     );
   }
 }
 
-/// Generated Writing Task 2 prompt from the backend API.
-class WritingTask2Prompt {
+/// Response of generateTask2Prompt.
+class WritingTask2Response {
   /// Statement text.
   final String statement;
 
@@ -139,13 +126,13 @@ class WritingTask2Prompt {
   /// Topics used to generate the prompt text.
   final List<String> topics;
 
-  const WritingTask2Prompt({
+  const WritingTask2Response({
     required this.statement,
     required this.instruction,
     required this.topics,
   });
 
-  factory WritingTask2Prompt.fromJson(Map<String, dynamic> json) {
+  factory WritingTask2Response.fromJson(Map<String, dynamic> json) {
     for (var name in ['topics', 'statement', 'instruction']) {
       if (!json.containsKey(name)) {
         throw Exception('Missing required key: $name');
@@ -156,7 +143,7 @@ class WritingTask2Prompt {
         .map((topic) => topic.toString())
         .toList();
 
-    return WritingTask2Prompt(
+    return WritingTask2Response(
       statement: json['statement'],
       instruction: json['instruction'],
       topics: topics,
