@@ -191,6 +191,272 @@ Do not limit to the expressions on the above expressions, but allow to use a var
             "question": prompt["question"],
         }
 
+    def evaluate_writing_task1_answer(
+        self,
+        prompt: str,
+        diagram_type: str,
+        diagram_description: str,
+        answer: str,
+    ) -> dict:
+        """Evaluate Writing Task 1 answer.
+
+        Args:
+            prompt: Prompt sentences.
+            diagram_type: Type of diagram to be generated.
+            diagram_description: Description of diagram
+            answer: User's answer
+
+        Returns:
+            Evaluation components:
+                - achievement_score (float): Task Achievement score.
+                - coherence_score (float): Coherence and Cohesion score.
+                - grammatical_score (float): Grammatical Range and Accuracy score.
+                - lexial_score (float): Lexical Resource score.
+                - achievement_feedback1 (str): Positive feedback for Task Achievement.
+                - achievement_feedback2 (str): Areas for improvement for Task Achievement.
+                - coherence_feedback1 (str): Positive feedback for Coherence and Cohesion.
+                - coherence_feedback2 (str): Areas for improvement for Coherence and Cohesion.
+                - grammatical_feedback1 (str): Positive feedback for Grammatical Range and Accuracy.
+                - grammatical_feedback2 (str): Areas for improvement for Grammatical Range and Accuracy.
+                - lexical_feedback1 (str): Positive feedback for Lexical Resource.
+                - lexical_feedback2 (str): Areas for improvement for Lexical Resource.
+        """
+
+        instructions = """
+You are an examiner for IELTS Writing Task 1.
+Evaluate the provided answer for Writing Task 1 strictly based on the official IELTS Writing Task 1 Band Descriptors.
+
+Constraints on the evaluation:
+- Evaluate based on Task Achievement (TA), Coherence and Cohesion (CC), Lexical Resource (LR), and Grammatical Range and Accuracy (GRA).
+- Output a score from 0.0 to 9.0 in 0.5 increments for each criterion.
+- Penalize TA if the response is significantly under 150 words.
+
+Constraints on the output format:
+- Put the TA score into the 'achievement_score' field.
+- Put the CC score into the 'coherence_score' field.
+- Put the LR score into the 'lexical_score' field.
+- Put the GRA score into the 'grammatical_score' field.
+- Put the feedback that praises the good points of the answer in terms of TA criteria into the 'achievement_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of TA criteria into the 'achievement_feedback2' field. Output specific examples from the text when suggesting improvements.
+- Put the feedback that praises the good points of the answer in terms of CC criteria into the 'coherence_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of CC criteria into the 'coherence_feedback2' field. Output specific examples from the text when suggesting improvements.
+- Put the feedback that praises the good points of the answer in terms of LR criteria into the 'lexical_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of LR criteria into the 'lexical_feedback2' field. Output specific examples from the text when suggesting improvements.
+- Put the feedback that praises the good points of the answer in terms of GRA criteria into the 'grammatical_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of GRA criteria into the 'grammatical_feedback2' field. Output specific examples from the text when suggesting improvements.
+
+Constraints on the given prompt:
+- The prompt for the given answer is given as 'prompt: <prompt>.'.
+
+Constraints on the given answer:
+- The answer that you must evaluate is given as 'answer: <answer>.'.
+
+Constraints on the given description of the diagram:
+- The description of the diagram is given as 'diagram_description: <diagram_description>.'.
+
+Constraints on the given description of the diagram type:
+- The diagram type is given as 'diagram_type: <diagram_type>.'.
+        """
+
+        class Message(BaseModel):
+            achievement_score: float
+            coherence_score: float
+            grammatical_score: float
+            lexial_score: float
+            achievement_feedback1: str
+            achievement_feedback2: str
+            coherence_feedback1: str
+            coherence_feedback2: str
+            grammatical_feedback1: str
+            grammatical_feedback2: str
+            lexial_feedback1: str
+            lexial_feedback2: str
+
+        prompt = {}
+
+        prompt_input = """
+Evaluate the given answer for the given prompt, diagram_type, and diagram of Writing Task 1.
+
+prompt: {}
+
+diagram_type: {}
+
+diagram_description: {}
+
+answer: {}
+        """.format(prompt, diagram_type, diagram_description, answer)
+
+        response = self.client.responses.parse(
+            model="gpt-5-nano",
+            # reasoning={"effort": "medium"},
+            reasoning={"effort": "low"},
+            # reasoning={"effort": "minimal"},
+            instructions=instructions,
+            text_format=Message,
+            input=prompt_input,
+        )
+
+        msg = response.output_parsed
+
+        # debug
+        print(
+            """
+achievement_score: {}
+coherence_score: {}
+grammatical_score: {}
+lexial_score: {}
+achievement_feedback1: {}
+achievement_feedback2: {}
+coherence_feedback1: {}
+coherence_feedback2: {}
+grammatical_feedback1: {}
+grammatical_feedback2: {}
+lexial_feedback1: {}
+lexial_feedback2: {}
+            """.format(
+                msg.achievement_score,
+                msg.coherence_score,
+                msg.grammatical_score,
+                msg.lexial_score,
+                msg.achievement_feedback1,
+                msg.achievement_feedback2,
+                msg.coherence_feedback1,
+                msg.coherence_feedback2,
+                msg.grammatical_feedback1,
+                msg.grammatical_feedback2,
+                msg.lexial_feedback1,
+                msg.lexial_feedback2,
+            )
+        )
+
+        return msg
+
+    def evaluate_writing_task2_answer(
+        self,
+        prompt: str,
+        answer: str,
+    ) -> dict:
+        """Evaluate Writing Task 2 answer.
+
+        Args:
+            prompt: Prompt sentences.
+            answer: User's answer
+
+        Returns:
+            Evaluation components:
+                - response_score (float): Task Response score.
+                - coherence_score (float): Coherence and Cohesion score.
+                - grammatical_score (float): Grammatical Range and Accuracy score.
+                - lexial_score (float): Lexical Resource score.
+                - response_feedback1 (str): Positive feedback for Task Response.
+                - response_feedback2 (str): Areas for improvement for Task Response.
+                - coherence_feedback1 (str): Positive feedback for Coherence and Cohesion.
+                - coherence_feedback2 (str): Areas for improvement for Coherence and Cohesion.
+                - grammatical_feedback1 (str): Positive feedback for Grammatical Range and Accuracy.
+                - grammatical_feedback2 (str): Areas for improvement for Grammatical Range and Accuracy.
+                - lexical_feedback1 (str): Positive feedback for Lexical Resource.
+                - lexical_feedback2 (str): Areas for improvement for Lexical Resource.
+        """
+
+        instructions = """
+You are an examiner for IELTS Writing Task 2.
+Evaluate the provided answer for Writing Task 2 strictly based on the official IELTS Writing Task 2 Band Descriptors.
+
+Constraints on the evaluation:
+- Evaluate based on Task Response (TR), Coherence and Cohesion (CC), Lexical Resource (LR), and Grammatical Range and Accuracy (GRA).
+- Output a score from 0.0 to 9.0 in 0.5 increments for each criterion.
+- Penalize TR if the response is significantly under 250 words.
+
+Constraints on the output format:
+- Put the TR score into the 'response_score' field.
+- Put the CC score into the 'coherence_score' field.
+- Put the LR score into the 'lexical_score' field.
+- Put the GRA score into the 'grammatical_score' field.
+- Put the feedback that praises the good points of the answer in terms of TR criteria into the 'response_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of TR criteria into the 'response_feedback2' field. Output specific examples from the text when suggesting improvements.
+- Put the feedback that praises the good points of the answer in terms of CC criteria into the 'coherence_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of CC criteria into the 'coherence_feedback2' field. Output specific examples from the text when suggesting improvements.
+- Put the feedback that praises the good points of the answer in terms of LR criteria into the 'lexical_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of LR criteria into the 'lexical_feedback2' field. Output specific examples from the text when suggesting improvements.
+- Put the feedback that praises the good points of the answer in terms of GRA criteria into the 'grammatical_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of GRA criteria into the 'grammatical_feedback2' field. Output specific examples from the text when suggesting improvements.
+
+Constraints on the given prompt:
+- The prompt for the given answer is given as 'prompt: <prompt>.'.
+
+Constraints on the given answer:
+- The answer that you must evaluate is given as 'answer: <answer>.'.
+"""
+
+        class Message(BaseModel):
+            response_score: float
+            coherence_score: float
+            grammatical_score: float
+            lexial_score: float
+            respose_feedback1: str
+            respose_feedback2: str
+            coherence_feedback1: str
+            coherence_feedback2: str
+            grammatical_feedback1: str
+            grammatical_feedback2: str
+            lexial_feedback1: str
+            lexial_feedback2: str
+
+        prompt = {}
+
+        prompt_input = """
+Evaluate the given answer for the given prompt, diagram_type, and diagram of Writing Task 1.
+
+prompt: {}
+
+answer: {}
+        """.format(prompt, answer)
+
+        response = self.client.responses.parse(
+            model="gpt-5-nano",
+            # reasoning={"effort": "medium"},
+            reasoning={"effort": "low"},
+            # reasoning={"effort": "minimal"},
+            instructions=instructions,
+            text_format=Message,
+            input=prompt_input,
+        )
+
+        msg = response.output_parsed
+
+        # debug
+        print(
+            """
+response_score: {}
+coherence_score: {}
+grammatical_score: {}
+lexial_score: {}
+response_feedback1: {}
+response_feedback2: {}
+coherence_feedback1: {}
+coherence_feedback2: {}
+grammatical_feedback1: {}
+grammatical_feedback2: {}
+lexial_feedback1: {}
+lexial_feedback2: {}
+            """.format(
+                msg.response_score,
+                msg.coherence_score,
+                msg.grammatical_score,
+                msg.lexial_score,
+                msg.response_feedback1,
+                msg.response_feedback2,
+                msg.coherence_feedback1,
+                msg.coherence_feedback2,
+                msg.grammatical_feedback1,
+                msg.grammatical_feedback2,
+                msg.lexial_feedback1,
+                msg.lexial_feedback2,
+            )
+        )
+
+        return msg
+
     def _generate_writing_task1_digram_prompt(
         self, diagram_type: str, topics: list[str]
     ) -> dict:
