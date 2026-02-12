@@ -61,14 +61,31 @@ class SpeakingChatInputController extends ChangeNotifier {
   /// The map _messages index to recording state: 0 = not started, 1 = recording, 2 = recorded, 3 = rerecording.
   final Map<int, int> _recordingState = {};
 
+  /// Whether conversation has ended.
+  bool _isChatEnded = false;
+
+  /// ID of most recent interaction.
+  String _currentInteractionId = '';
+
+  /// Number of replies required to advance to next topic.
+  int _currentReplyCount = 0;
+
+  /// Required reply count to move to next topic.
+  static const int _requiredReplyCount = 3;
+
+  /// Index of current topic in topic list.
+  int _currentTopicIndex = 0;
+
   SpeakingChatInputController({
     required SpeakingAnswerRepository speakingAnswerRepository,
     required String promptText,
     required List<String> topics,
     required TestTask testTask,
+    required String initialInteractionId,
   }) : _repo = speakingAnswerRepository,
        _topics = topics,
-       _testTask = testTask {
+       _testTask = testTask,
+       _currentInteractionId = initialInteractionId {
     _recordingSrv = UtteranceRecordingService(
       onPlayerComplete: _onPlayerComplete,
     );
@@ -96,13 +113,16 @@ class SpeakingChatInputController extends ChangeNotifier {
 
   int get _userMessageCount => _messages.where((e) => e.isUser).toList().length;
 
+  bool get isReplyTextFieldEnabled => !_isChatEnded;
+
   bool get isSubmitButtonEnabled => _userMessageCount >= _minSubmitMessageCount;
 
   /// Returns the remaining count to submit the answer.
   int get replyCountUntilSubmitEnabled =>
       _minSubmitMessageCount - _userMessageCount;
 
-  bool get isMessageInputEnabled => _currentMessageText.isNotEmpty;
+  bool get isMessageInputEnabled =>
+      _currentMessageText.isNotEmpty && !_isChatEnded;
 
   bool get isRecording =>
       _recordingState.containsValue(1) || _recordingState.containsValue(3);
@@ -115,6 +135,8 @@ class SpeakingChatInputController extends ChangeNotifier {
       !isRecording && !isPlaying && !_isGeneratingPromptText;
 
   String get currentMessageText => _currentMessageText;
+
+  bool get isChatEnded => _isChatEnded;
 
   set currentMessageText(String value) {
     _currentMessageText = value;
@@ -204,13 +226,57 @@ class SpeakingChatInputController extends ChangeNotifier {
   }
 
   /// Generates a reply.
-  Future<void> generateNextPrompt(String reply) async {
+  Future<void> generateQuestion(String reply) async {
     _setIsGeneratingPromptText(true);
 
     try {
-      final resp = await _apiSrv.generateChatReply(reply);
-      addMessage(false, resp.message);
-      _recordingState[_messages.length - 1] = 0;
+      _currentReplyCount += 1;
+
+      final changeTopic = _currentReplyCount >= _requiredReplyCount;
+      if (changeTopic) {
+        _currentTopicIndex += 1;
+
+        if (_currentTopicIndex >= _topics.length) {
+          // Completed all questions.
+          // Add closing message.
+          final msg = await _apiSrv.generateClosingMessage(_testTask);
+          addMessage(false, msg);
+          notifyListeners();
+
+          _isChatEnded = true;
+        } else {
+          // Move to next topic.
+          // Add transition message.
+          final transition = await _apiSrv.generateTopicTransitionMessage(
+            _topics[_currentTopicIndex],
+          );
+          addMessage(false, transition);
+          notifyListeners();
+
+          // Add question.
+          final resp = await _apiSrv.generateInitialQuestion(
+            _testTask.number,
+            _topics[_currentTopicIndex],
+          );
+          addMessage(false, resp.question);
+          _recordingState[_messages.length - 1] = 0;
+
+          _currentInteractionId = resp.interactionId;
+          _currentReplyCount = 0;
+        }
+      } else {
+        // Ask subsequent question.
+        // Add question.
+        final resp = await _apiSrv.generateSubsequentQuestion(
+          _testTask.number,
+          _currentInteractionId,
+          reply,
+        );
+        addMessage(false, resp.question);
+        _recordingState[_messages.length - 1] = 0;
+
+        _currentInteractionId = resp.interactionId;
+      }
     } finally {
       _setIsGeneratingPromptText(false);
       notifyListeners();

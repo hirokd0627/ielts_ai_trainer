@@ -9,17 +9,13 @@ import 'package:ielts_ai_trainer/shared/views/texts.dart';
 
 /// Question Generator Form for Speaking Tasks.
 class SpeakingQuestionGeneratorForm extends StatefulWidget {
-  /// Function to generate prompt text.
-  /// Called when the Generate button is tapped.
-  /// Returns a record containing prompt text and a topics used.
-  final Future<({List<String> topics, String promptText})> Function(
-    int topicCount,
-    List<String> topics,
-  )
-  generatePromptText;
-
   /// Called when the Start button is tapped.
-  final void Function(String promptText, List<String> topics) onTappedStart;
+  final void Function(
+    String promptText,
+    List<String> topics,
+    String interactionId,
+  )
+  onTappedStart;
 
   /// The task type.
   final TestTask testTask;
@@ -32,7 +28,6 @@ class SpeakingQuestionGeneratorForm extends StatefulWidget {
 
   const SpeakingQuestionGeneratorForm({
     super.key,
-    required this.generatePromptText,
     required this.onTappedStart,
     required this.testTask,
     this.promptText,
@@ -70,7 +65,6 @@ class _SpeakingQuestionGeneratorFormState
     _ctrl = SpeakingQuestionGeneratorFormController(
       testTask: widget.testTask,
       apiSrv: SpeakingApiService(),
-      generatePromptText: widget.generatePromptText,
       promptText: widget.promptText,
       topics: widget.topics,
     );
@@ -124,7 +118,7 @@ class _SpeakingQuestionGeneratorFormState
     setState(() {
       _topicInputErrorText = '';
     });
-    await _ctrl.generatePromptText();
+    await _ctrl.generateInitialQuestion();
   }
 
   /// Called when the Start button is tapped.
@@ -140,7 +134,11 @@ class _SpeakingQuestionGeneratorFormState
       return;
     }
 
-    widget.onTappedStart(_ctrl.promptText, _ctrl.usedTopics);
+    widget.onTappedStart(
+      _ctrl.promptText,
+      _ctrl.usedTopics,
+      _ctrl.interactionId,
+    );
   }
 
   /// Validates the entered topics, optionally including a new value.
@@ -164,7 +162,8 @@ class _SpeakingQuestionGeneratorFormState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Number of Topics
-            if (widget.testTask == TestTask.speakingPart1)
+            if (widget.testTask == TestTask.speakingPart1 ||
+                widget.testTask == TestTask.speakingPart3)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -199,8 +198,7 @@ class _SpeakingQuestionGeneratorFormState
                 ],
               ),
             // Topics
-            // For Part 2 and Part 3, use the provided topics.
-            // If none are specified, one topic is generated at random.
+            // If none are specified, topics are generated at random.
             Container(
               margin: EdgeInsets.only(bottom: 4),
               child: FieldLabel('Topics'),
@@ -208,7 +206,8 @@ class _SpeakingQuestionGeneratorFormState
             Container(
               margin: EdgeInsets.only(bottom: 8),
               child: Text(
-                widget.testTask == TestTask.speakingPart1
+                widget.testTask == TestTask.speakingPart1 ||
+                        widget.testTask == TestTask.speakingPart3
                     ? 'Missing topics will be auto-generated to reach the number of topics.'
                     : 'A topic will be auto-generated if left blank.',
                 style: AppStyles.helperTextStyle,

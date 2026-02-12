@@ -11,14 +11,6 @@ import 'package:provider/provider.dart';
 
 /// Question Generator Screen for Task 1 and 2.
 class WritingQuestionGeneratorScreen extends StatefulWidget {
-  /// Called when start button is tapped.
-  final void Function(
-    String promptText,
-    List<String> topics,
-    dynamic promptType,
-  )
-  onTappedStart;
-
   /// The task type.
   final TestTask testTask;
 
@@ -33,7 +25,6 @@ class WritingQuestionGeneratorScreen extends StatefulWidget {
 
   const WritingQuestionGeneratorScreen({
     super.key,
-    required this.onTappedStart,
     required this.testTask,
     this.promptText,
     this.topics,
@@ -94,7 +85,6 @@ class _WritingQuestionGeneratorScreenState
                 SizedBox(height: 20),
                 // Question Generator Form
                 WritingQuestionGeneratorForm(
-                  onTappedStart: widget.onTappedStart,
                   testTask: widget.testTask,
                   promptText: widget.promptText,
                   topics: widget.topics,

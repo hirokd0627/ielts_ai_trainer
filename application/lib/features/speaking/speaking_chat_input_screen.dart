@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/app/router_extra.dart';
-import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 import 'package:ielts_ai_trainer/features/speaking/chat_row.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_answer_repository.dart';
@@ -12,6 +11,7 @@ import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
+import 'package:ielts_ai_trainer/shared/views/buttons.dart';
 import 'package:ielts_ai_trainer/shared/views/hover_highlight_text_field.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 import 'package:provider/provider.dart';
@@ -27,11 +27,15 @@ class SpeakingChatInputScreen extends StatefulWidget {
   /// The task type.
   final TestTask testTask;
 
+  /// ID issued when initial prompt was generated.
+  final String initialInteractionId;
+
   const SpeakingChatInputScreen({
     super.key,
     required this.initialPromptText,
     required this.topics,
     required this.testTask,
+    required this.initialInteractionId,
   });
 
   @override
@@ -67,6 +71,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
       promptText: widget.initialPromptText,
       topics: widget.topics,
       testTask: widget.testTask,
+      initialInteractionId: widget.initialInteractionId,
     );
 
     _ctrl.addMessage(false, widget.initialPromptText);
@@ -112,7 +117,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
     _scrollToBottom();
 
     // Generates and adds the AI's reply.
-    await _ctrl.generateNextPrompt(userMessage);
+    await _ctrl.generateQuestion(userMessage);
 
     // Scrolls to the AI's message.
     _scrollToBottom();
@@ -275,7 +280,9 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
                       children: [
                         Expanded(
                           child: HoverHighlightTextField(
-                            enabled: _ctrl.isControlsEnabled,
+                            enabled:
+                                _ctrl.isControlsEnabled &&
+                                _ctrl.isReplyTextFieldEnabled,
                             onChanged: _onChangedText,
                             controller: _textCtrl,
                             hintText: 'Type your reply here...',
@@ -310,25 +317,11 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            OutlinedButton(
+                            buildOutlinedButton(
+                              'Quit',
                               onPressed: _ctrl.isControlsEnabled
                                   ? _onPressedCancel
                                   : null,
-                              style: ButtonStyle(
-                                side: WidgetStateProperty.resolveWith((states) {
-                                  if (states.contains(WidgetState.hovered)) {
-                                    return BorderSide(
-                                      color: AppColors.focusColor,
-                                      width: 1,
-                                    );
-                                  }
-                                  return BorderSide(
-                                    color: AppColors.checkboxBorderColor,
-                                    width: 1,
-                                  );
-                                }),
-                              ),
-                              child: const Text('Quit'),
                             ),
                             SizedBox(width: 20),
                             FilledButton(

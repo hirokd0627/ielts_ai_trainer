@@ -60,10 +60,12 @@ final speakingRoutes = [
       final extra = RouterExtra.validate(state, [
         'initialPromptText',
         'topics',
+        'interactionId',
       ]);
       return SpeakingPart1AnswerInputScreen(
         initialPromptText: extra.getValue('initialPromptText'),
         topics: extra.getValue('topics'),
+        initialInteractionId: extra.getValue('interactionId'),
       );
     },
   ),
@@ -90,7 +92,6 @@ final speakingRoutes = [
     path: speakingPart2AnswerInputScreenRoutePath,
     builder: (BuildContext context, GoRouterState state) {
       final extra = RouterExtra.validate(state, ['promptText', 'topics']);
-
       return SpeakingPart2AnswerInputScreen(
         promptText: extra.getValue('promptText'),
         topics: extra.getValue('topics'),
@@ -122,10 +123,12 @@ final speakingRoutes = [
       final extra = RouterExtra.validate(state, [
         'initialPromptText',
         'topics',
+        'interactionId',
       ]);
       return SpeakingPart3AnswerInputScreen(
         initialPromptText: extra.getValue('initialPromptText'),
         topics: extra.getValue('topics'),
+        initialInteractionId: extra.getValue('interactionId'),
       );
     },
   ),

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ielts_ai_trainer/app/router_extra.dart';
 import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_question_generator_form_controller.dart';
+import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
@@ -10,14 +13,6 @@ import 'package:ielts_ai_trainer/shared/views/texts.dart';
 
 /// Question Generator Form for Writing Tasks.
 class WritingQuestionGeneratorForm extends StatefulWidget {
-  /// Called when start button is tapped.
-  final void Function(
-    String promptText,
-    List<String> topics,
-    WritingPromptType promptType,
-  )
-  onTappedStart;
-
   /// The task type.
   final TestTask testTask;
 
@@ -32,7 +27,6 @@ class WritingQuestionGeneratorForm extends StatefulWidget {
 
   const WritingQuestionGeneratorForm({
     super.key,
-    required this.onTappedStart,
     required this.testTask,
     this.promptText,
     this.topics,
@@ -217,7 +211,18 @@ class _WritingQuestionGeneratorFormState
       return;
     }
 
-    widget.onTappedStart(_ctrl.propmtText, _ctrl.usedTopics, _ctrl.promptType!);
+    // widget.onTappedStart(_ctrl.propmtText, _ctrl.usedTopics, _ctrl.promptType!);
+    final loc = widget.testTask == TestTask.writingTask1
+        ? writingTask1AnswerInputScreenRoutePath
+        : writingTask2AnswerInputScreenRoutePath;
+    context.go(
+      loc,
+      extra: RouterExtra({
+        'promptText': _ctrl.propmtText,
+        'topics': _ctrl.usedTopics,
+        'promptType': _ctrl.promptType!,
+      }),
+    );
   }
 
   @override

@@ -10,10 +10,14 @@ class SpeakingPart1AnswerInputScreen extends StatefulWidget {
   /// The topics used in the practice.
   final List<String> topics;
 
+  /// ID issued when the initial prompt was generated.
+  final String initialInteractionId;
+
   const SpeakingPart1AnswerInputScreen({
     super.key,
     required this.initialPromptText,
     required this.topics,
+    required this.initialInteractionId,
   });
 
   @override
@@ -30,6 +34,7 @@ class _SpeakingPart1AnswerInputScreenState
       initialPromptText: widget.initialPromptText,
       topics: widget.topics,
       testTask: TestTask.speakingPart1,
+      initialInteractionId: widget.initialInteractionId,
     );
   }
 }
