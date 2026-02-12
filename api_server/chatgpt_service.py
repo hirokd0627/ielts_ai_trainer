@@ -227,25 +227,29 @@ Do not limit to the expressions on the above expressions, but allow to use a var
         Returns:
             Base64 encoded string of diagram.
         """
-        # TODO: return fixed data currently
-        with open("./assets/test_w1.png", "rb") as f:
-            img_bytes = f.read()
-        time.sleep(5)
-        return base64.b64encode(img_bytes).decode("ascii")
+        # TEST: use fixed data.
+        # with open("./assets/test_w1.png", "rb") as f:
+        #     img_bytes = f.read()
+        # time.sleep(5)
+        # return base64.b64encode(img_bytes).decode("ascii")
 
-        # prompt = """
-        # You are an test item writer for IELTS Writing Task 1. Generate a IELTS-style {} diagram based on a prompt.
-        # {}
-        # {}
-        # """.format(question_type, img_prompt['prompt'], img_prompt['dialog_description'])
+        prompt = """
+        You are an test item writer for IELTS Writing Task 1. Generate a IELTS-style {} diagram based on a prompt.
+        {}
+        {}
+        """.format(
+            diagram_type,
+            diagram_prompt["prompt"],
+            diagram_prompt["diagram_description"],
+        )
 
-        # result = self.client.images.generate(
-        #     model="gpt-image-1-mini",
-        #     prompt=prompt,
-        #     quality='high',
-        # )
+        result = self.client.images.generate(
+            model="gpt-image-1-mini",
+            prompt=prompt,
+            quality="high",
+        )
 
-        # return result.data[0].b64_json
+        return result.data[0].b64_json
 
     def _generate_speaking_part1_question(
         self, topic: str = None, prompt_id: int = None, reply: str = None
@@ -264,7 +268,7 @@ Do not limit to the expressions on the above expressions, but allow to use a var
                 - prompt_id (str): ChatGPT prompt ID to continue interaction.
                 - question (str): Generated question sentence.
         """
-        # TODO: adjust prompt for Part 1
+
         instructions = """
 You are an examiner for IELTS Speaking Part 1, and output questions.
 

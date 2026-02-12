@@ -33,7 +33,7 @@ def generate_topics():
     """API for generating topics for Writing and Speaking."""
 
     json = request.get_json()
-    _validate_parameters(json, ["count"])
+    _validate_parameters(json, "count")
 
     try:
         chatgpt = ChatGptService()
@@ -143,7 +143,7 @@ def speaking_transition_message():
     """API for getting transition message for Speaking Part 1 and Part 3."""
 
     json = request.get_json()
-    _validate_parameters(json, ["topic"])
+    _validate_parameters(json, "topic")
 
     # Randomly select from pre-generated sentences.
     options = [
@@ -172,7 +172,7 @@ def speaking_closing_message():
     """API for getting closing message for Speaking Part 1 and Part 3."""
 
     json = request.get_json()
-    _validate_parameters(json, ["part"])
+    _validate_parameters(json, "part")
 
     # Randomly select from pre-generated sentences.
     options = [
@@ -210,16 +210,18 @@ def handle_exception(e):
     return response
 
 
-def _validate_parameters(json: dict, names: list[str]):
+def _validate_parameters(json: dict, names: str | list[str]):
     """Validate POST parameters.
 
     Args:
         json: POST parameters.
-        names: List of key name in json to verify.
+        names: Single key name or List of key name in json to verify.
 
     Raises:
         AppException: if key name in names is not in json.
     """
+    names = [names] if isinstance(names, str) else names
+
     for name in names:
         if name not in json:
             raise AppException("Missing parameter: {}".format(name))
@@ -241,7 +243,7 @@ def _speaking_generate_question(part_no: int, json: any):
     initial_generation = "prompt_id" not in json
 
     if initial_generation:
-        _validate_parameters(json, ["topic"])
+        _validate_parameters(json, "topic")
     else:
         _validate_parameters(json, ["prompt_id", "reply"])
 

@@ -248,7 +248,7 @@ class SpeakingChatInputController extends ChangeNotifier {
           // Move to next topic.
           // Add transition message.
           final transition = await _apiSrv.generateTopicTransitionMessage(
-            _topics[_currentTopicIndex - 1],
+            _topics[_currentTopicIndex],
           );
           addMessage(false, transition);
           notifyListeners();
