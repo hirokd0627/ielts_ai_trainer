@@ -211,7 +211,7 @@ Do not limit to the expressions on the above expressions, but allow to use a var
                 - achievement_score (float): Task Achievement score.
                 - coherence_score (float): Coherence and Cohesion score.
                 - grammatical_score (float): Grammatical Range and Accuracy score.
-                - lexial_score (float): Lexical Resource score.
+                - lexical_score (float): Lexical Resource score.
                 - achievement_feedback1 (str): Positive feedback for Task Achievement.
                 - achievement_feedback2 (str): Areas for improvement for Task Achievement.
                 - coherence_feedback1 (str): Positive feedback for Coherence and Cohesion.
@@ -262,17 +262,15 @@ Constraints on the given description of the diagram type:
             achievement_score: float
             coherence_score: float
             grammatical_score: float
-            lexial_score: float
+            lexical_score: float
             achievement_feedback1: str
             achievement_feedback2: str
             coherence_feedback1: str
             coherence_feedback2: str
             grammatical_feedback1: str
             grammatical_feedback2: str
-            lexial_feedback1: str
-            lexial_feedback2: str
-
-        prompt = {}
+            lexical_feedback1: str
+            lexical_feedback2: str
 
         prompt_input = """
 Evaluate the given answer for the given prompt, diagram_type, and diagram of Writing Task 1.
@@ -304,28 +302,28 @@ answer: {}
 achievement_score: {}
 coherence_score: {}
 grammatical_score: {}
-lexial_score: {}
+lexical_score: {}
 achievement_feedback1: {}
 achievement_feedback2: {}
 coherence_feedback1: {}
 coherence_feedback2: {}
 grammatical_feedback1: {}
 grammatical_feedback2: {}
-lexial_feedback1: {}
-lexial_feedback2: {}
+lexical_feedback1: {}
+lexical_feedback2: {}
             """.format(
                 msg.achievement_score,
                 msg.coherence_score,
                 msg.grammatical_score,
-                msg.lexial_score,
+                msg.lexical_score,
                 msg.achievement_feedback1,
                 msg.achievement_feedback2,
                 msg.coherence_feedback1,
                 msg.coherence_feedback2,
                 msg.grammatical_feedback1,
                 msg.grammatical_feedback2,
-                msg.lexial_feedback1,
-                msg.lexial_feedback2,
+                msg.lexical_feedback1,
+                msg.lexical_feedback2,
             )
         )
 
@@ -347,7 +345,7 @@ lexial_feedback2: {}
                 - response_score (float): Task Response score.
                 - coherence_score (float): Coherence and Cohesion score.
                 - grammatical_score (float): Grammatical Range and Accuracy score.
-                - lexial_score (float): Lexical Resource score.
+                - lexical_score (float): Lexical Resource score.
                 - response_feedback1 (str): Positive feedback for Task Response.
                 - response_feedback2 (str): Areas for improvement for Task Response.
                 - coherence_feedback1 (str): Positive feedback for Coherence and Cohesion.
@@ -392,15 +390,15 @@ Constraints on the given answer:
             response_score: float
             coherence_score: float
             grammatical_score: float
-            lexial_score: float
+            lexical_score: float
             respose_feedback1: str
             respose_feedback2: str
             coherence_feedback1: str
             coherence_feedback2: str
             grammatical_feedback1: str
             grammatical_feedback2: str
-            lexial_feedback1: str
-            lexial_feedback2: str
+            lexical_feedback1: str
+            lexical_feedback2: str
 
         prompt = {}
 
@@ -430,28 +428,28 @@ answer: {}
 response_score: {}
 coherence_score: {}
 grammatical_score: {}
-lexial_score: {}
+lexical_score: {}
 response_feedback1: {}
 response_feedback2: {}
 coherence_feedback1: {}
 coherence_feedback2: {}
 grammatical_feedback1: {}
 grammatical_feedback2: {}
-lexial_feedback1: {}
-lexial_feedback2: {}
+lexical_feedback1: {}
+lexical_feedback2: {}
             """.format(
                 msg.response_score,
                 msg.coherence_score,
                 msg.grammatical_score,
-                msg.lexial_score,
+                msg.lexical_score,
                 msg.response_feedback1,
                 msg.response_feedback2,
                 msg.coherence_feedback1,
                 msg.coherence_feedback2,
                 msg.grammatical_feedback1,
                 msg.grammatical_feedback2,
-                msg.lexial_feedback1,
-                msg.lexial_feedback2,
+                msg.lexical_feedback1,
+                msg.lexical_feedback2,
             )
         )
 
@@ -494,28 +492,28 @@ lexial_feedback2: {}
             Base64 encoded string of diagram.
         """
         # TEST: use fixed data.
-        # with open("./assets/test_w1.png", "rb") as f:
-        #     img_bytes = f.read()
-        # time.sleep(5)
-        # return base64.b64encode(img_bytes).decode("ascii")
+        with open("./assets/test_w1.png", "rb") as f:
+            img_bytes = f.read()
+        time.sleep(5)
+        return base64.b64encode(img_bytes).decode("ascii")
 
-        prompt = """
-        You are an test item writer for IELTS Writing Task 1. Generate a IELTS-style {} diagram based on a prompt.
-        {}
-        {}
-        """.format(
-            diagram_type,
-            diagram_prompt["prompt"],
-            diagram_prompt["diagram_description"],
-        )
+        # prompt = """
+        # You are an test item writer for IELTS Writing Task 1. Generate a IELTS-style {} diagram based on a prompt.
+        # {}
+        # {}
+        # """.format(
+        #     diagram_type,
+        #     diagram_prompt["prompt"],
+        #     diagram_prompt["diagram_description"],
+        # )
 
-        result = self.client.images.generate(
-            model="gpt-image-1-mini",
-            prompt=prompt,
-            quality="high",
-        )
+        # result = self.client.images.generate(
+        #     model="gpt-image-1-mini",
+        #     prompt=prompt,
+        #     quality="high",
+        # )
 
-        return result.data[0].b64_json
+        # return result.data[0].b64_json
 
     def _generate_speaking_part1_question(
         self, topic: str = None, prompt_id: int = None, reply: str = None

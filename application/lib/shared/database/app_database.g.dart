@@ -310,17 +310,51 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _promptTextMeta = const VerificationMeta(
-    'promptText',
+  static const VerificationMeta _taskContextMeta = const VerificationMeta(
+    'taskContext',
   );
   @override
-  late final GeneratedColumn<String> promptText = GeneratedColumn<String>(
-    'prompt_text',
+  late final GeneratedColumn<String> taskContext = GeneratedColumn<String>(
+    'task_context',
     aliasedName,
     false,
     additionalChecks: GeneratedColumn.checkTextLength(minTextLength: 1),
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _taskInstructionMeta = const VerificationMeta(
+    'taskInstruction',
+  );
+  @override
+  late final GeneratedColumn<String> taskInstruction = GeneratedColumn<String>(
+    'task_instruction',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(minTextLength: 1),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _diagramDescriptionMeta =
+      const VerificationMeta('diagramDescription');
+  @override
+  late final GeneratedColumn<String> diagramDescription =
+      GeneratedColumn<String>(
+        'diagram_description',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _diagramFileUuidMeta = const VerificationMeta(
+    'diagramFileUuid',
+  );
+  @override
+  late final GeneratedColumn<String> diagramFileUuid = GeneratedColumn<String>(
+    'diagram_file_uuid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _answerTextMeta = const VerificationMeta(
     'answerText',
@@ -345,21 +379,23 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _scoreMeta = const VerificationMeta('score');
+  static const VerificationMeta _bandScoreMeta = const VerificationMeta(
+    'bandScore',
+  );
   @override
-  late final GeneratedColumn<double> score = GeneratedColumn<double>(
-    'score',
+  late final GeneratedColumn<double> bandScore = GeneratedColumn<double>(
+    'band_score',
     aliasedName,
     true,
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _achievementScoreMeta = const VerificationMeta(
-    'achievementScore',
+  static const VerificationMeta _taskScoreMeta = const VerificationMeta(
+    'taskScore',
   );
   @override
-  late final GeneratedColumn<double> achievementScore = GeneratedColumn<double>(
-    'achievement_score',
+  late final GeneratedColumn<double> taskScore = GeneratedColumn<double>(
+    'task_score',
     aliasedName,
     true,
     type: DriftSqlType.double,
@@ -407,22 +443,56 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     aliasedName,
     false,
     type: DriftSqlType.bool,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'CHECK ("is_graded" IN (0, 1))',
     ),
+    defaultValue: Constant(false),
   );
-  static const VerificationMeta _feedbackMeta = const VerificationMeta(
-    'feedback',
+  static const VerificationMeta _taskFeedbackMeta = const VerificationMeta(
+    'taskFeedback',
   );
   @override
-  late final GeneratedColumn<String> feedback = GeneratedColumn<String>(
-    'feedback',
+  late final GeneratedColumn<String> taskFeedback = GeneratedColumn<String>(
+    'task_feedback',
     aliasedName,
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _coherencekFeedbackMeta =
+      const VerificationMeta('coherencekFeedback');
+  @override
+  late final GeneratedColumn<String> coherencekFeedback =
+      GeneratedColumn<String>(
+        'coherencek_feedback',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _lexialFeedbackMeta = const VerificationMeta(
+    'lexialFeedback',
+  );
+  @override
+  late final GeneratedColumn<String> lexialFeedback = GeneratedColumn<String>(
+    'lexial_feedback',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _grammaticalFeedbackMeta =
+      const VerificationMeta('grammaticalFeedback');
+  @override
+  late final GeneratedColumn<String> grammaticalFeedback =
+      GeneratedColumn<String>(
+        'grammatical_feedback',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -440,16 +510,22 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     id,
     userAnswerId,
     promptType,
-    promptText,
+    taskContext,
+    taskInstruction,
+    diagramDescription,
+    diagramFileUuid,
     answerText,
     duration,
-    score,
-    achievementScore,
+    bandScore,
+    taskScore,
     coherenceScore,
     lexialScore,
     grammaticalScore,
     isGraded,
-    feedback,
+    taskFeedback,
+    coherencekFeedback,
+    lexialFeedback,
+    grammaticalFeedback,
     updatedAt,
   ];
   @override
@@ -486,13 +562,45 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     } else if (isInserting) {
       context.missing(_promptTypeMeta);
     }
-    if (data.containsKey('prompt_text')) {
+    if (data.containsKey('task_context')) {
       context.handle(
-        _promptTextMeta,
-        promptText.isAcceptableOrUnknown(data['prompt_text']!, _promptTextMeta),
+        _taskContextMeta,
+        taskContext.isAcceptableOrUnknown(
+          data['task_context']!,
+          _taskContextMeta,
+        ),
       );
     } else if (isInserting) {
-      context.missing(_promptTextMeta);
+      context.missing(_taskContextMeta);
+    }
+    if (data.containsKey('task_instruction')) {
+      context.handle(
+        _taskInstructionMeta,
+        taskInstruction.isAcceptableOrUnknown(
+          data['task_instruction']!,
+          _taskInstructionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_taskInstructionMeta);
+    }
+    if (data.containsKey('diagram_description')) {
+      context.handle(
+        _diagramDescriptionMeta,
+        diagramDescription.isAcceptableOrUnknown(
+          data['diagram_description']!,
+          _diagramDescriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('diagram_file_uuid')) {
+      context.handle(
+        _diagramFileUuidMeta,
+        diagramFileUuid.isAcceptableOrUnknown(
+          data['diagram_file_uuid']!,
+          _diagramFileUuidMeta,
+        ),
+      );
     }
     if (data.containsKey('answer_text')) {
       context.handle(
@@ -510,19 +618,16 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     } else if (isInserting) {
       context.missing(_durationMeta);
     }
-    if (data.containsKey('score')) {
+    if (data.containsKey('band_score')) {
       context.handle(
-        _scoreMeta,
-        score.isAcceptableOrUnknown(data['score']!, _scoreMeta),
+        _bandScoreMeta,
+        bandScore.isAcceptableOrUnknown(data['band_score']!, _bandScoreMeta),
       );
     }
-    if (data.containsKey('achievement_score')) {
+    if (data.containsKey('task_score')) {
       context.handle(
-        _achievementScoreMeta,
-        achievementScore.isAcceptableOrUnknown(
-          data['achievement_score']!,
-          _achievementScoreMeta,
-        ),
+        _taskScoreMeta,
+        taskScore.isAcceptableOrUnknown(data['task_score']!, _taskScoreMeta),
       );
     }
     if (data.containsKey('coherence_score')) {
@@ -557,13 +662,41 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         _isGradedMeta,
         isGraded.isAcceptableOrUnknown(data['is_graded']!, _isGradedMeta),
       );
-    } else if (isInserting) {
-      context.missing(_isGradedMeta);
     }
-    if (data.containsKey('feedback')) {
+    if (data.containsKey('task_feedback')) {
       context.handle(
-        _feedbackMeta,
-        feedback.isAcceptableOrUnknown(data['feedback']!, _feedbackMeta),
+        _taskFeedbackMeta,
+        taskFeedback.isAcceptableOrUnknown(
+          data['task_feedback']!,
+          _taskFeedbackMeta,
+        ),
+      );
+    }
+    if (data.containsKey('coherencek_feedback')) {
+      context.handle(
+        _coherencekFeedbackMeta,
+        coherencekFeedback.isAcceptableOrUnknown(
+          data['coherencek_feedback']!,
+          _coherencekFeedbackMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lexial_feedback')) {
+      context.handle(
+        _lexialFeedbackMeta,
+        lexialFeedback.isAcceptableOrUnknown(
+          data['lexial_feedback']!,
+          _lexialFeedbackMeta,
+        ),
+      );
+    }
+    if (data.containsKey('grammatical_feedback')) {
+      context.handle(
+        _grammaticalFeedbackMeta,
+        grammaticalFeedback.isAcceptableOrUnknown(
+          data['grammatical_feedback']!,
+          _grammaticalFeedbackMeta,
+        ),
       );
     }
     if (data.containsKey('updated_at')) {
@@ -596,10 +729,22 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         DriftSqlType.string,
         data['${effectivePrefix}prompt_type'],
       )!,
-      promptText: attachedDatabase.typeMapping.read(
+      taskContext: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}prompt_text'],
+        data['${effectivePrefix}task_context'],
       )!,
+      taskInstruction: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}task_instruction'],
+      )!,
+      diagramDescription: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}diagram_description'],
+      ),
+      diagramFileUuid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}diagram_file_uuid'],
+      ),
       answerText: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}answer_text'],
@@ -608,13 +753,13 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         DriftSqlType.int,
         data['${effectivePrefix}duration'],
       )!,
-      score: attachedDatabase.typeMapping.read(
+      bandScore: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}score'],
+        data['${effectivePrefix}band_score'],
       ),
-      achievementScore: attachedDatabase.typeMapping.read(
+      taskScore: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}achievement_score'],
+        data['${effectivePrefix}task_score'],
       ),
       coherenceScore: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
@@ -632,9 +777,21 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         DriftSqlType.bool,
         data['${effectivePrefix}is_graded'],
       )!,
-      feedback: attachedDatabase.typeMapping.read(
+      taskFeedback: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}feedback'],
+        data['${effectivePrefix}task_feedback'],
+      ),
+      coherencekFeedback: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}coherencek_feedback'],
+      ),
+      lexialFeedback: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}lexial_feedback'],
+      ),
+      grammaticalFeedback: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grammatical_feedback'],
       ),
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -654,31 +811,43 @@ class WritingAnswerDetailsTableData extends DataClass
   final int id;
   final int userAnswerId;
   final String promptType;
-  final String promptText;
+  final String taskContext;
+  final String taskInstruction;
+  final String? diagramDescription;
+  final String? diagramFileUuid;
   final String answerText;
   final int duration;
-  final double? score;
-  final double? achievementScore;
+  final double? bandScore;
+  final double? taskScore;
   final double? coherenceScore;
   final double? lexialScore;
   final double? grammaticalScore;
   final bool isGraded;
-  final String? feedback;
+  final String? taskFeedback;
+  final String? coherencekFeedback;
+  final String? lexialFeedback;
+  final String? grammaticalFeedback;
   final DateTime updatedAt;
   const WritingAnswerDetailsTableData({
     required this.id,
     required this.userAnswerId,
     required this.promptType,
-    required this.promptText,
+    required this.taskContext,
+    required this.taskInstruction,
+    this.diagramDescription,
+    this.diagramFileUuid,
     required this.answerText,
     required this.duration,
-    this.score,
-    this.achievementScore,
+    this.bandScore,
+    this.taskScore,
     this.coherenceScore,
     this.lexialScore,
     this.grammaticalScore,
     required this.isGraded,
-    this.feedback,
+    this.taskFeedback,
+    this.coherencekFeedback,
+    this.lexialFeedback,
+    this.grammaticalFeedback,
     required this.updatedAt,
   });
   @override
@@ -687,14 +856,21 @@ class WritingAnswerDetailsTableData extends DataClass
     map['id'] = Variable<int>(id);
     map['user_answer_id'] = Variable<int>(userAnswerId);
     map['prompt_type'] = Variable<String>(promptType);
-    map['prompt_text'] = Variable<String>(promptText);
+    map['task_context'] = Variable<String>(taskContext);
+    map['task_instruction'] = Variable<String>(taskInstruction);
+    if (!nullToAbsent || diagramDescription != null) {
+      map['diagram_description'] = Variable<String>(diagramDescription);
+    }
+    if (!nullToAbsent || diagramFileUuid != null) {
+      map['diagram_file_uuid'] = Variable<String>(diagramFileUuid);
+    }
     map['answer_text'] = Variable<String>(answerText);
     map['duration'] = Variable<int>(duration);
-    if (!nullToAbsent || score != null) {
-      map['score'] = Variable<double>(score);
+    if (!nullToAbsent || bandScore != null) {
+      map['band_score'] = Variable<double>(bandScore);
     }
-    if (!nullToAbsent || achievementScore != null) {
-      map['achievement_score'] = Variable<double>(achievementScore);
+    if (!nullToAbsent || taskScore != null) {
+      map['task_score'] = Variable<double>(taskScore);
     }
     if (!nullToAbsent || coherenceScore != null) {
       map['coherence_score'] = Variable<double>(coherenceScore);
@@ -706,8 +882,17 @@ class WritingAnswerDetailsTableData extends DataClass
       map['grammatical_score'] = Variable<double>(grammaticalScore);
     }
     map['is_graded'] = Variable<bool>(isGraded);
-    if (!nullToAbsent || feedback != null) {
-      map['feedback'] = Variable<String>(feedback);
+    if (!nullToAbsent || taskFeedback != null) {
+      map['task_feedback'] = Variable<String>(taskFeedback);
+    }
+    if (!nullToAbsent || coherencekFeedback != null) {
+      map['coherencek_feedback'] = Variable<String>(coherencekFeedback);
+    }
+    if (!nullToAbsent || lexialFeedback != null) {
+      map['lexial_feedback'] = Variable<String>(lexialFeedback);
+    }
+    if (!nullToAbsent || grammaticalFeedback != null) {
+      map['grammatical_feedback'] = Variable<String>(grammaticalFeedback);
     }
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -718,15 +903,22 @@ class WritingAnswerDetailsTableData extends DataClass
       id: Value(id),
       userAnswerId: Value(userAnswerId),
       promptType: Value(promptType),
-      promptText: Value(promptText),
+      taskContext: Value(taskContext),
+      taskInstruction: Value(taskInstruction),
+      diagramDescription: diagramDescription == null && nullToAbsent
+          ? const Value.absent()
+          : Value(diagramDescription),
+      diagramFileUuid: diagramFileUuid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(diagramFileUuid),
       answerText: Value(answerText),
       duration: Value(duration),
-      score: score == null && nullToAbsent
+      bandScore: bandScore == null && nullToAbsent
           ? const Value.absent()
-          : Value(score),
-      achievementScore: achievementScore == null && nullToAbsent
+          : Value(bandScore),
+      taskScore: taskScore == null && nullToAbsent
           ? const Value.absent()
-          : Value(achievementScore),
+          : Value(taskScore),
       coherenceScore: coherenceScore == null && nullToAbsent
           ? const Value.absent()
           : Value(coherenceScore),
@@ -737,9 +929,18 @@ class WritingAnswerDetailsTableData extends DataClass
           ? const Value.absent()
           : Value(grammaticalScore),
       isGraded: Value(isGraded),
-      feedback: feedback == null && nullToAbsent
+      taskFeedback: taskFeedback == null && nullToAbsent
           ? const Value.absent()
-          : Value(feedback),
+          : Value(taskFeedback),
+      coherencekFeedback: coherencekFeedback == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coherencekFeedback),
+      lexialFeedback: lexialFeedback == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lexialFeedback),
+      grammaticalFeedback: grammaticalFeedback == null && nullToAbsent
+          ? const Value.absent()
+          : Value(grammaticalFeedback),
       updatedAt: Value(updatedAt),
     );
   }
@@ -753,16 +954,28 @@ class WritingAnswerDetailsTableData extends DataClass
       id: serializer.fromJson<int>(json['id']),
       userAnswerId: serializer.fromJson<int>(json['userAnswerId']),
       promptType: serializer.fromJson<String>(json['promptType']),
-      promptText: serializer.fromJson<String>(json['promptText']),
+      taskContext: serializer.fromJson<String>(json['taskContext']),
+      taskInstruction: serializer.fromJson<String>(json['taskInstruction']),
+      diagramDescription: serializer.fromJson<String?>(
+        json['diagramDescription'],
+      ),
+      diagramFileUuid: serializer.fromJson<String?>(json['diagramFileUuid']),
       answerText: serializer.fromJson<String>(json['answerText']),
       duration: serializer.fromJson<int>(json['duration']),
-      score: serializer.fromJson<double?>(json['score']),
-      achievementScore: serializer.fromJson<double?>(json['achievementScore']),
+      bandScore: serializer.fromJson<double?>(json['bandScore']),
+      taskScore: serializer.fromJson<double?>(json['taskScore']),
       coherenceScore: serializer.fromJson<double?>(json['coherenceScore']),
       lexialScore: serializer.fromJson<double?>(json['lexialScore']),
       grammaticalScore: serializer.fromJson<double?>(json['grammaticalScore']),
       isGraded: serializer.fromJson<bool>(json['isGraded']),
-      feedback: serializer.fromJson<String?>(json['feedback']),
+      taskFeedback: serializer.fromJson<String?>(json['taskFeedback']),
+      coherencekFeedback: serializer.fromJson<String?>(
+        json['coherencekFeedback'],
+      ),
+      lexialFeedback: serializer.fromJson<String?>(json['lexialFeedback']),
+      grammaticalFeedback: serializer.fromJson<String?>(
+        json['grammaticalFeedback'],
+      ),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
@@ -773,16 +986,22 @@ class WritingAnswerDetailsTableData extends DataClass
       'id': serializer.toJson<int>(id),
       'userAnswerId': serializer.toJson<int>(userAnswerId),
       'promptType': serializer.toJson<String>(promptType),
-      'promptText': serializer.toJson<String>(promptText),
+      'taskContext': serializer.toJson<String>(taskContext),
+      'taskInstruction': serializer.toJson<String>(taskInstruction),
+      'diagramDescription': serializer.toJson<String?>(diagramDescription),
+      'diagramFileUuid': serializer.toJson<String?>(diagramFileUuid),
       'answerText': serializer.toJson<String>(answerText),
       'duration': serializer.toJson<int>(duration),
-      'score': serializer.toJson<double?>(score),
-      'achievementScore': serializer.toJson<double?>(achievementScore),
+      'bandScore': serializer.toJson<double?>(bandScore),
+      'taskScore': serializer.toJson<double?>(taskScore),
       'coherenceScore': serializer.toJson<double?>(coherenceScore),
       'lexialScore': serializer.toJson<double?>(lexialScore),
       'grammaticalScore': serializer.toJson<double?>(grammaticalScore),
       'isGraded': serializer.toJson<bool>(isGraded),
-      'feedback': serializer.toJson<String?>(feedback),
+      'taskFeedback': serializer.toJson<String?>(taskFeedback),
+      'coherencekFeedback': serializer.toJson<String?>(coherencekFeedback),
+      'lexialFeedback': serializer.toJson<String?>(lexialFeedback),
+      'grammaticalFeedback': serializer.toJson<String?>(grammaticalFeedback),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
@@ -791,28 +1010,39 @@ class WritingAnswerDetailsTableData extends DataClass
     int? id,
     int? userAnswerId,
     String? promptType,
-    String? promptText,
+    String? taskContext,
+    String? taskInstruction,
+    Value<String?> diagramDescription = const Value.absent(),
+    Value<String?> diagramFileUuid = const Value.absent(),
     String? answerText,
     int? duration,
-    Value<double?> score = const Value.absent(),
-    Value<double?> achievementScore = const Value.absent(),
+    Value<double?> bandScore = const Value.absent(),
+    Value<double?> taskScore = const Value.absent(),
     Value<double?> coherenceScore = const Value.absent(),
     Value<double?> lexialScore = const Value.absent(),
     Value<double?> grammaticalScore = const Value.absent(),
     bool? isGraded,
-    Value<String?> feedback = const Value.absent(),
+    Value<String?> taskFeedback = const Value.absent(),
+    Value<String?> coherencekFeedback = const Value.absent(),
+    Value<String?> lexialFeedback = const Value.absent(),
+    Value<String?> grammaticalFeedback = const Value.absent(),
     DateTime? updatedAt,
   }) => WritingAnswerDetailsTableData(
     id: id ?? this.id,
     userAnswerId: userAnswerId ?? this.userAnswerId,
     promptType: promptType ?? this.promptType,
-    promptText: promptText ?? this.promptText,
+    taskContext: taskContext ?? this.taskContext,
+    taskInstruction: taskInstruction ?? this.taskInstruction,
+    diagramDescription: diagramDescription.present
+        ? diagramDescription.value
+        : this.diagramDescription,
+    diagramFileUuid: diagramFileUuid.present
+        ? diagramFileUuid.value
+        : this.diagramFileUuid,
     answerText: answerText ?? this.answerText,
     duration: duration ?? this.duration,
-    score: score.present ? score.value : this.score,
-    achievementScore: achievementScore.present
-        ? achievementScore.value
-        : this.achievementScore,
+    bandScore: bandScore.present ? bandScore.value : this.bandScore,
+    taskScore: taskScore.present ? taskScore.value : this.taskScore,
     coherenceScore: coherenceScore.present
         ? coherenceScore.value
         : this.coherenceScore,
@@ -821,7 +1051,16 @@ class WritingAnswerDetailsTableData extends DataClass
         ? grammaticalScore.value
         : this.grammaticalScore,
     isGraded: isGraded ?? this.isGraded,
-    feedback: feedback.present ? feedback.value : this.feedback,
+    taskFeedback: taskFeedback.present ? taskFeedback.value : this.taskFeedback,
+    coherencekFeedback: coherencekFeedback.present
+        ? coherencekFeedback.value
+        : this.coherencekFeedback,
+    lexialFeedback: lexialFeedback.present
+        ? lexialFeedback.value
+        : this.lexialFeedback,
+    grammaticalFeedback: grammaticalFeedback.present
+        ? grammaticalFeedback.value
+        : this.grammaticalFeedback,
     updatedAt: updatedAt ?? this.updatedAt,
   );
   WritingAnswerDetailsTableData copyWithCompanion(
@@ -835,17 +1074,24 @@ class WritingAnswerDetailsTableData extends DataClass
       promptType: data.promptType.present
           ? data.promptType.value
           : this.promptType,
-      promptText: data.promptText.present
-          ? data.promptText.value
-          : this.promptText,
+      taskContext: data.taskContext.present
+          ? data.taskContext.value
+          : this.taskContext,
+      taskInstruction: data.taskInstruction.present
+          ? data.taskInstruction.value
+          : this.taskInstruction,
+      diagramDescription: data.diagramDescription.present
+          ? data.diagramDescription.value
+          : this.diagramDescription,
+      diagramFileUuid: data.diagramFileUuid.present
+          ? data.diagramFileUuid.value
+          : this.diagramFileUuid,
       answerText: data.answerText.present
           ? data.answerText.value
           : this.answerText,
       duration: data.duration.present ? data.duration.value : this.duration,
-      score: data.score.present ? data.score.value : this.score,
-      achievementScore: data.achievementScore.present
-          ? data.achievementScore.value
-          : this.achievementScore,
+      bandScore: data.bandScore.present ? data.bandScore.value : this.bandScore,
+      taskScore: data.taskScore.present ? data.taskScore.value : this.taskScore,
       coherenceScore: data.coherenceScore.present
           ? data.coherenceScore.value
           : this.coherenceScore,
@@ -856,7 +1102,18 @@ class WritingAnswerDetailsTableData extends DataClass
           ? data.grammaticalScore.value
           : this.grammaticalScore,
       isGraded: data.isGraded.present ? data.isGraded.value : this.isGraded,
-      feedback: data.feedback.present ? data.feedback.value : this.feedback,
+      taskFeedback: data.taskFeedback.present
+          ? data.taskFeedback.value
+          : this.taskFeedback,
+      coherencekFeedback: data.coherencekFeedback.present
+          ? data.coherencekFeedback.value
+          : this.coherencekFeedback,
+      lexialFeedback: data.lexialFeedback.present
+          ? data.lexialFeedback.value
+          : this.lexialFeedback,
+      grammaticalFeedback: data.grammaticalFeedback.present
+          ? data.grammaticalFeedback.value
+          : this.grammaticalFeedback,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -867,16 +1124,22 @@ class WritingAnswerDetailsTableData extends DataClass
           ..write('id: $id, ')
           ..write('userAnswerId: $userAnswerId, ')
           ..write('promptType: $promptType, ')
-          ..write('promptText: $promptText, ')
+          ..write('taskContext: $taskContext, ')
+          ..write('taskInstruction: $taskInstruction, ')
+          ..write('diagramDescription: $diagramDescription, ')
+          ..write('diagramFileUuid: $diagramFileUuid, ')
           ..write('answerText: $answerText, ')
           ..write('duration: $duration, ')
-          ..write('score: $score, ')
-          ..write('achievementScore: $achievementScore, ')
+          ..write('bandScore: $bandScore, ')
+          ..write('taskScore: $taskScore, ')
           ..write('coherenceScore: $coherenceScore, ')
           ..write('lexialScore: $lexialScore, ')
           ..write('grammaticalScore: $grammaticalScore, ')
           ..write('isGraded: $isGraded, ')
-          ..write('feedback: $feedback, ')
+          ..write('taskFeedback: $taskFeedback, ')
+          ..write('coherencekFeedback: $coherencekFeedback, ')
+          ..write('lexialFeedback: $lexialFeedback, ')
+          ..write('grammaticalFeedback: $grammaticalFeedback, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -887,16 +1150,22 @@ class WritingAnswerDetailsTableData extends DataClass
     id,
     userAnswerId,
     promptType,
-    promptText,
+    taskContext,
+    taskInstruction,
+    diagramDescription,
+    diagramFileUuid,
     answerText,
     duration,
-    score,
-    achievementScore,
+    bandScore,
+    taskScore,
     coherenceScore,
     lexialScore,
     grammaticalScore,
     isGraded,
-    feedback,
+    taskFeedback,
+    coherencekFeedback,
+    lexialFeedback,
+    grammaticalFeedback,
     updatedAt,
   );
   @override
@@ -906,16 +1175,22 @@ class WritingAnswerDetailsTableData extends DataClass
           other.id == this.id &&
           other.userAnswerId == this.userAnswerId &&
           other.promptType == this.promptType &&
-          other.promptText == this.promptText &&
+          other.taskContext == this.taskContext &&
+          other.taskInstruction == this.taskInstruction &&
+          other.diagramDescription == this.diagramDescription &&
+          other.diagramFileUuid == this.diagramFileUuid &&
           other.answerText == this.answerText &&
           other.duration == this.duration &&
-          other.score == this.score &&
-          other.achievementScore == this.achievementScore &&
+          other.bandScore == this.bandScore &&
+          other.taskScore == this.taskScore &&
           other.coherenceScore == this.coherenceScore &&
           other.lexialScore == this.lexialScore &&
           other.grammaticalScore == this.grammaticalScore &&
           other.isGraded == this.isGraded &&
-          other.feedback == this.feedback &&
+          other.taskFeedback == this.taskFeedback &&
+          other.coherencekFeedback == this.coherencekFeedback &&
+          other.lexialFeedback == this.lexialFeedback &&
+          other.grammaticalFeedback == this.grammaticalFeedback &&
           other.updatedAt == this.updatedAt);
 }
 
@@ -924,84 +1199,115 @@ class WritingAnswerDetailsTableCompanion
   final Value<int> id;
   final Value<int> userAnswerId;
   final Value<String> promptType;
-  final Value<String> promptText;
+  final Value<String> taskContext;
+  final Value<String> taskInstruction;
+  final Value<String?> diagramDescription;
+  final Value<String?> diagramFileUuid;
   final Value<String> answerText;
   final Value<int> duration;
-  final Value<double?> score;
-  final Value<double?> achievementScore;
+  final Value<double?> bandScore;
+  final Value<double?> taskScore;
   final Value<double?> coherenceScore;
   final Value<double?> lexialScore;
   final Value<double?> grammaticalScore;
   final Value<bool> isGraded;
-  final Value<String?> feedback;
+  final Value<String?> taskFeedback;
+  final Value<String?> coherencekFeedback;
+  final Value<String?> lexialFeedback;
+  final Value<String?> grammaticalFeedback;
   final Value<DateTime> updatedAt;
   const WritingAnswerDetailsTableCompanion({
     this.id = const Value.absent(),
     this.userAnswerId = const Value.absent(),
     this.promptType = const Value.absent(),
-    this.promptText = const Value.absent(),
+    this.taskContext = const Value.absent(),
+    this.taskInstruction = const Value.absent(),
+    this.diagramDescription = const Value.absent(),
+    this.diagramFileUuid = const Value.absent(),
     this.answerText = const Value.absent(),
     this.duration = const Value.absent(),
-    this.score = const Value.absent(),
-    this.achievementScore = const Value.absent(),
+    this.bandScore = const Value.absent(),
+    this.taskScore = const Value.absent(),
     this.coherenceScore = const Value.absent(),
     this.lexialScore = const Value.absent(),
     this.grammaticalScore = const Value.absent(),
     this.isGraded = const Value.absent(),
-    this.feedback = const Value.absent(),
+    this.taskFeedback = const Value.absent(),
+    this.coherencekFeedback = const Value.absent(),
+    this.lexialFeedback = const Value.absent(),
+    this.grammaticalFeedback = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   WritingAnswerDetailsTableCompanion.insert({
     this.id = const Value.absent(),
     required int userAnswerId,
     required String promptType,
-    required String promptText,
+    required String taskContext,
+    required String taskInstruction,
+    this.diagramDescription = const Value.absent(),
+    this.diagramFileUuid = const Value.absent(),
     required String answerText,
     required int duration,
-    this.score = const Value.absent(),
-    this.achievementScore = const Value.absent(),
+    this.bandScore = const Value.absent(),
+    this.taskScore = const Value.absent(),
     this.coherenceScore = const Value.absent(),
     this.lexialScore = const Value.absent(),
     this.grammaticalScore = const Value.absent(),
-    required bool isGraded,
-    this.feedback = const Value.absent(),
+    this.isGraded = const Value.absent(),
+    this.taskFeedback = const Value.absent(),
+    this.coherencekFeedback = const Value.absent(),
+    this.lexialFeedback = const Value.absent(),
+    this.grammaticalFeedback = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : userAnswerId = Value(userAnswerId),
        promptType = Value(promptType),
-       promptText = Value(promptText),
+       taskContext = Value(taskContext),
+       taskInstruction = Value(taskInstruction),
        answerText = Value(answerText),
-       duration = Value(duration),
-       isGraded = Value(isGraded);
+       duration = Value(duration);
   static Insertable<WritingAnswerDetailsTableData> custom({
     Expression<int>? id,
     Expression<int>? userAnswerId,
     Expression<String>? promptType,
-    Expression<String>? promptText,
+    Expression<String>? taskContext,
+    Expression<String>? taskInstruction,
+    Expression<String>? diagramDescription,
+    Expression<String>? diagramFileUuid,
     Expression<String>? answerText,
     Expression<int>? duration,
-    Expression<double>? score,
-    Expression<double>? achievementScore,
+    Expression<double>? bandScore,
+    Expression<double>? taskScore,
     Expression<double>? coherenceScore,
     Expression<double>? lexialScore,
     Expression<double>? grammaticalScore,
     Expression<bool>? isGraded,
-    Expression<String>? feedback,
+    Expression<String>? taskFeedback,
+    Expression<String>? coherencekFeedback,
+    Expression<String>? lexialFeedback,
+    Expression<String>? grammaticalFeedback,
     Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (userAnswerId != null) 'user_answer_id': userAnswerId,
       if (promptType != null) 'prompt_type': promptType,
-      if (promptText != null) 'prompt_text': promptText,
+      if (taskContext != null) 'task_context': taskContext,
+      if (taskInstruction != null) 'task_instruction': taskInstruction,
+      if (diagramDescription != null) 'diagram_description': diagramDescription,
+      if (diagramFileUuid != null) 'diagram_file_uuid': diagramFileUuid,
       if (answerText != null) 'answer_text': answerText,
       if (duration != null) 'duration': duration,
-      if (score != null) 'score': score,
-      if (achievementScore != null) 'achievement_score': achievementScore,
+      if (bandScore != null) 'band_score': bandScore,
+      if (taskScore != null) 'task_score': taskScore,
       if (coherenceScore != null) 'coherence_score': coherenceScore,
       if (lexialScore != null) 'lexial_score': lexialScore,
       if (grammaticalScore != null) 'grammatical_score': grammaticalScore,
       if (isGraded != null) 'is_graded': isGraded,
-      if (feedback != null) 'feedback': feedback,
+      if (taskFeedback != null) 'task_feedback': taskFeedback,
+      if (coherencekFeedback != null) 'coherencek_feedback': coherencekFeedback,
+      if (lexialFeedback != null) 'lexial_feedback': lexialFeedback,
+      if (grammaticalFeedback != null)
+        'grammatical_feedback': grammaticalFeedback,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
@@ -1010,32 +1316,44 @@ class WritingAnswerDetailsTableCompanion
     Value<int>? id,
     Value<int>? userAnswerId,
     Value<String>? promptType,
-    Value<String>? promptText,
+    Value<String>? taskContext,
+    Value<String>? taskInstruction,
+    Value<String?>? diagramDescription,
+    Value<String?>? diagramFileUuid,
     Value<String>? answerText,
     Value<int>? duration,
-    Value<double?>? score,
-    Value<double?>? achievementScore,
+    Value<double?>? bandScore,
+    Value<double?>? taskScore,
     Value<double?>? coherenceScore,
     Value<double?>? lexialScore,
     Value<double?>? grammaticalScore,
     Value<bool>? isGraded,
-    Value<String?>? feedback,
+    Value<String?>? taskFeedback,
+    Value<String?>? coherencekFeedback,
+    Value<String?>? lexialFeedback,
+    Value<String?>? grammaticalFeedback,
     Value<DateTime>? updatedAt,
   }) {
     return WritingAnswerDetailsTableCompanion(
       id: id ?? this.id,
       userAnswerId: userAnswerId ?? this.userAnswerId,
       promptType: promptType ?? this.promptType,
-      promptText: promptText ?? this.promptText,
+      taskContext: taskContext ?? this.taskContext,
+      taskInstruction: taskInstruction ?? this.taskInstruction,
+      diagramDescription: diagramDescription ?? this.diagramDescription,
+      diagramFileUuid: diagramFileUuid ?? this.diagramFileUuid,
       answerText: answerText ?? this.answerText,
       duration: duration ?? this.duration,
-      score: score ?? this.score,
-      achievementScore: achievementScore ?? this.achievementScore,
+      bandScore: bandScore ?? this.bandScore,
+      taskScore: taskScore ?? this.taskScore,
       coherenceScore: coherenceScore ?? this.coherenceScore,
       lexialScore: lexialScore ?? this.lexialScore,
       grammaticalScore: grammaticalScore ?? this.grammaticalScore,
       isGraded: isGraded ?? this.isGraded,
-      feedback: feedback ?? this.feedback,
+      taskFeedback: taskFeedback ?? this.taskFeedback,
+      coherencekFeedback: coherencekFeedback ?? this.coherencekFeedback,
+      lexialFeedback: lexialFeedback ?? this.lexialFeedback,
+      grammaticalFeedback: grammaticalFeedback ?? this.grammaticalFeedback,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
@@ -1052,8 +1370,17 @@ class WritingAnswerDetailsTableCompanion
     if (promptType.present) {
       map['prompt_type'] = Variable<String>(promptType.value);
     }
-    if (promptText.present) {
-      map['prompt_text'] = Variable<String>(promptText.value);
+    if (taskContext.present) {
+      map['task_context'] = Variable<String>(taskContext.value);
+    }
+    if (taskInstruction.present) {
+      map['task_instruction'] = Variable<String>(taskInstruction.value);
+    }
+    if (diagramDescription.present) {
+      map['diagram_description'] = Variable<String>(diagramDescription.value);
+    }
+    if (diagramFileUuid.present) {
+      map['diagram_file_uuid'] = Variable<String>(diagramFileUuid.value);
     }
     if (answerText.present) {
       map['answer_text'] = Variable<String>(answerText.value);
@@ -1061,11 +1388,11 @@ class WritingAnswerDetailsTableCompanion
     if (duration.present) {
       map['duration'] = Variable<int>(duration.value);
     }
-    if (score.present) {
-      map['score'] = Variable<double>(score.value);
+    if (bandScore.present) {
+      map['band_score'] = Variable<double>(bandScore.value);
     }
-    if (achievementScore.present) {
-      map['achievement_score'] = Variable<double>(achievementScore.value);
+    if (taskScore.present) {
+      map['task_score'] = Variable<double>(taskScore.value);
     }
     if (coherenceScore.present) {
       map['coherence_score'] = Variable<double>(coherenceScore.value);
@@ -1079,8 +1406,17 @@ class WritingAnswerDetailsTableCompanion
     if (isGraded.present) {
       map['is_graded'] = Variable<bool>(isGraded.value);
     }
-    if (feedback.present) {
-      map['feedback'] = Variable<String>(feedback.value);
+    if (taskFeedback.present) {
+      map['task_feedback'] = Variable<String>(taskFeedback.value);
+    }
+    if (coherencekFeedback.present) {
+      map['coherencek_feedback'] = Variable<String>(coherencekFeedback.value);
+    }
+    if (lexialFeedback.present) {
+      map['lexial_feedback'] = Variable<String>(lexialFeedback.value);
+    }
+    if (grammaticalFeedback.present) {
+      map['grammatical_feedback'] = Variable<String>(grammaticalFeedback.value);
     }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
@@ -1094,16 +1430,22 @@ class WritingAnswerDetailsTableCompanion
           ..write('id: $id, ')
           ..write('userAnswerId: $userAnswerId, ')
           ..write('promptType: $promptType, ')
-          ..write('promptText: $promptText, ')
+          ..write('taskContext: $taskContext, ')
+          ..write('taskInstruction: $taskInstruction, ')
+          ..write('diagramDescription: $diagramDescription, ')
+          ..write('diagramFileUuid: $diagramFileUuid, ')
           ..write('answerText: $answerText, ')
           ..write('duration: $duration, ')
-          ..write('score: $score, ')
-          ..write('achievementScore: $achievementScore, ')
+          ..write('bandScore: $bandScore, ')
+          ..write('taskScore: $taskScore, ')
           ..write('coherenceScore: $coherenceScore, ')
           ..write('lexialScore: $lexialScore, ')
           ..write('grammaticalScore: $grammaticalScore, ')
           ..write('isGraded: $isGraded, ')
-          ..write('feedback: $feedback, ')
+          ..write('taskFeedback: $taskFeedback, ')
+          ..write('coherencekFeedback: $coherencekFeedback, ')
+          ..write('lexialFeedback: $lexialFeedback, ')
+          ..write('grammaticalFeedback: $grammaticalFeedback, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -3269,16 +3611,22 @@ typedef $$WritingAnswerDetailsTableTableCreateCompanionBuilder =
       Value<int> id,
       required int userAnswerId,
       required String promptType,
-      required String promptText,
+      required String taskContext,
+      required String taskInstruction,
+      Value<String?> diagramDescription,
+      Value<String?> diagramFileUuid,
       required String answerText,
       required int duration,
-      Value<double?> score,
-      Value<double?> achievementScore,
+      Value<double?> bandScore,
+      Value<double?> taskScore,
       Value<double?> coherenceScore,
       Value<double?> lexialScore,
       Value<double?> grammaticalScore,
-      required bool isGraded,
-      Value<String?> feedback,
+      Value<bool> isGraded,
+      Value<String?> taskFeedback,
+      Value<String?> coherencekFeedback,
+      Value<String?> lexialFeedback,
+      Value<String?> grammaticalFeedback,
       Value<DateTime> updatedAt,
     });
 typedef $$WritingAnswerDetailsTableTableUpdateCompanionBuilder =
@@ -3286,16 +3634,22 @@ typedef $$WritingAnswerDetailsTableTableUpdateCompanionBuilder =
       Value<int> id,
       Value<int> userAnswerId,
       Value<String> promptType,
-      Value<String> promptText,
+      Value<String> taskContext,
+      Value<String> taskInstruction,
+      Value<String?> diagramDescription,
+      Value<String?> diagramFileUuid,
       Value<String> answerText,
       Value<int> duration,
-      Value<double?> score,
-      Value<double?> achievementScore,
+      Value<double?> bandScore,
+      Value<double?> taskScore,
       Value<double?> coherenceScore,
       Value<double?> lexialScore,
       Value<double?> grammaticalScore,
       Value<bool> isGraded,
-      Value<String?> feedback,
+      Value<String?> taskFeedback,
+      Value<String?> coherencekFeedback,
+      Value<String?> lexialFeedback,
+      Value<String?> grammaticalFeedback,
       Value<DateTime> updatedAt,
     });
 
@@ -3354,8 +3708,23 @@ class $$WritingAnswerDetailsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get promptText => $composableBuilder(
-    column: $table.promptText,
+  ColumnFilters<String> get taskContext => $composableBuilder(
+    column: $table.taskContext,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get taskInstruction => $composableBuilder(
+    column: $table.taskInstruction,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get diagramDescription => $composableBuilder(
+    column: $table.diagramDescription,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get diagramFileUuid => $composableBuilder(
+    column: $table.diagramFileUuid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3369,13 +3738,13 @@ class $$WritingAnswerDetailsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get score => $composableBuilder(
-    column: $table.score,
+  ColumnFilters<double> get bandScore => $composableBuilder(
+    column: $table.bandScore,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get achievementScore => $composableBuilder(
-    column: $table.achievementScore,
+  ColumnFilters<double> get taskScore => $composableBuilder(
+    column: $table.taskScore,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3399,8 +3768,23 @@ class $$WritingAnswerDetailsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get feedback => $composableBuilder(
-    column: $table.feedback,
+  ColumnFilters<String> get taskFeedback => $composableBuilder(
+    column: $table.taskFeedback,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get coherencekFeedback => $composableBuilder(
+    column: $table.coherencekFeedback,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lexialFeedback => $composableBuilder(
+    column: $table.lexialFeedback,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get grammaticalFeedback => $composableBuilder(
+    column: $table.grammaticalFeedback,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3452,8 +3836,23 @@ class $$WritingAnswerDetailsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get promptText => $composableBuilder(
-    column: $table.promptText,
+  ColumnOrderings<String> get taskContext => $composableBuilder(
+    column: $table.taskContext,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get taskInstruction => $composableBuilder(
+    column: $table.taskInstruction,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get diagramDescription => $composableBuilder(
+    column: $table.diagramDescription,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get diagramFileUuid => $composableBuilder(
+    column: $table.diagramFileUuid,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3467,13 +3866,13 @@ class $$WritingAnswerDetailsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get score => $composableBuilder(
-    column: $table.score,
+  ColumnOrderings<double> get bandScore => $composableBuilder(
+    column: $table.bandScore,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get achievementScore => $composableBuilder(
-    column: $table.achievementScore,
+  ColumnOrderings<double> get taskScore => $composableBuilder(
+    column: $table.taskScore,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3497,8 +3896,23 @@ class $$WritingAnswerDetailsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get feedback => $composableBuilder(
-    column: $table.feedback,
+  ColumnOrderings<String> get taskFeedback => $composableBuilder(
+    column: $table.taskFeedback,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get coherencekFeedback => $composableBuilder(
+    column: $table.coherencekFeedback,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lexialFeedback => $composableBuilder(
+    column: $table.lexialFeedback,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get grammaticalFeedback => $composableBuilder(
+    column: $table.grammaticalFeedback,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3548,8 +3962,23 @@ class $$WritingAnswerDetailsTableTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get promptText => $composableBuilder(
-    column: $table.promptText,
+  GeneratedColumn<String> get taskContext => $composableBuilder(
+    column: $table.taskContext,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get taskInstruction => $composableBuilder(
+    column: $table.taskInstruction,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get diagramDescription => $composableBuilder(
+    column: $table.diagramDescription,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get diagramFileUuid => $composableBuilder(
+    column: $table.diagramFileUuid,
     builder: (column) => column,
   );
 
@@ -3561,13 +3990,11 @@ class $$WritingAnswerDetailsTableTableAnnotationComposer
   GeneratedColumn<int> get duration =>
       $composableBuilder(column: $table.duration, builder: (column) => column);
 
-  GeneratedColumn<double> get score =>
-      $composableBuilder(column: $table.score, builder: (column) => column);
+  GeneratedColumn<double> get bandScore =>
+      $composableBuilder(column: $table.bandScore, builder: (column) => column);
 
-  GeneratedColumn<double> get achievementScore => $composableBuilder(
-    column: $table.achievementScore,
-    builder: (column) => column,
-  );
+  GeneratedColumn<double> get taskScore =>
+      $composableBuilder(column: $table.taskScore, builder: (column) => column);
 
   GeneratedColumn<double> get coherenceScore => $composableBuilder(
     column: $table.coherenceScore,
@@ -3587,8 +4014,25 @@ class $$WritingAnswerDetailsTableTableAnnotationComposer
   GeneratedColumn<bool> get isGraded =>
       $composableBuilder(column: $table.isGraded, builder: (column) => column);
 
-  GeneratedColumn<String> get feedback =>
-      $composableBuilder(column: $table.feedback, builder: (column) => column);
+  GeneratedColumn<String> get taskFeedback => $composableBuilder(
+    column: $table.taskFeedback,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get coherencekFeedback => $composableBuilder(
+    column: $table.coherencekFeedback,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lexialFeedback => $composableBuilder(
+    column: $table.lexialFeedback,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get grammaticalFeedback => $composableBuilder(
+    column: $table.grammaticalFeedback,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -3662,31 +4106,43 @@ class $$WritingAnswerDetailsTableTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> userAnswerId = const Value.absent(),
                 Value<String> promptType = const Value.absent(),
-                Value<String> promptText = const Value.absent(),
+                Value<String> taskContext = const Value.absent(),
+                Value<String> taskInstruction = const Value.absent(),
+                Value<String?> diagramDescription = const Value.absent(),
+                Value<String?> diagramFileUuid = const Value.absent(),
                 Value<String> answerText = const Value.absent(),
                 Value<int> duration = const Value.absent(),
-                Value<double?> score = const Value.absent(),
-                Value<double?> achievementScore = const Value.absent(),
+                Value<double?> bandScore = const Value.absent(),
+                Value<double?> taskScore = const Value.absent(),
                 Value<double?> coherenceScore = const Value.absent(),
                 Value<double?> lexialScore = const Value.absent(),
                 Value<double?> grammaticalScore = const Value.absent(),
                 Value<bool> isGraded = const Value.absent(),
-                Value<String?> feedback = const Value.absent(),
+                Value<String?> taskFeedback = const Value.absent(),
+                Value<String?> coherencekFeedback = const Value.absent(),
+                Value<String?> lexialFeedback = const Value.absent(),
+                Value<String?> grammaticalFeedback = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => WritingAnswerDetailsTableCompanion(
                 id: id,
                 userAnswerId: userAnswerId,
                 promptType: promptType,
-                promptText: promptText,
+                taskContext: taskContext,
+                taskInstruction: taskInstruction,
+                diagramDescription: diagramDescription,
+                diagramFileUuid: diagramFileUuid,
                 answerText: answerText,
                 duration: duration,
-                score: score,
-                achievementScore: achievementScore,
+                bandScore: bandScore,
+                taskScore: taskScore,
                 coherenceScore: coherenceScore,
                 lexialScore: lexialScore,
                 grammaticalScore: grammaticalScore,
                 isGraded: isGraded,
-                feedback: feedback,
+                taskFeedback: taskFeedback,
+                coherencekFeedback: coherencekFeedback,
+                lexialFeedback: lexialFeedback,
+                grammaticalFeedback: grammaticalFeedback,
                 updatedAt: updatedAt,
               ),
           createCompanionCallback:
@@ -3694,31 +4150,43 @@ class $$WritingAnswerDetailsTableTableTableManager
                 Value<int> id = const Value.absent(),
                 required int userAnswerId,
                 required String promptType,
-                required String promptText,
+                required String taskContext,
+                required String taskInstruction,
+                Value<String?> diagramDescription = const Value.absent(),
+                Value<String?> diagramFileUuid = const Value.absent(),
                 required String answerText,
                 required int duration,
-                Value<double?> score = const Value.absent(),
-                Value<double?> achievementScore = const Value.absent(),
+                Value<double?> bandScore = const Value.absent(),
+                Value<double?> taskScore = const Value.absent(),
                 Value<double?> coherenceScore = const Value.absent(),
                 Value<double?> lexialScore = const Value.absent(),
                 Value<double?> grammaticalScore = const Value.absent(),
-                required bool isGraded,
-                Value<String?> feedback = const Value.absent(),
+                Value<bool> isGraded = const Value.absent(),
+                Value<String?> taskFeedback = const Value.absent(),
+                Value<String?> coherencekFeedback = const Value.absent(),
+                Value<String?> lexialFeedback = const Value.absent(),
+                Value<String?> grammaticalFeedback = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => WritingAnswerDetailsTableCompanion.insert(
                 id: id,
                 userAnswerId: userAnswerId,
                 promptType: promptType,
-                promptText: promptText,
+                taskContext: taskContext,
+                taskInstruction: taskInstruction,
+                diagramDescription: diagramDescription,
+                diagramFileUuid: diagramFileUuid,
                 answerText: answerText,
                 duration: duration,
-                score: score,
-                achievementScore: achievementScore,
+                bandScore: bandScore,
+                taskScore: taskScore,
                 coherenceScore: coherenceScore,
                 lexialScore: lexialScore,
                 grammaticalScore: grammaticalScore,
                 isGraded: isGraded,
-                feedback: feedback,
+                taskFeedback: taskFeedback,
+                coherencekFeedback: coherencekFeedback,
+                lexialFeedback: lexialFeedback,
+                grammaticalFeedback: grammaticalFeedback,
                 updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0

@@ -2,7 +2,7 @@ from random import choice
 import math
 import time
 
-from flask import Flask, request, jsonify, json
+from flask import Flask, request, jsonify
 from decorators import auth_required
 from dotenv import load_dotenv
 from exceptions import AppException
@@ -218,31 +218,31 @@ def writing_task1_evaluate():
         raise AppException("failed to evaluate answer: {}".format(json))
 
     resp_json = {
-        "achievement_score": evaluation["achievement_score"],
-        "coherence_score": evaluation["coherence_score"],
-        "grammatical_score": evaluation["grammatical_score"],
-        "lexial_score": evaluation["lexial_score"],
-        "overall_score": _calculate_overall_score(
-            evaluation["achievement_score"],
-            evaluation["coherence_score"],
-            evaluation["grammatical_score"],
-            evaluation["lexial_score"],
+        "achievement_score": evaluation.achievement_score,
+        "coherence_score": evaluation.coherence_score,
+        "grammatical_score": evaluation.grammatical_score,
+        "lexical_score": evaluation.lexical_score,
+        "band_score": _calculate_band_score(
+            evaluation.achievement_score,
+            evaluation.coherence_score,
+            evaluation.grammatical_score,
+            evaluation.lexical_score,
         ),
         "achievement_feedback": [
-            evaluation["achievement_feedback1"],
-            evaluation["achievement_feedback2"],
+            evaluation.achievement_feedback1,
+            evaluation.achievement_feedback2,
         ],
         "coherence_feedback": [
-            evaluation["coherence_feedback1"],
-            evaluation["coherence_feedback2"],
+            evaluation.coherence_feedback1,
+            evaluation.coherence_feedback2,
         ],
         "grammatical_feedback": [
-            evaluation["grammatical_feedback1"],
-            evaluation["grammatical_feedback2"],
+            evaluation.grammatical_feedback1,
+            evaluation.grammatical_feedback2,
         ],
         "lexical_feedback": [
-            evaluation["lexical_feedback1"],
-            evaluation["lexical_feedback2"],
+            evaluation.lexical_feedback1,
+            evaluation.lexical_feedback2,
         ],
     }
 
@@ -270,12 +270,12 @@ def writing_task2_evaluate():
         "response_score": evaluation["response_score"],
         "coherence_score": evaluation["coherence_score"],
         "grammatical_score": evaluation["grammatical_score"],
-        "lexial_score": evaluation["lexial_score"],
-        "overall_score": _calculate_overall_score(
+        "lexical_score": evaluation["lexical_score"],
+        "band_score": _calculate_band_score(
             evaluation["response_score"],
             evaluation["coherence_score"],
             evaluation["grammatical_score"],
-            evaluation["lexial_score"],
+            evaluation["lexical_score"],
         ),
         "response_feedback": [
             evaluation["response_feedback1"],
@@ -301,16 +301,23 @@ def writing_task2_evaluate():
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Exception handler to return error information in JSON format."""
-    response = e.get_response()
-    response.data = json.dumps(
+    # response = e.get_response()
+    # response.data = json.dumps(
+    # {
+    # "code": e.code,
+    # "name": e.name,
+    # "description": e.description,
+    # }
+    # )
+    # response.content_type = "application/json"
+    # return response
+    return jsonify(
         {
             "code": e.code,
             "name": e.name,
             "description": e.description,
         }
     )
-    response.content_type = "application/json"
-    return response
 
 
 def _validate_parameters(json: dict, names: str | list[str]):
@@ -370,15 +377,13 @@ def _speaking_generate_question(part_no: int, json: any):
     return jsonify(resp_json)
 
 
-def _calculate_overall_score(
-    s1: float, s2: float, s3: float, s4: float
-) -> float:
-    """Returns IELTS overall score with band scores."""
+def _calculate_band_score(s1: float, s2: float, s3: float, s4: float) -> float:
+    """Returns IELTS band score with band scores."""
     avg = (s1 + s2 + s3 + s4) / 4
-    frac, overall = math.modf(avg)
+    frac, score = math.modf(avg)
     if 0.25 <= frac <= 0.75:
-        overall += 1.0
+        score += 1.0
     else:
-        overall += 0.5
+        score += 0.5
 
-    return overall
+    return score

@@ -1,0 +1,51 @@
+import 'package:ielts_ai_trainer/features/writing/domain/writing_prompt_vo.dart';
+import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
+import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
+import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
+
+/// User's answer entity for the Writing Tasks.
+class WritingAnswer {
+  final int? id, detailId;
+  final TestTask testTask;
+  final WritingPromptType promptType;
+  final String answerText;
+  final WritingPromptVo writingPrompt;
+  final List<PromptTopic> topics;
+  final int duration;
+  final DateTime createdAt;
+
+  bool isGraded;
+  DateTime updatedAt;
+  double? taskScore;
+  double? coherenceScore;
+  double? lexialScore;
+  double? grammaticalScore;
+  double? bandScore;
+  String? taskFeedback;
+  String? coherenceFeedback;
+  String? lexialFeedback;
+  String? grammaticalFeedback;
+
+  WritingAnswer({
+    this.id,
+    this.detailId,
+    required this.testTask,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.promptType,
+    required this.writingPrompt,
+    required this.topics,
+    required this.answerText,
+    required this.duration,
+    required this.isGraded,
+    this.taskScore,
+    this.coherenceScore,
+    this.lexialScore,
+    this.grammaticalScore,
+    this.bandScore,
+    this.taskFeedback,
+    this.coherenceFeedback,
+    this.lexialFeedback,
+    this.grammaticalFeedback,
+  });
+}

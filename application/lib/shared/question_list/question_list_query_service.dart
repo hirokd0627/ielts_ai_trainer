@@ -88,7 +88,7 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
       final wordWhereClauses = <Expression<bool>>[];
       if (containsWriting) {
         wordWhereClauses.add(
-          writingAnswerDetailsTable.promptText.contains(word),
+          writingAnswerDetailsTable.taskContext.contains(word),
         );
       }
       if (containsSpeaking) {
@@ -139,7 +139,7 @@ class QuestionListQueryService extends DatabaseAccessor<AppDatabase>
 
       late String promptText;
       if (ua.testTask.isWriting) {
-        promptText = wa?.promptText ?? '';
+        promptText = wa?.taskContext ?? '';
       } else if (ua.testTask.isSpeaking) {
         promptText = ut?.message ?? '';
       }

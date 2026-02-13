@@ -21,7 +21,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
@@ -67,18 +67,28 @@ class WritingAnswerDetailsTable extends Table {
 
   IntColumn get id => integer().autoIncrement()();
   IntColumn get userAnswerId => integer().references(UserAnswersTable, #id)();
+  // TODO:
+  // TextColumn get promptType => text().withLength(min: 1)();
   TextColumn get promptType => text().withLength(min: 1)();
-  TextColumn get promptText => text().withLength(min: 1)();
+  // TODO:
+  // TextColumn get promptText => text().withLength(min: 1)();
+  TextColumn get taskContext => text().withLength(min: 1)();
+  TextColumn get taskInstruction => text().withLength(min: 1)();
+  TextColumn get diagramDescription => text().nullable()();
+  TextColumn get diagramFileUuid => text().nullable()();
   TextColumn get answerText => text().withLength(min: 1)();
   IntColumn get duration => integer()();
   // score and feedback are nullable because they will be updated after evaluation.
-  RealColumn get score => real().nullable()();
-  RealColumn get achievementScore => real().nullable()();
+  RealColumn get bandScore => real().nullable()();
+  RealColumn get taskScore => real().nullable()();
   RealColumn get coherenceScore => real().nullable()();
   RealColumn get lexialScore => real().nullable()();
   RealColumn get grammaticalScore => real().nullable()();
-  BoolColumn get isGraded => boolean()();
-  TextColumn get feedback => text().nullable()();
+  BoolColumn get isGraded => boolean().withDefault(Constant(false))();
+  TextColumn get taskFeedback => text().nullable()();
+  TextColumn get coherencekFeedback => text().nullable()();
+  TextColumn get lexialFeedback => text().nullable()();
+  TextColumn get grammaticalFeedback => text().nullable()();
   // creation date is the same as the parent UserAnswer
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }

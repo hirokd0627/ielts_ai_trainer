@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/app/router_extra.dart';
 import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
+import 'package:ielts_ai_trainer/features/writing/domain/writing_prompt_vo.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_question_generator_form_controller.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
@@ -20,7 +23,8 @@ class WritingQuestionGeneratorForm extends StatefulWidget {
   final WritingPromptType? promptType;
 
   /// The prompt text to display initially, if set.
-  final String? promptText;
+  // final String? promptText;
+  final WritingPromptVo? writingPrompt;
 
   /// The topics to display initially, if set.
   final List<String>? topics;
@@ -28,7 +32,7 @@ class WritingQuestionGeneratorForm extends StatefulWidget {
   const WritingQuestionGeneratorForm({
     super.key,
     required this.testTask,
-    this.promptText,
+    this.writingPrompt,
     this.topics,
     this.promptType,
   });
@@ -138,7 +142,7 @@ class _WritingQuestionGeneratorFormState
     _ctrl = WritingQuestionGeneratorFormController(
       testTask: widget.testTask,
       apiSrv: WritingApiService(),
-      promptText: widget.promptText,
+      writingPrompt: widget.writingPrompt,
       topics: widget.topics,
       promptType: widget.promptType,
     );
@@ -218,7 +222,7 @@ class _WritingQuestionGeneratorFormState
     context.go(
       loc,
       extra: RouterExtra({
-        'promptText': _ctrl.propmtText,
+        'writingPrompt': _ctrl.writingPrompt,
         'topics': _ctrl.usedTopics,
         'promptType': _ctrl.promptType!,
       }),
@@ -362,15 +366,21 @@ class _WritingQuestionGeneratorFormState
                   : (_ctrl.isPromptTextGenerating)
                   ? Text('generating...')
                   : Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start, // Left align
                       children: [
-                        if (widget.testTask == TestTask.writingTask1) ...[
-                          Text(_ctrl.diagramIntroduction),
-                          if (_ctrl.diagramBytes.isNotEmpty)
-                            Image.memory(_ctrl.diagramBytes),
-                          Text(_ctrl.propmtText),
+                        if (widget.testTask == TestTask.writingTask1 &&
+                            _ctrl.writingPrompt != null) ...[
+                          Text(_ctrl.writingPrompt!.taskContext),
+                          if (_ctrl.diagramPath.isNotEmpty)
+                            Image.file(File(_ctrl.diagramPath)),
+                          Text(_ctrl.writingPrompt!.taskInstruction),
                         ],
-                        if (widget.testTask == TestTask.writingTask2) ...[
-                          Text(_ctrl.propmtText),
+                        if (widget.testTask == TestTask.writingTask2 &&
+                            _ctrl.writingPrompt != null) ...[
+                          Text(
+                            "${_ctrl.writingPrompt!.taskContext} ${_ctrl.writingPrompt!.taskInstruction}",
+                          ),
                         ],
                       ],
                     ),

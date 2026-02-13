@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
@@ -58,7 +59,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
 
     // Grades the answer if it is not graded.
     if (!_ctrl.isGraded) {
-      _ctrl.grade();
+      _ctrl.evaluateAnswer();
     }
   }
 
@@ -123,8 +124,8 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                                   flex: 3,
                                   child: _scoreCellBuilder(
                                     context,
-                                    'Overall',
-                                    _ctrl.overallScore,
+                                    'Band Score',
+                                    _ctrl.bandScore,
                                     false,
                                   ),
                                 ),
@@ -141,7 +142,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                                               child: _scoreCellBuilder(
                                                 context,
                                                 'Achievement',
-                                                _ctrl.achievementScore,
+                                                _ctrl.taskScore,
                                                 true,
                                               ),
                                             ),
@@ -194,31 +195,80 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Question
-                        HeadlineText("Question"),
-                        SizedBox(height: 4),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(minHeight: 60),
-                          child: Text(_ctrl.promptText),
-                        ),
-                        SizedBox(height: 20),
-                        // Answer
-                        HeadlineText("Answer"),
-                        SizedBox(height: 4),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(minHeight: 60),
-                          child: Text(_ctrl.answerText),
-                        ),
-                        SizedBox(height: 20),
-                        // Feedback
-                        HeadlineText("Feedback"),
-                        SizedBox(height: 4),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(minHeight: 60),
-                          child: !_ctrl.isGraded
-                              ? Text('grading...')
-                              : Text(_ctrl.feedbackText),
-                        ),
+                        if (widget.testTask == TestTask.writingTask1) ...[
+                          // Question
+                          HeadlineText("Question"),
+                          SizedBox(height: 4),
+                          ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: 60),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(_ctrl.taskContext),
+                                Image.file(File(_ctrl.diagramPath)),
+                                Text(_ctrl.taskInstruction),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          // Answer
+                          HeadlineText("Answer"),
+                          SizedBox(height: 4),
+                          ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: 60),
+                            child: Text(_ctrl.answerText),
+                          ),
+                          SizedBox(height: 20),
+                          // Feedback
+                          HeadlineText("Feedback"),
+                          SizedBox(height: 4),
+                          ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: 60),
+                            child: !_ctrl.isGraded
+                                ? Text('grading...')
+                                : Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Task Achievement'),
+                                      Text(_ctrl.taskFeedback),
+                                      Text('Coherence'),
+                                      Text(_ctrl.coherenceFeedback),
+                                      Text('Lexial'),
+                                      Text(_ctrl.lexialFeedback),
+                                      Text('Grammatical'),
+                                      Text(_ctrl.grammaticalFeedback),
+                                    ],
+                                  ),
+                          ),
+                        ],
+                        if (widget.testTask == TestTask.writingTask2) ...[
+                          // Question
+                          HeadlineText("Question"),
+                          SizedBox(height: 4),
+                          ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: 60),
+                            child: Text(_ctrl.taskContext),
+                          ),
+                          SizedBox(height: 20),
+                          // Answer
+                          HeadlineText("Answer"),
+                          SizedBox(height: 4),
+                          ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: 60),
+                            child: Text(_ctrl.answerText),
+                          ),
+                          SizedBox(height: 20),
+                          // Feedback
+                          HeadlineText("Feedback"),
+                          SizedBox(height: 4),
+                          ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: 60),
+                            child: !_ctrl.isGraded
+                                ? Text('grading...')
+                                : Text(_ctrl.taskFeedback),
+                          ),
+                        ],
 
                         SizedBox(height: AppStyles.screenBottomPadding),
                       ],

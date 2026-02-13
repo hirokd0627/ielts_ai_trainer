@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
+import 'package:ielts_ai_trainer/features/writing/domain/writing_prompt_vo.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_question_generator_form.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
@@ -18,7 +19,8 @@ class WritingQuestionGeneratorScreen extends StatefulWidget {
   final WritingPromptType? promptType;
 
   /// The prompt text to display initially, if set.
-  final String? promptText;
+  // final String? promptText;
+  final WritingPromptVo? writingPrompt;
 
   /// The topics to display initially, if set.
   final List<String>? topics;
@@ -26,7 +28,7 @@ class WritingQuestionGeneratorScreen extends StatefulWidget {
   const WritingQuestionGeneratorScreen({
     super.key,
     required this.testTask,
-    this.promptText,
+    this.writingPrompt,
     this.topics,
     this.promptType,
   });
@@ -86,7 +88,7 @@ class _WritingQuestionGeneratorScreenState
                 // Question Generator Form
                 WritingQuestionGeneratorForm(
                   testTask: widget.testTask,
-                  promptText: widget.promptText,
+                  writingPrompt: widget.writingPrompt,
                   topics: widget.topics,
                   promptType: widget.promptType,
                 ),

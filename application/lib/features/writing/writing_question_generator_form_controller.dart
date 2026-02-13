@@ -1,7 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
+import 'package:ielts_ai_trainer/features/writing/domain/writing_prompt_vo.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
+import 'package:ielts_ai_trainer/features/writing/writing_diagram_service.dart';
 import 'package:ielts_ai_trainer/shared/api/writing_prompt_type_api_extension.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
@@ -17,6 +17,8 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
   /// API service to generate prompt text
   final WritingApiService _apiSrv = WritingApiService();
 
+  final WritingDiagramService _diagramSrv = WritingDiagramService();
+
   /// The task type.
   final TestTask _testTask;
 
@@ -24,13 +26,12 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
   WritingPromptType? _promptType;
 
   /// Generated prompt text.
-  String _promptText = '';
+  // String _promptText = '';
+  WritingPromptVo? _writingPrompt;
 
-  /// Introduction sentence for the diagram.
-  String _diagramIntroduction = '';
-
-  /// Diagram for prompt.
-  Uint8List _diagramBytes = Uint8List(0);
+  // / Diagram for prompt.
+  // Uint8List _diagramBytes = Uint8List(0);
+  String _diagramPath = '';
 
   /// Processing state of prompt text generation.
   /// 0: not generated, 1: generating, 2: generated
@@ -39,15 +40,18 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
   WritingQuestionGeneratorFormController({
     required WritingApiService apiSrv,
     required TestTask testTask,
-    String? promptText,
+    WritingPromptVo? writingPrompt,
     List<String>? topics,
     WritingPromptType? promptType,
   }) : _topics = topics != null ? List.from(topics) : [],
        _usedTopics = topics != null ? List.from(topics) : [],
        _promptType = promptType,
        _testTask = testTask {
-    _promptText = promptText ?? '';
-    _promptTextState = (promptText != null) && promptText.isNotEmpty ? 2 : 0;
+    _writingPrompt = writingPrompt;
+    _promptTextState =
+        (_writingPrompt != null) && _writingPrompt!.promptText.isNotEmpty
+        ? 2
+        : 0;
   }
 
   WritingPromptType? get promptType => _promptType;
@@ -56,11 +60,13 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
   List<String> get usedTopics => _usedTopics;
 
-  String get propmtText => _promptText;
+  // String get propmtText => _promptText;
+  WritingPromptVo? get writingPrompt => _writingPrompt;
 
-  String get diagramIntroduction => _diagramIntroduction;
+  // String get diagramIntroduction => _diagramIntroduction;
 
-  Uint8List get diagramBytes => _diagramBytes;
+  // Uint8List get diagramBytes => _diagramBytes;
+  String get diagramPath => _diagramPath;
 
   /// Whether the generate button is enabled.
   bool get isGenerateButtonEnabled {
@@ -69,7 +75,10 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
   /// Whether the start button is enabled;
   bool get isStartButtonEnabled {
-    return _promptText.isNotEmpty && isPromptTextGenerated;
+    // return _writingPrompt?.promptText.isNotEmpty && isPromptTextGenerated;
+    return _writingPrompt == null
+        ? false
+        : _writingPrompt!.promptText.isNotEmpty && isPromptTextGenerated;
   }
 
   /// Whether the prompt text has not been generated yet.
@@ -133,15 +142,23 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
         _promptType!.diagramType,
         targetTopics,
       );
-      _promptText = prompt.instruction;
-      _diagramIntroduction = prompt.introduction;
-      _diagramBytes = base64Decode(prompt.diagramData); // base64 to bytes
+      final uuid = await _diagramSrv.writeTempImage(prompt.diagramData);
+      _writingPrompt = WritingPromptVo(
+        taskContext: prompt.introduction,
+        taskInstruction: prompt.instruction,
+        diagramDescription: prompt.diagramDescription,
+        diagramUuid: uuid,
+      );
+      _diagramPath = await _diagramSrv.getTempFilePath(uuid);
     } else {
       final prompt = await _apiSrv.generateTask2Prompt(
         _promptType!.essayType,
         targetTopics,
       );
-      _promptText = "${prompt.statement}\n\n${prompt.instruction}";
+      _writingPrompt = WritingPromptVo(
+        taskContext: prompt.statement,
+        taskInstruction: prompt.instruction,
+      );
     }
 
     // Store topics to show on screen.
