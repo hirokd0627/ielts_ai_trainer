@@ -67,11 +67,7 @@ class WritingAnswerDetailsTable extends Table {
 
   IntColumn get id => integer().autoIncrement()();
   IntColumn get userAnswerId => integer().references(UserAnswersTable, #id)();
-  // TODO:
-  // TextColumn get promptType => text().withLength(min: 1)();
   TextColumn get promptType => text().withLength(min: 1)();
-  // TODO:
-  // TextColumn get promptText => text().withLength(min: 1)();
   TextColumn get taskContext => text().withLength(min: 1)();
   TextColumn get taskInstruction => text().withLength(min: 1)();
   TextColumn get diagramDescription => text().nullable()();

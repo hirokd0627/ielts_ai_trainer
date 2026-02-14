@@ -391,8 +391,8 @@ Constraints on the given answer:
             coherence_score: float
             grammatical_score: float
             lexical_score: float
-            respose_feedback1: str
-            respose_feedback2: str
+            response_feedback1: str
+            response_feedback2: str
             coherence_feedback1: str
             coherence_feedback2: str
             grammatical_feedback1: str

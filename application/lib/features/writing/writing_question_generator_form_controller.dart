@@ -25,12 +25,10 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
   /// Selected prompt type.
   WritingPromptType? _promptType;
 
-  /// Generated prompt text.
-  // String _promptText = '';
+  /// Generated prompt components.
   WritingPromptVo? _writingPrompt;
 
-  // / Diagram for prompt.
-  // Uint8List _diagramBytes = Uint8List(0);
+  /// Diagram file path.
   String _diagramPath = '';
 
   /// Processing state of prompt text generation.
@@ -60,12 +58,8 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
   List<String> get usedTopics => _usedTopics;
 
-  // String get propmtText => _promptText;
   WritingPromptVo? get writingPrompt => _writingPrompt;
 
-  // String get diagramIntroduction => _diagramIntroduction;
-
-  // Uint8List get diagramBytes => _diagramBytes;
   String get diagramPath => _diagramPath;
 
   /// Whether the generate button is enabled.
@@ -149,6 +143,9 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
         diagramDescription: prompt.diagramDescription,
         diagramUuid: uuid,
       );
+      if (_diagramPath.isNotEmpty) {
+        await _diagramSrv.removeTmpFiles();
+      }
       _diagramPath = await _diagramSrv.getTempFilePath(uuid);
     } else {
       final prompt = await _apiSrv.generateTask2Prompt(

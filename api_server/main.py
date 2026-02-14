@@ -267,31 +267,31 @@ def writing_task2_evaluate():
         raise AppException("failed to evaluate answer: {}".format(json))
 
     resp_json = {
-        "response_score": evaluation["response_score"],
-        "coherence_score": evaluation["coherence_score"],
-        "grammatical_score": evaluation["grammatical_score"],
-        "lexical_score": evaluation["lexical_score"],
+        "response_score": evaluation.response_score,
+        "coherence_score": evaluation.coherence_score,
+        "grammatical_score": evaluation.grammatical_score,
+        "lexical_score": evaluation.lexical_score,
         "band_score": _calculate_band_score(
-            evaluation["response_score"],
-            evaluation["coherence_score"],
-            evaluation["grammatical_score"],
-            evaluation["lexical_score"],
+            evaluation.response_score,
+            evaluation.coherence_score,
+            evaluation.grammatical_score,
+            evaluation.lexical_score,
         ),
         "response_feedback": [
-            evaluation["response_feedback1"],
-            evaluation["response_feedback2"],
+            evaluation.response_feedback1,
+            evaluation.response_feedback2,
         ],
         "coherence_feedback": [
-            evaluation["coherence_feedback1"],
-            evaluation["coherence_feedback2"],
+            evaluation.coherence_feedback1,
+            evaluation.coherence_feedback2,
         ],
         "grammatical_feedback": [
-            evaluation["grammatical_feedback1"],
-            evaluation["grammatical_feedback2"],
+            evaluation.grammatical_feedback1,
+            evaluation.grammatical_feedback2,
         ],
         "lexical_feedback": [
-            evaluation["lexical_feedback1"],
-            evaluation["lexical_feedback2"],
+            evaluation.lexical_feedback1,
+            evaluation.lexical_feedback2,
         ],
     }
 
@@ -301,20 +301,8 @@ def writing_task2_evaluate():
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Exception handler to return error information in JSON format."""
-    # response = e.get_response()
-    # response.data = json.dumps(
-    # {
-    # "code": e.code,
-    # "name": e.name,
-    # "description": e.description,
-    # }
-    # )
-    # response.content_type = "application/json"
-    # return response
     return jsonify(
         {
-            "code": e.code,
-            "name": e.name,
             "description": e.description,
         }
     )
@@ -378,12 +366,12 @@ def _speaking_generate_question(part_no: int, json: any):
 
 
 def _calculate_band_score(s1: float, s2: float, s3: float, s4: float) -> float:
-    """Returns IELTS band score with band scores."""
+    """Returns IELTS band score based on four criteria scores."""
     avg = (s1 + s2 + s3 + s4) / 4
     frac, score = math.modf(avg)
-    if 0.25 <= frac <= 0.75:
+    if frac >= 0.75:
         score += 1.0
-    else:
+    elif frac >= 0.25:
         score += 0.5
 
     return score

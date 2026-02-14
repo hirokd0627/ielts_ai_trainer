@@ -1,3 +1,9 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'writing_prompt_vo.freezed.dart';
+
+/// Value object that represents Writing prompt components.
+@freezed
 class WritingPromptVo {
   final String taskContext, taskInstruction;
   String? diagramDescription;

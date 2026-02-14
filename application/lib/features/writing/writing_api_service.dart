@@ -1,8 +1,6 @@
 import 'dart:convert';
 
-// import 'package:faker/faker.dart';
 import 'package:ielts_ai_trainer/shared/api/common_api_service.dart';
-// import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/http/api_requester.dart';
 
@@ -39,28 +37,6 @@ class WritingApiService with ApiRequester, TopicApiService {
       jsonDecode(resp.body) as Map<String, dynamic>,
     );
   }
-
-  // /// Grades the given writing answer.
-  // Future<WritingGradingResponse> gradeAnswer({
-  //   required TestTask testTask,
-  //   required WritingPromptType promptType,
-  //   required String promptText,
-  //   required String answerText,
-  // }) async {
-  //   // TODO: dummy data
-  //   await Future.delayed(const Duration(seconds: 2));
-  //   return WritingGradingResponse(
-  //     achievement:
-  //         (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-  //     coherence:
-  //         (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-  //     lexial: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-  //     grammatical:
-  //         (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-  //     score: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-  //     feedback: faker.lorem.sentences(3).join("\n"),
-  //   );
-  // }
 
   /// Evaluate the given answer for Writing Task 1.
   Future<WritingEvaluationResponse> evaluateTask1Answer({
@@ -184,25 +160,6 @@ class WritingTask2Response {
   }
 }
 
-/// Response of the result of grading a writing answer.
-class WritingGradingResponse {
-  final double achievement;
-  final double coherence;
-  final double lexial;
-  final double grammatical;
-  final double score;
-  final String feedback;
-
-  const WritingGradingResponse({
-    required this.achievement,
-    required this.coherence,
-    required this.lexial,
-    required this.grammatical,
-    required this.score,
-    required this.feedback,
-  });
-}
-
 /// Response of evaluateTask1Answer.
 class WritingEvaluationResponse {
   final double taskScore,
@@ -227,30 +184,44 @@ class WritingEvaluationResponse {
     required this.lexicalFeedback,
   });
 
+  /// Creaates WritingEvaluationResponse with the response of Task 1.
   factory WritingEvaluationResponse.fromTask1Json(Map<String, dynamic> json) {
-    if (!json.containsKey("achievement_score")) {
-      throw Exception('Missing required key: achievement_score');
+    for (var name in ["achievement_score", "achievement_feedback"]) {
+      if (!json.containsKey(name)) {
+        throw Exception('Missing required key: $name');
+      }
     }
-    return _fromJson(json["achievement_score"], json);
+    return _fromJson(
+      json["achievement_score"],
+      List<String>.from(json["achievement_feedback"]),
+      json,
+    );
   }
 
+  /// Creaates WritingEvaluationResponse with the response of Task 2.
   factory WritingEvaluationResponse.fromTask2Json(Map<String, dynamic> json) {
-    if (!json.containsKey("response_score")) {
-      throw Exception('Missing required key: response_score');
+    for (var name in ["response_score", "response_feedback"]) {
+      if (!json.containsKey(name)) {
+        throw Exception('Missing required key: $name');
+      }
     }
-    return _fromJson(json["response_score"], json);
+    return _fromJson(
+      json["response_score"],
+      List<String>.from(json["response_feedback"]),
+      json,
+    );
   }
 
   static WritingEvaluationResponse _fromJson(
     double taskScore,
+    List<String> taskFeedback,
     Map<String, dynamic> json,
   ) {
     for (var name in [
       "coherence_score",
       "grammatical_score",
       "lexical_score",
-      "overall_score",
-      "achievement_feedback",
+      "band_score",
       "coherence_feedback",
       "grammatical_feedback",
       "lexical_feedback",
@@ -266,7 +237,7 @@ class WritingEvaluationResponse {
       grammaticalScore: json["grammatical_score"],
       lexialScore: json["lexical_score"],
       bandScore: json["band_score"],
-      taskFeedback: List<String>.from(json["achievement_feedback"]),
+      taskFeedback: taskFeedback,
       coherenceFeedback: List<String>.from(json["coherence_feedback"]),
       grammaticalFeedback: List<String>.from(json["grammatical_feedback"]),
       lexicalFeedback: List<String>.from(json["lexical_feedback"]),

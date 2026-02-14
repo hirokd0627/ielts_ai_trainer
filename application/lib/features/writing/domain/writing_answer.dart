@@ -6,6 +6,7 @@ import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 
 part 'writing_answer.freezed.dart';
 
+/// User's answer entity for the Writing Tasks.
 @freezed
 abstract class WritingAnswer with _$WritingAnswer {
   const WritingAnswer._();

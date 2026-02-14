@@ -10,8 +10,7 @@ class WritingTask2QuestionGeneratorScreen extends StatefulWidget {
   /// The prompt type to display initially, if set.
   final WritingPromptType? promptType;
 
-  /// The prompt text to display initially, if set.
-  // final String? promptText;
+  /// The prompt components to display initially, if set.
   final WritingPromptVo? writingPrompt;
 
   /// The topics to display initially, if set.
@@ -36,7 +35,6 @@ class _WritingTask2QuestionGeneratorScreenState
   Widget build(BuildContext context) {
     return BaseScreenScaffold(
       body: WritingQuestionGeneratorScreen(
-        // onTappedStart: _onTappedStart,
         testTask: TestTask.writingTask2,
         promptType: widget.promptType,
         writingPrompt: widget.writingPrompt,
