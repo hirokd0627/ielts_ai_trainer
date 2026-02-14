@@ -455,6 +455,248 @@ lexical_feedback2: {}
 
         return msg
 
+    def evaluate_speaking_part1_answer(
+        self,
+        script: list[dict[str, str]],
+    ) -> dict:
+        """Evaluate Speaking Part 1 answer.
+        For details, refer to _evaluate_speaking_chat_answer.
+        """
+        return self._evaluate_speaking_chat_answer(part_no=1, script=script)
+
+    def evaluate_speaking_part3_answer(
+        self,
+        script: list[dict[str, str]],
+    ) -> dict:
+        """Evaluate Speaking Part 3 answer.
+        For details, refer to _evaluate_speaking_chat_answer.
+        """
+        return self._evaluate_speaking_chat_answer(part_no=3, script=script)
+
+    def evaluate_speaking_part2_answer(
+        self,
+        prompt: str,
+        speech: str,
+    ) -> dict:
+        """Evaluate Speaking Part 2 answer.
+
+        Args:
+            prompt: Speaking Part 2 prompt.
+            speech: User's answer.
+
+        Returns:
+            Evaluation components:
+                - coherence_score (float): Coherence score.
+                - lexical_score (float): Lexical Resource score.
+                - grammatical_score (float): Grammatical Range and Accuracy score.
+                - coherence_feedback1 (str): Positive feedback for Coherence.
+                - coherence_feedback2 (str): Areas for improvement for Coherence.
+                - grammatical_feedback1 (str): Positive feedback for Grammatical Range and Accuracy.
+                - grammatical_feedback2 (str): Areas for improvement for Grammatical Range and Accuracy.
+                - lexical_feedback1 (str): Positive feedback for Lexical Resource.
+                - lexical_feedback2 (str): Areas for improvement for Lexical Resource.
+        """
+
+        instructions = """
+You are an examiner for IELTS Speaking Part 2.
+Evaluate the provided speech script for the provided prompt for Speaking Part 2 strictly based on the official IELTS Speaking Band Descriptors.
+
+Constraints on the evaluation:
+- Evaluate based on Coherence (CH), Lexical Resource (LR), and Grammatical Range and Accuracy (GRA) strictly based on the official IELTS Speaking Band Descriptors.
+- Do not evaluate the script in term of Fluency.
+- Output a score from 0.0 to 9.0 in 0.5 increments for each criterion.
+
+Constraints on the output format:
+- Put the CH score into the 'coherence_score' field.
+- Put the LR score into the 'lexical_score' field.
+- Put the GRA score into the 'grammatical_score' field.
+- Put the feedback that praises the good points of the answer in terms of CH criteria into the 'coherence_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of CH criteria into the 'coherence_feedback2' field. Output specific examples from the text when suggesting improvements.
+- Put the feedback that praises the good points of the answer in terms of LR criteria into the 'lexical_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of LR criteria into the 'lexical_feedback2' field. Output specific examples from the text when suggesting improvements.
+- Put the feedback that praises the good points of the answer in terms of GRA criteria into the 'grammatical_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of GRA criteria into the 'grammatical_feedback2' field. Output specific examples from the text when suggesting improvements.
+
+Constraints on the input speech script and prompt:
+- prompt: <Prompt>
+
+- speech: <Speech>
+"""
+
+        class Message(BaseModel):
+            coherence_score: float
+            lexical_score: float
+            grammatical_score: float
+            coherence_feedback1: str
+            coherence_feedback2: str
+            lexical_feedback1: str
+            lexical_feedback2: str
+            grammatical_feedback1: str
+            grammatical_feedback2: str
+
+        prompt_input = """
+Evaluate the following script based on the instructions.
+
+prompt: {}
+
+speech: {}
+        """.format(prompt, speech)
+
+        response = self.client.responses.parse(
+            model="gpt-5-nano",
+            # reasoning={"effort": "medium"},
+            reasoning={"effort": "low"},
+            # reasoning={"effort": "minimal"},
+            instructions=instructions,
+            text_format=Message,
+            input=prompt_input,
+        )
+
+        msg = response.output_parsed
+
+        # debug
+        print(
+            """
+coherence_score: {}
+grammatical_score: {}
+lexical_score: {}
+coherence_feedback1: {}
+coherence_feedback2: {}
+grammatical_feedback1: {}
+grammatical_feedback2: {}
+lexical_feedback1: {}
+lexical_feedback2: {}
+            """.format(
+                msg.coherence_score,
+                msg.grammatical_score,
+                msg.lexical_score,
+                msg.coherence_feedback1,
+                msg.coherence_feedback2,
+                msg.grammatical_feedback1,
+                msg.grammatical_feedback2,
+                msg.lexical_feedback1,
+                msg.lexical_feedback2,
+            )
+        )
+
+        return msg
+
+    def _evaluate_speaking_chat_answer(
+        self,
+        part_no: int,
+        script: list[dict[str, str]],
+    ) -> dict:
+        """Evaluate Speaking Part 1 and Part 3 answer.
+
+        Args:
+            part_no: Speaking Part number to evaluate.
+            script: List of turns in conversation.
+                Each dict contains:
+                    - examiner (str): Question asked.
+                    - examinee (str): examinee's response to question.
+
+        Returns:
+            Evaluation components:
+                - coherence_score (float): Coherence score.
+                - lexical_score (float): Lexical Resource score.
+                - grammatical_score (float): Grammatical Range and Accuracy score.
+                - coherence_feedback1 (str): Positive feedback for Coherence.
+                - coherence_feedback2 (str): Areas for improvement for Coherence.
+                - grammatical_feedback1 (str): Positive feedback for Grammatical Range and Accuracy.
+                - grammatical_feedback2 (str): Areas for improvement for Grammatical Range and Accuracy.
+                - lexical_feedback1 (str): Positive feedback for Lexical Resource.
+                - lexical_feedback2 (str): Areas for improvement for Lexical Resource.
+        """
+
+        instructions = """
+You are an examiner for IELTS Speaking Part {0}.
+Evaluate the provided script between the examiner and examinee for Speaking Part {0} strictly based on the official IELTS Speaking Band Descriptors.
+
+Constraints on the evaluation:
+- Evaluate based on Coherence (CH), Lexical Resource (LR), and Grammatical Range and Accuracy (GRA) strictly based on the official IELTS Speaking Band Descriptors.
+- Do not evaluate the script in term of Fluency.
+- Output a score from 0.0 to 9.0 in 0.5 increments for each criterion.
+
+Constraints on the output format:
+- Put the CH score into the 'coherence_score' field.
+- Put the LR score into the 'lexical_score' field.
+- Put the GRA score into the 'grammatical_score' field.
+- Put the feedback that praises the good points of the answer in terms of CH criteria into the 'coherence_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of CH criteria into the 'coherence_feedback2' field. Output specific examples from the text when suggesting improvements.
+- Put the feedback that praises the good points of the answer in terms of LR criteria into the 'lexical_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of LR criteria into the 'lexical_feedback2' field. Output specific examples from the text when suggesting improvements.
+- Put the feedback that praises the good points of the answer in terms of GRA criteria into the 'grammatical_feedback1' field.
+- Put the feedback that suggests areas for improvement in the answer in terms of GRA criteria into the 'grammatical_feedback2' field. Output specific examples from the text when suggesting improvements.
+
+Constraints on the input script:
+- Evaluate the following interaction.
+- <Role: Examiner or Examinee>: <Question if the role is examiner, otherwise, Answer>
+- (Repeat for all questions)
+""".format(part_no)
+
+        class Message(BaseModel):
+            coherence_score: float
+            lexical_score: float
+            grammatical_score: float
+            coherence_feedback1: str
+            coherence_feedback2: str
+            lexical_feedback1: str
+            lexical_feedback2: str
+            grammatical_feedback1: str
+            grammatical_feedback2: str
+
+        interactions = []
+        for item in script:
+            if item["role"] == "examiner":
+                interactions.append("Examiner: {}".format(item["message"]))
+            else:
+                interactions.append("Examinee: {}".format(item["message"]))
+
+        prompt_input = """
+Evaluate the following script based on the instructions.
+
+{}
+        """.format("\n".join(interactions))
+
+        response = self.client.responses.parse(
+            model="gpt-5-nano",
+            # reasoning={"effort": "medium"},
+            reasoning={"effort": "low"},
+            # reasoning={"effort": "minimal"},
+            instructions=instructions,
+            text_format=Message,
+            input=prompt_input,
+        )
+
+        msg = response.output_parsed
+
+        # debug
+        print(
+            """
+coherence_score: {}
+grammatical_score: {}
+lexical_score: {}
+coherence_feedback1: {}
+coherence_feedback2: {}
+grammatical_feedback1: {}
+grammatical_feedback2: {}
+lexical_feedback1: {}
+lexical_feedback2: {}
+            """.format(
+                msg.coherence_score,
+                msg.grammatical_score,
+                msg.lexical_score,
+                msg.coherence_feedback1,
+                msg.coherence_feedback2,
+                msg.grammatical_feedback1,
+                msg.grammatical_feedback2,
+                msg.lexical_feedback1,
+                msg.lexical_feedback2,
+            )
+        )
+
+        return msg
+
     def _generate_writing_task1_digram_prompt(
         self, diagram_type: str, topics: list[str]
     ) -> dict:

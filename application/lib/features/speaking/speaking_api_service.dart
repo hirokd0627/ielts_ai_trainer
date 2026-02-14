@@ -86,13 +86,7 @@ class SpeakingApiService with ApiRequester, TopicApiService {
 
   /// Generates closing message for Part 1 and Part 3.
   Future<String> generateClosingMessage(TestTask testTask) async {
-    final part = testTask == TestTask.speakingPart1
-        ? 1
-        : testTask == TestTask.speakingPart2
-        ? 2
-        : 3;
-
-    final data = {'part': part};
+    final data = {'part': testTask.number};
     final dataJson = jsonEncode(data);
     final resp = await sendPostRequest(
       'speaking/generate-closing-message',
@@ -103,48 +97,47 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     return json['message'];
   }
 
-  /// Grades the given speaking chat answer.
-  Future<SpeakingChatGradingResponse> gradeChatAnswer({
+  /// Evaluates the given speaking chat answer.
+  Future<SpeakingEvaluationResponse> evaluateChatAnswer({
     required SpeakingChatAnswer answer,
   }) async {
-    // TODO: dummy data
-    await Future.delayed(const Duration(seconds: 2));
-
-    final fluencyScores = List.generate(answer.utterances.length, (_) {
-      return (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2;
-    });
-
-    return SpeakingChatGradingResponse(
-      fluency:
-          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      coherence:
-          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      lexial: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      grammatical:
-          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      score: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      feedback: faker.lorem.sentences(3).join("\n"),
-      utteranceFluency: fluencyScores,
+    // Creates arguments.
+    final List<Map<String, String>> script = [];
+    for (final u in answer.utterances) {
+      final role = (u.isUser) ? 'examinee' : 'examiner';
+      script.add({'role': role, 'message': u.text});
+    }
+    return await _evaluateAnswer(
+      partNo: answer.testTask.number,
+      script: script,
     );
   }
 
-  /// Grades the given speaking speech answer.
-  Future<SpeakingSpeechGradingResponse> gradeSpeechAnswer({
+  /// Evaluates the given speaking speech answer.
+  Future<SpeakingEvaluationResponse> evaluateSpeechAnswer({
     required SpeakingSpeechAnswer answer,
   }) async {
-    // TODO: dummy data
-    await Future.delayed(const Duration(seconds: 2));
+    final data = {'prompt': answer.prompt.text, 'speech': answer.answer.text};
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest('speaking/part2/evaluate', dataJson);
+    return SpeakingEvaluationResponse._fromJson(
+      jsonDecode(resp.body) as Map<String, dynamic>,
+    );
+  }
 
-    return SpeakingSpeechGradingResponse(
-      fluency:
-          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      coherence:
-          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      lexial: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      grammatical:
-          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      score: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      feedback: faker.lorem.sentences(3).join("\n"),
+  /// Evaluates the given speaking answer.
+  Future<SpeakingEvaluationResponse> _evaluateAnswer({
+    required int partNo,
+    required List<Map<String, String>> script,
+  }) async {
+    final data = {'script': script};
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest(
+      'speaking/part$partNo/evaluate',
+      dataJson,
+    );
+    return SpeakingEvaluationResponse._fromJson(
+      jsonDecode(resp.body) as Map<String, dynamic>,
     );
   }
 }
@@ -214,42 +207,45 @@ and explain ${json['q4']}
   }
 }
 
-/// Result of grading a speaking chat answer.
-class SpeakingChatGradingResponse {
-  final double fluency;
-  final double coherence;
-  final double lexial;
-  final double grammatical;
-  final double score;
-  final String feedback;
-  final List<double> utteranceFluency;
+/// Response of evaluate speaking answer.
+class SpeakingEvaluationResponse {
+  final double coherenceScore, lexicalScore, grammaticalScore, bandScore;
 
-  const SpeakingChatGradingResponse({
-    required this.fluency,
-    required this.coherence,
-    required this.lexial,
-    required this.grammatical,
-    required this.score,
-    required this.feedback,
-    required this.utteranceFluency,
+  final List<String> coherenceFeedback, lexicalFeedback, grammaticalFeedback;
+
+  const SpeakingEvaluationResponse({
+    required this.coherenceScore,
+    required this.lexicalScore,
+    required this.grammaticalScore,
+    required this.bandScore,
+    required this.coherenceFeedback,
+    required this.lexicalFeedback,
+    required this.grammaticalFeedback,
   });
-}
 
-/// Result of grading a speaking speech answer.
-class SpeakingSpeechGradingResponse {
-  final double fluency;
-  final double coherence;
-  final double lexial;
-  final double grammatical;
-  final double score;
-  final String feedback;
+  static SpeakingEvaluationResponse _fromJson(Map<String, dynamic> json) {
+    for (var name in [
+      'coherence_score',
+      'lexical_score',
+      'grammatical_score',
+      'band_score',
+      'coherence_feedback',
+      'lexical_feedback',
+      'grammatical_feedback',
+    ]) {
+      if (!json.containsKey(name)) {
+        throw Exception('Missing required key: $name');
+      }
+    }
 
-  const SpeakingSpeechGradingResponse({
-    required this.fluency,
-    required this.coherence,
-    required this.lexial,
-    required this.grammatical,
-    required this.score,
-    required this.feedback,
-  });
+    return SpeakingEvaluationResponse(
+      coherenceScore: json["coherence_score"],
+      grammaticalScore: json["grammatical_score"],
+      lexicalScore: json["lexical_score"],
+      bandScore: json["band_score"],
+      coherenceFeedback: List<String>.from(json["coherence_feedback"]),
+      grammaticalFeedback: List<String>.from(json["grammatical_feedback"]),
+      lexicalFeedback: List<String>.from(json["lexical_feedback"]),
+    );
+  }
 }

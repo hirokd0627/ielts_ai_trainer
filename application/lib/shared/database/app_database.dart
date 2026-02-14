@@ -21,7 +21,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
@@ -111,13 +111,16 @@ class SpeakingAnswerDetailsTable extends Table {
   IntColumn get userAnswerId => integer().references(UserAnswersTable, #id)();
   IntColumn get duration => integer()();
   // score and feedback are nullable because they will be updated after evaluation.
-  RealColumn get score => real().nullable()();
+  RealColumn get bandScore => real().nullable()();
   RealColumn get coherenceScore => real().nullable()();
   RealColumn get lexialScore => real().nullable()();
   RealColumn get grammaticalScore => real().nullable()();
   RealColumn get fluencyScore => real().nullable()();
   BoolColumn get isGraded => boolean()();
-  TextColumn get feedback => text().nullable()();
+  TextColumn get coherenceFeedback => text().nullable()();
+  TextColumn get lexicalFeedback => text().nullable()();
+  TextColumn get grammaticalFeedback => text().nullable()();
+  TextColumn get fluencyFeedback => text().nullable()();
   TextColumn get note => text().nullable()(); // used by only Part2
   // creation date is the same as the parent UserAnswer
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
