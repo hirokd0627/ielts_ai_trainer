@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 import 'package:ielts_ai_trainer/features/speaking/chat_row.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_answer_repository.dart';
+import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_vo.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_result_controller.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
 import 'package:ielts_ai_trainer/shared/views/buttons.dart';
+import 'package:ielts_ai_trainer/shared/views/loading_indicator.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 import 'package:provider/provider.dart';
 
@@ -63,9 +65,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
     await _ctrl.loadData(widget.userAnswerId);
 
     // Grades the answer if it is not graded.
-    if (!_ctrl.isGraded) {
-      _ctrl.evaluateAnswer();
-    }
+    _ctrl.evaluateAnswer();
   }
 
   /// Called when the Play button is pressed.
@@ -112,7 +112,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
         height: 200,
         width: 600,
         child: !_ctrl.isGraded
-            ? Center(child: const Text('grading...'))
+            ? Center(child: LoadingIndicator('Evaluating...'))
             : Row(
                 children: [
                   Expanded(
@@ -170,7 +170,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
       ConstrainedBox(
         constraints: BoxConstraints(minHeight: 60),
         child: !_ctrl.isGraded
-            ? Text('grading...')
+            ? LoadingIndicator('Evaluating...')
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -182,13 +182,18 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                   SizedBox(height: 20),
                   HeadlineText('Grammatical Range & Accuracy', level: 2),
                   Text(_ctrl.grammaticalFeedback),
-                  SizedBox(height: 20),
-                  HeadlineText('Pronanciation', level: 2),
-                  Text(_ctrl.fluencyFeedback),
                 ],
               ),
       ),
     ];
+  }
+
+  /// Builds a widget to show fluency score.
+  Widget _buildFluencyScoreWidget(SpeakingUtteranceVO u) {
+    if (!u.isGraded) {
+      return Text('Grading...');
+    }
+    return Text('Fluency: ${u.fluency}');
   }
 
   @override
@@ -245,12 +250,19 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                             constraints: BoxConstraints(minHeight: 60),
                             child: Text(_ctrl.answerText),
                           ),
-                          // Play button
-                          buildOutlinedButton(
-                            _ctrl.getPlayButtonLabelAt(1),
-                            onPressed: _ctrl.isPlayButtonEnabledAt(1)
-                                ? () => _onPressedPlay(1)
-                                : null,
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              if (_ctrl.isRecorded(1))
+                                _buildFluencyScoreWidget(_ctrl.speechUtterance),
+                              // Play button
+                              buildOutlinedButton(
+                                _ctrl.getPlayButtonLabelAt(1),
+                                onPressed: _ctrl.isPlayButtonEnabledAt(1)
+                                    ? () => _onPressedPlay(1)
+                                    : null,
+                              ),
+                            ],
                           ),
                         ] else ...[
                           // Part 1 or Part 3
@@ -273,9 +285,8 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                                   playingButtonLabel: _ctrl
                                       .getPlayButtonLabelAt(i),
                                   // TODO: fluency -> pronanciation
-                                  fluencyScore:
-                                      _ctrl.isGraded && _ctrl.isRecorded(i)
-                                      ? u.fluency
+                                  scoreWidget: _ctrl.isRecorded(i)
+                                      ? _buildFluencyScoreWidget(u)
                                       : null,
                                 ),
                               );

@@ -5,6 +5,7 @@ import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_question_generator_form_controller.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
+import 'package:ielts_ai_trainer/shared/views/loading_indicator.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 
 /// Question Generator Form for Speaking Tasks.
@@ -288,17 +289,13 @@ class _SpeakingQuestionGeneratorFormState
               margin: EdgeInsets.only(bottom: 12),
               child: HeadlineText('Question'),
             ),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                // minHeight: 40,
-                // minWidth: double.infinity,
-              ),
+            Container(
               child: (_ctrl.isPromptTextNotGenerated)
                   ? Text(
                       'Prompt will display here after entering topics and submit',
                     )
                   : (_ctrl.isPromptTextGenerating)
-                  ? Text('generating...')
+                  ? LoadingIndicator('Generating...')
                   : Text(_ctrl.promptText),
             ),
             SizedBox(height: 20),

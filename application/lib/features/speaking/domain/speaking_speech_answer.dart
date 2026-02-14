@@ -12,7 +12,6 @@ abstract class SpeakingSpeechAnswer with _$SpeakingSpeechAnswer {
     int? detailId,
     int? utteranceId,
     required DateTime createdAt,
-    required DateTime updatedAt,
     required SpeakingUtteranceVO prompt,
     required List<PromptTopic> topics,
     required SpeakingUtteranceVO answer,
@@ -27,6 +26,5 @@ abstract class SpeakingSpeechAnswer with _$SpeakingSpeechAnswer {
     String? coherenceFeedback,
     String? lexicalFeedback,
     String? grammaticalFeedback,
-    String? fluencyFeedback,
   }) = _SpeakingSpeechAnswer;
 }

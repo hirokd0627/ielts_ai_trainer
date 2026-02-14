@@ -59,14 +59,18 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
       speakingUtterancesTable,
     )..where((u) => u.userAnswerId.equals(id))).get();
     String promptText = '';
+    bool isPromptGraded = false;
     String answerText = '';
+    bool isAnswerGraded = false;
     String? answerAudioUuid;
     for (final row in utteranceRows) {
       if (row.isUser) {
         answerText = row.message;
         answerAudioUuid = row.audioFileUuid;
+        isAnswerGraded = row.isGraded;
       } else {
         promptText = row.message;
+        isPromptGraded = row.isGraded;
       }
     }
 
@@ -77,7 +81,6 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
       id: userAnswer.id,
       detailId: detail.id,
       createdAt: userAnswer.createdAt,
-      updatedAt: detail.updatedAt,
       topics: topics,
       duration: detail.duration,
       isGraded: detail.isGraded,
@@ -89,11 +92,16 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
       coherenceFeedback: detail.coherenceFeedback,
       lexicalFeedback: detail.lexicalFeedback,
       grammaticalFeedback: detail.grammaticalFeedback,
-      fluencyFeedback: detail.fluencyFeedback,
-      prompt: SpeakingUtteranceVO(order: 1, isUser: false, text: promptText),
+      prompt: SpeakingUtteranceVO(
+        order: 1,
+        isUser: false,
+        text: promptText,
+        isGraded: isPromptGraded,
+      ),
       answer: SpeakingUtteranceVO(
         order: 2,
         isUser: true,
+        isGraded: isAnswerGraded,
         text: answerText,
         audioFileUuid: answerAudioUuid,
       ),
@@ -143,6 +151,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
         SpeakingUtteranceVO(
           order: row.order,
           isUser: row.isUser,
+          isGraded: row.isGraded,
           text: row.message,
           fluency: row.fluencyScore,
           audioFileUuid: row.audioFileUuid,
@@ -158,7 +167,6 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
       detailId: detail.id,
       utterances: utterances,
       createdAt: userAnswer.createdAt,
-      updatedAt: detail.updatedAt,
       topics: topics,
       duration: detail.duration,
       isGraded: detail.isGraded,
@@ -171,7 +179,6 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
       coherenceFeedback: detail.coherenceFeedback,
       lexicalFeedback: detail.lexicalFeedback,
       grammaticalFeedback: detail.grammaticalFeedback,
-      fluencyFeedback: detail.fluencyFeedback,
     );
   }
 
@@ -213,6 +220,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
             userAnswerId: Value(upId),
             order: Value(answer.utterances[i].order),
             isUser: Value(answer.utterances[i].isUser),
+            isGraded: Value(answer.utterances[i].isGraded),
             message: Value(answer.utterances[i].text),
             audioFileUuid: answer.utterances[i].audioFileUuid != null
                 ? Value(answer.utterances[i].audioFileUuid!)
@@ -232,6 +240,25 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
 
       return (id: upId, utteranceIds: utteranceIds);
     });
+  }
+
+  /// Saves a utterance in the user's answer for speaking part 1 or Part 3.
+  Future<void> saveUtterance(
+    int userAnswerId,
+    SpeakingUtteranceVO utterance,
+  ) async {
+    final u = SpeakingUtterancesTableCompanion(
+      userAnswerId: Value(userAnswerId),
+      order: Value(utterance.order),
+      isUser: Value(utterance.isUser),
+      isGraded: Value(utterance.isGraded),
+      message: Value(utterance.text),
+      audioFileUuid: utterance.audioFileUuid != null
+          ? Value(utterance.audioFileUuid!)
+          : Value.absent(),
+      fluencyScore: Value(utterance.fluency),
+    );
+    speakingUtterancesTable.insertOnConflictUpdate(u);
   }
 
   /// Saves a user's answer for speaking part 2.
@@ -362,8 +389,6 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
       coherenceFeedback: Value(answer.coherenceFeedback),
       lexicalFeedback: Value(answer.lexicalFeedback),
       grammaticalFeedback: Value(answer.grammaticalFeedback),
-      fluencyFeedback: Value(answer.fluencyFeedback),
-      updatedAt: Value(answer.updatedAt.toUtc()),
     );
   }
 
@@ -389,8 +414,6 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
       coherenceFeedback: Value(answer.coherenceFeedback),
       lexicalFeedback: Value(answer.lexicalFeedback),
       grammaticalFeedback: Value(answer.grammaticalFeedback),
-      fluencyFeedback: Value(answer.fluencyFeedback),
-      updatedAt: Value(answer.updatedAt.toUtc()),
       note: Value(answer.note),
     );
   }

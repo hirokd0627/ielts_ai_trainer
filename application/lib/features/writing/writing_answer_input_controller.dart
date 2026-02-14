@@ -127,7 +127,6 @@ class WritingAnswerInputController extends ChangeNotifier {
       duration: _elapsedDuration.inSeconds,
       topics: topics,
       promptType: _promptType,
-      updatedAt: now,
     );
 
     final id = await _repo.saveUserAnswerWriting(answer);

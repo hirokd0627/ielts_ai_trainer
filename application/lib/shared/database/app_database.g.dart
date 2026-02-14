@@ -493,18 +493,6 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -526,7 +514,6 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     coherencekFeedback,
     lexialFeedback,
     grammaticalFeedback,
-    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -699,12 +686,6 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         ),
       );
     }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
     return context;
   }
 
@@ -793,10 +774,6 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         DriftSqlType.string,
         data['${effectivePrefix}grammatical_feedback'],
       ),
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
     );
   }
 
@@ -827,7 +804,6 @@ class WritingAnswerDetailsTableData extends DataClass
   final String? coherencekFeedback;
   final String? lexialFeedback;
   final String? grammaticalFeedback;
-  final DateTime updatedAt;
   const WritingAnswerDetailsTableData({
     required this.id,
     required this.userAnswerId,
@@ -848,7 +824,6 @@ class WritingAnswerDetailsTableData extends DataClass
     this.coherencekFeedback,
     this.lexialFeedback,
     this.grammaticalFeedback,
-    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -894,7 +869,6 @@ class WritingAnswerDetailsTableData extends DataClass
     if (!nullToAbsent || grammaticalFeedback != null) {
       map['grammatical_feedback'] = Variable<String>(grammaticalFeedback);
     }
-    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
@@ -941,7 +915,6 @@ class WritingAnswerDetailsTableData extends DataClass
       grammaticalFeedback: grammaticalFeedback == null && nullToAbsent
           ? const Value.absent()
           : Value(grammaticalFeedback),
-      updatedAt: Value(updatedAt),
     );
   }
 
@@ -976,7 +949,6 @@ class WritingAnswerDetailsTableData extends DataClass
       grammaticalFeedback: serializer.fromJson<String?>(
         json['grammaticalFeedback'],
       ),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
   @override
@@ -1002,7 +974,6 @@ class WritingAnswerDetailsTableData extends DataClass
       'coherencekFeedback': serializer.toJson<String?>(coherencekFeedback),
       'lexialFeedback': serializer.toJson<String?>(lexialFeedback),
       'grammaticalFeedback': serializer.toJson<String?>(grammaticalFeedback),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
@@ -1026,7 +997,6 @@ class WritingAnswerDetailsTableData extends DataClass
     Value<String?> coherencekFeedback = const Value.absent(),
     Value<String?> lexialFeedback = const Value.absent(),
     Value<String?> grammaticalFeedback = const Value.absent(),
-    DateTime? updatedAt,
   }) => WritingAnswerDetailsTableData(
     id: id ?? this.id,
     userAnswerId: userAnswerId ?? this.userAnswerId,
@@ -1061,7 +1031,6 @@ class WritingAnswerDetailsTableData extends DataClass
     grammaticalFeedback: grammaticalFeedback.present
         ? grammaticalFeedback.value
         : this.grammaticalFeedback,
-    updatedAt: updatedAt ?? this.updatedAt,
   );
   WritingAnswerDetailsTableData copyWithCompanion(
     WritingAnswerDetailsTableCompanion data,
@@ -1114,7 +1083,6 @@ class WritingAnswerDetailsTableData extends DataClass
       grammaticalFeedback: data.grammaticalFeedback.present
           ? data.grammaticalFeedback.value
           : this.grammaticalFeedback,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -1139,8 +1107,7 @@ class WritingAnswerDetailsTableData extends DataClass
           ..write('taskFeedback: $taskFeedback, ')
           ..write('coherencekFeedback: $coherencekFeedback, ')
           ..write('lexialFeedback: $lexialFeedback, ')
-          ..write('grammaticalFeedback: $grammaticalFeedback, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('grammaticalFeedback: $grammaticalFeedback')
           ..write(')'))
         .toString();
   }
@@ -1166,7 +1133,6 @@ class WritingAnswerDetailsTableData extends DataClass
     coherencekFeedback,
     lexialFeedback,
     grammaticalFeedback,
-    updatedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -1190,8 +1156,7 @@ class WritingAnswerDetailsTableData extends DataClass
           other.taskFeedback == this.taskFeedback &&
           other.coherencekFeedback == this.coherencekFeedback &&
           other.lexialFeedback == this.lexialFeedback &&
-          other.grammaticalFeedback == this.grammaticalFeedback &&
-          other.updatedAt == this.updatedAt);
+          other.grammaticalFeedback == this.grammaticalFeedback);
 }
 
 class WritingAnswerDetailsTableCompanion
@@ -1215,7 +1180,6 @@ class WritingAnswerDetailsTableCompanion
   final Value<String?> coherencekFeedback;
   final Value<String?> lexialFeedback;
   final Value<String?> grammaticalFeedback;
-  final Value<DateTime> updatedAt;
   const WritingAnswerDetailsTableCompanion({
     this.id = const Value.absent(),
     this.userAnswerId = const Value.absent(),
@@ -1236,7 +1200,6 @@ class WritingAnswerDetailsTableCompanion
     this.coherencekFeedback = const Value.absent(),
     this.lexialFeedback = const Value.absent(),
     this.grammaticalFeedback = const Value.absent(),
-    this.updatedAt = const Value.absent(),
   });
   WritingAnswerDetailsTableCompanion.insert({
     this.id = const Value.absent(),
@@ -1258,7 +1221,6 @@ class WritingAnswerDetailsTableCompanion
     this.coherencekFeedback = const Value.absent(),
     this.lexialFeedback = const Value.absent(),
     this.grammaticalFeedback = const Value.absent(),
-    this.updatedAt = const Value.absent(),
   }) : userAnswerId = Value(userAnswerId),
        promptType = Value(promptType),
        taskContext = Value(taskContext),
@@ -1285,7 +1247,6 @@ class WritingAnswerDetailsTableCompanion
     Expression<String>? coherencekFeedback,
     Expression<String>? lexialFeedback,
     Expression<String>? grammaticalFeedback,
-    Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1308,7 +1269,6 @@ class WritingAnswerDetailsTableCompanion
       if (lexialFeedback != null) 'lexial_feedback': lexialFeedback,
       if (grammaticalFeedback != null)
         'grammatical_feedback': grammaticalFeedback,
-      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
@@ -1332,7 +1292,6 @@ class WritingAnswerDetailsTableCompanion
     Value<String?>? coherencekFeedback,
     Value<String?>? lexialFeedback,
     Value<String?>? grammaticalFeedback,
-    Value<DateTime>? updatedAt,
   }) {
     return WritingAnswerDetailsTableCompanion(
       id: id ?? this.id,
@@ -1354,7 +1313,6 @@ class WritingAnswerDetailsTableCompanion
       coherencekFeedback: coherencekFeedback ?? this.coherencekFeedback,
       lexialFeedback: lexialFeedback ?? this.lexialFeedback,
       grammaticalFeedback: grammaticalFeedback ?? this.grammaticalFeedback,
-      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -1418,9 +1376,6 @@ class WritingAnswerDetailsTableCompanion
     if (grammaticalFeedback.present) {
       map['grammatical_feedback'] = Variable<String>(grammaticalFeedback.value);
     }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
     return map;
   }
 
@@ -1445,8 +1400,7 @@ class WritingAnswerDetailsTableCompanion
           ..write('taskFeedback: $taskFeedback, ')
           ..write('coherencekFeedback: $coherencekFeedback, ')
           ..write('lexialFeedback: $lexialFeedback, ')
-          ..write('grammaticalFeedback: $grammaticalFeedback, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('grammaticalFeedback: $grammaticalFeedback')
           ..write(')'))
         .toString();
   }
@@ -1879,17 +1833,6 @@ class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
-  static const VerificationMeta _fluencyFeedbackMeta = const VerificationMeta(
-    'fluencyFeedback',
-  );
-  @override
-  late final GeneratedColumn<String> fluencyFeedback = GeneratedColumn<String>(
-    'fluency_feedback',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
   static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
   late final GeneratedColumn<String> note = GeneratedColumn<String>(
@@ -1898,18 +1841,6 @@ class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -1925,9 +1856,7 @@ class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
     coherenceFeedback,
     lexicalFeedback,
     grammaticalFeedback,
-    fluencyFeedback,
     note,
-    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2040,25 +1969,10 @@ class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
         ),
       );
     }
-    if (data.containsKey('fluency_feedback')) {
-      context.handle(
-        _fluencyFeedbackMeta,
-        fluencyFeedback.isAcceptableOrUnknown(
-          data['fluency_feedback']!,
-          _fluencyFeedbackMeta,
-        ),
-      );
-    }
     if (data.containsKey('note')) {
       context.handle(
         _noteMeta,
         note.isAcceptableOrUnknown(data['note']!, _noteMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
     return context;
@@ -2121,18 +2035,10 @@ class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
         DriftSqlType.string,
         data['${effectivePrefix}grammatical_feedback'],
       ),
-      fluencyFeedback: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}fluency_feedback'],
-      ),
       note: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}note'],
       ),
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
     );
   }
 
@@ -2156,9 +2062,7 @@ class SpeakingAnswerDetailsTableData extends DataClass
   final String? coherenceFeedback;
   final String? lexicalFeedback;
   final String? grammaticalFeedback;
-  final String? fluencyFeedback;
   final String? note;
-  final DateTime updatedAt;
   const SpeakingAnswerDetailsTableData({
     required this.id,
     required this.userAnswerId,
@@ -2172,9 +2076,7 @@ class SpeakingAnswerDetailsTableData extends DataClass
     this.coherenceFeedback,
     this.lexicalFeedback,
     this.grammaticalFeedback,
-    this.fluencyFeedback,
     this.note,
-    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2207,13 +2109,9 @@ class SpeakingAnswerDetailsTableData extends DataClass
     if (!nullToAbsent || grammaticalFeedback != null) {
       map['grammatical_feedback'] = Variable<String>(grammaticalFeedback);
     }
-    if (!nullToAbsent || fluencyFeedback != null) {
-      map['fluency_feedback'] = Variable<String>(fluencyFeedback);
-    }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
     }
-    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
@@ -2247,11 +2145,7 @@ class SpeakingAnswerDetailsTableData extends DataClass
       grammaticalFeedback: grammaticalFeedback == null && nullToAbsent
           ? const Value.absent()
           : Value(grammaticalFeedback),
-      fluencyFeedback: fluencyFeedback == null && nullToAbsent
-          ? const Value.absent()
-          : Value(fluencyFeedback),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
-      updatedAt: Value(updatedAt),
     );
   }
 
@@ -2277,9 +2171,7 @@ class SpeakingAnswerDetailsTableData extends DataClass
       grammaticalFeedback: serializer.fromJson<String?>(
         json['grammaticalFeedback'],
       ),
-      fluencyFeedback: serializer.fromJson<String?>(json['fluencyFeedback']),
       note: serializer.fromJson<String?>(json['note']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
   @override
@@ -2298,9 +2190,7 @@ class SpeakingAnswerDetailsTableData extends DataClass
       'coherenceFeedback': serializer.toJson<String?>(coherenceFeedback),
       'lexicalFeedback': serializer.toJson<String?>(lexicalFeedback),
       'grammaticalFeedback': serializer.toJson<String?>(grammaticalFeedback),
-      'fluencyFeedback': serializer.toJson<String?>(fluencyFeedback),
       'note': serializer.toJson<String?>(note),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
@@ -2317,9 +2207,7 @@ class SpeakingAnswerDetailsTableData extends DataClass
     Value<String?> coherenceFeedback = const Value.absent(),
     Value<String?> lexicalFeedback = const Value.absent(),
     Value<String?> grammaticalFeedback = const Value.absent(),
-    Value<String?> fluencyFeedback = const Value.absent(),
     Value<String?> note = const Value.absent(),
-    DateTime? updatedAt,
   }) => SpeakingAnswerDetailsTableData(
     id: id ?? this.id,
     userAnswerId: userAnswerId ?? this.userAnswerId,
@@ -2343,11 +2231,7 @@ class SpeakingAnswerDetailsTableData extends DataClass
     grammaticalFeedback: grammaticalFeedback.present
         ? grammaticalFeedback.value
         : this.grammaticalFeedback,
-    fluencyFeedback: fluencyFeedback.present
-        ? fluencyFeedback.value
-        : this.fluencyFeedback,
     note: note.present ? note.value : this.note,
-    updatedAt: updatedAt ?? this.updatedAt,
   );
   SpeakingAnswerDetailsTableData copyWithCompanion(
     SpeakingAnswerDetailsTableCompanion data,
@@ -2381,11 +2265,7 @@ class SpeakingAnswerDetailsTableData extends DataClass
       grammaticalFeedback: data.grammaticalFeedback.present
           ? data.grammaticalFeedback.value
           : this.grammaticalFeedback,
-      fluencyFeedback: data.fluencyFeedback.present
-          ? data.fluencyFeedback.value
-          : this.fluencyFeedback,
       note: data.note.present ? data.note.value : this.note,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -2404,9 +2284,7 @@ class SpeakingAnswerDetailsTableData extends DataClass
           ..write('coherenceFeedback: $coherenceFeedback, ')
           ..write('lexicalFeedback: $lexicalFeedback, ')
           ..write('grammaticalFeedback: $grammaticalFeedback, ')
-          ..write('fluencyFeedback: $fluencyFeedback, ')
-          ..write('note: $note, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('note: $note')
           ..write(')'))
         .toString();
   }
@@ -2425,9 +2303,7 @@ class SpeakingAnswerDetailsTableData extends DataClass
     coherenceFeedback,
     lexicalFeedback,
     grammaticalFeedback,
-    fluencyFeedback,
     note,
-    updatedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -2445,9 +2321,7 @@ class SpeakingAnswerDetailsTableData extends DataClass
           other.coherenceFeedback == this.coherenceFeedback &&
           other.lexicalFeedback == this.lexicalFeedback &&
           other.grammaticalFeedback == this.grammaticalFeedback &&
-          other.fluencyFeedback == this.fluencyFeedback &&
-          other.note == this.note &&
-          other.updatedAt == this.updatedAt);
+          other.note == this.note);
 }
 
 class SpeakingAnswerDetailsTableCompanion
@@ -2464,9 +2338,7 @@ class SpeakingAnswerDetailsTableCompanion
   final Value<String?> coherenceFeedback;
   final Value<String?> lexicalFeedback;
   final Value<String?> grammaticalFeedback;
-  final Value<String?> fluencyFeedback;
   final Value<String?> note;
-  final Value<DateTime> updatedAt;
   const SpeakingAnswerDetailsTableCompanion({
     this.id = const Value.absent(),
     this.userAnswerId = const Value.absent(),
@@ -2480,9 +2352,7 @@ class SpeakingAnswerDetailsTableCompanion
     this.coherenceFeedback = const Value.absent(),
     this.lexicalFeedback = const Value.absent(),
     this.grammaticalFeedback = const Value.absent(),
-    this.fluencyFeedback = const Value.absent(),
     this.note = const Value.absent(),
-    this.updatedAt = const Value.absent(),
   });
   SpeakingAnswerDetailsTableCompanion.insert({
     this.id = const Value.absent(),
@@ -2497,9 +2367,7 @@ class SpeakingAnswerDetailsTableCompanion
     this.coherenceFeedback = const Value.absent(),
     this.lexicalFeedback = const Value.absent(),
     this.grammaticalFeedback = const Value.absent(),
-    this.fluencyFeedback = const Value.absent(),
     this.note = const Value.absent(),
-    this.updatedAt = const Value.absent(),
   }) : userAnswerId = Value(userAnswerId),
        duration = Value(duration),
        isGraded = Value(isGraded);
@@ -2516,9 +2384,7 @@ class SpeakingAnswerDetailsTableCompanion
     Expression<String>? coherenceFeedback,
     Expression<String>? lexicalFeedback,
     Expression<String>? grammaticalFeedback,
-    Expression<String>? fluencyFeedback,
     Expression<String>? note,
-    Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2534,9 +2400,7 @@ class SpeakingAnswerDetailsTableCompanion
       if (lexicalFeedback != null) 'lexical_feedback': lexicalFeedback,
       if (grammaticalFeedback != null)
         'grammatical_feedback': grammaticalFeedback,
-      if (fluencyFeedback != null) 'fluency_feedback': fluencyFeedback,
       if (note != null) 'note': note,
-      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
@@ -2553,9 +2417,7 @@ class SpeakingAnswerDetailsTableCompanion
     Value<String?>? coherenceFeedback,
     Value<String?>? lexicalFeedback,
     Value<String?>? grammaticalFeedback,
-    Value<String?>? fluencyFeedback,
     Value<String?>? note,
-    Value<DateTime>? updatedAt,
   }) {
     return SpeakingAnswerDetailsTableCompanion(
       id: id ?? this.id,
@@ -2570,9 +2432,7 @@ class SpeakingAnswerDetailsTableCompanion
       coherenceFeedback: coherenceFeedback ?? this.coherenceFeedback,
       lexicalFeedback: lexicalFeedback ?? this.lexicalFeedback,
       grammaticalFeedback: grammaticalFeedback ?? this.grammaticalFeedback,
-      fluencyFeedback: fluencyFeedback ?? this.fluencyFeedback,
       note: note ?? this.note,
-      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -2615,14 +2475,8 @@ class SpeakingAnswerDetailsTableCompanion
     if (grammaticalFeedback.present) {
       map['grammatical_feedback'] = Variable<String>(grammaticalFeedback.value);
     }
-    if (fluencyFeedback.present) {
-      map['fluency_feedback'] = Variable<String>(fluencyFeedback.value);
-    }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
     return map;
   }
@@ -2642,9 +2496,7 @@ class SpeakingAnswerDetailsTableCompanion
           ..write('coherenceFeedback: $coherenceFeedback, ')
           ..write('lexicalFeedback: $lexicalFeedback, ')
           ..write('grammaticalFeedback: $grammaticalFeedback, ')
-          ..write('fluencyFeedback: $fluencyFeedback, ')
-          ..write('note: $note, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('note: $note')
           ..write(')'))
         .toString();
   }
@@ -2691,6 +2543,21 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
       'CHECK ("is_user" IN (0, 1))',
     ),
   );
+  static const VerificationMeta _isGradedMeta = const VerificationMeta(
+    'isGraded',
+  );
+  @override
+  late final GeneratedColumn<bool> isGraded = GeneratedColumn<bool>(
+    'is_graded',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_graded" IN (0, 1))',
+    ),
+    defaultValue: Constant(false),
+  );
   static const VerificationMeta _messageMeta = const VerificationMeta(
     'message',
   );
@@ -2724,27 +2591,15 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
   @override
   List<GeneratedColumn> get $columns => [
     userAnswerId,
     order,
     isUser,
+    isGraded,
     message,
     audioFileUuid,
     fluencyScore,
-    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2785,6 +2640,12 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
     } else if (isInserting) {
       context.missing(_isUserMeta);
     }
+    if (data.containsKey('is_graded')) {
+      context.handle(
+        _isGradedMeta,
+        isGraded.isAcceptableOrUnknown(data['is_graded']!, _isGradedMeta),
+      );
+    }
     if (data.containsKey('message')) {
       context.handle(
         _messageMeta,
@@ -2811,12 +2672,6 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
         ),
       );
     }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
     return context;
   }
 
@@ -2841,6 +2696,10 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
         DriftSqlType.bool,
         data['${effectivePrefix}is_user'],
       )!,
+      isGraded: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_graded'],
+      )!,
       message: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}message'],
@@ -2853,10 +2712,6 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
         DriftSqlType.double,
         data['${effectivePrefix}fluency_score'],
       ),
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
     );
   }
 
@@ -2871,18 +2726,18 @@ class SpeakingUtterancesTableData extends DataClass
   final int userAnswerId;
   final int order;
   final bool isUser;
+  final bool isGraded;
   final String message;
   final String? audioFileUuid;
   final double? fluencyScore;
-  final DateTime updatedAt;
   const SpeakingUtterancesTableData({
     required this.userAnswerId,
     required this.order,
     required this.isUser,
+    required this.isGraded,
     required this.message,
     this.audioFileUuid,
     this.fluencyScore,
-    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2890,6 +2745,7 @@ class SpeakingUtterancesTableData extends DataClass
     map['user_answer_id'] = Variable<int>(userAnswerId);
     map['order'] = Variable<int>(order);
     map['is_user'] = Variable<bool>(isUser);
+    map['is_graded'] = Variable<bool>(isGraded);
     map['message'] = Variable<String>(message);
     if (!nullToAbsent || audioFileUuid != null) {
       map['audio_file_uuid'] = Variable<String>(audioFileUuid);
@@ -2897,7 +2753,6 @@ class SpeakingUtterancesTableData extends DataClass
     if (!nullToAbsent || fluencyScore != null) {
       map['fluency_score'] = Variable<double>(fluencyScore);
     }
-    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
@@ -2906,6 +2761,7 @@ class SpeakingUtterancesTableData extends DataClass
       userAnswerId: Value(userAnswerId),
       order: Value(order),
       isUser: Value(isUser),
+      isGraded: Value(isGraded),
       message: Value(message),
       audioFileUuid: audioFileUuid == null && nullToAbsent
           ? const Value.absent()
@@ -2913,7 +2769,6 @@ class SpeakingUtterancesTableData extends DataClass
       fluencyScore: fluencyScore == null && nullToAbsent
           ? const Value.absent()
           : Value(fluencyScore),
-      updatedAt: Value(updatedAt),
     );
   }
 
@@ -2926,10 +2781,10 @@ class SpeakingUtterancesTableData extends DataClass
       userAnswerId: serializer.fromJson<int>(json['userAnswerId']),
       order: serializer.fromJson<int>(json['order']),
       isUser: serializer.fromJson<bool>(json['isUser']),
+      isGraded: serializer.fromJson<bool>(json['isGraded']),
       message: serializer.fromJson<String>(json['message']),
       audioFileUuid: serializer.fromJson<String?>(json['audioFileUuid']),
       fluencyScore: serializer.fromJson<double?>(json['fluencyScore']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
   @override
@@ -2939,10 +2794,10 @@ class SpeakingUtterancesTableData extends DataClass
       'userAnswerId': serializer.toJson<int>(userAnswerId),
       'order': serializer.toJson<int>(order),
       'isUser': serializer.toJson<bool>(isUser),
+      'isGraded': serializer.toJson<bool>(isGraded),
       'message': serializer.toJson<String>(message),
       'audioFileUuid': serializer.toJson<String?>(audioFileUuid),
       'fluencyScore': serializer.toJson<double?>(fluencyScore),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
@@ -2950,20 +2805,20 @@ class SpeakingUtterancesTableData extends DataClass
     int? userAnswerId,
     int? order,
     bool? isUser,
+    bool? isGraded,
     String? message,
     Value<String?> audioFileUuid = const Value.absent(),
     Value<double?> fluencyScore = const Value.absent(),
-    DateTime? updatedAt,
   }) => SpeakingUtterancesTableData(
     userAnswerId: userAnswerId ?? this.userAnswerId,
     order: order ?? this.order,
     isUser: isUser ?? this.isUser,
+    isGraded: isGraded ?? this.isGraded,
     message: message ?? this.message,
     audioFileUuid: audioFileUuid.present
         ? audioFileUuid.value
         : this.audioFileUuid,
     fluencyScore: fluencyScore.present ? fluencyScore.value : this.fluencyScore,
-    updatedAt: updatedAt ?? this.updatedAt,
   );
   SpeakingUtterancesTableData copyWithCompanion(
     SpeakingUtterancesTableCompanion data,
@@ -2974,6 +2829,7 @@ class SpeakingUtterancesTableData extends DataClass
           : this.userAnswerId,
       order: data.order.present ? data.order.value : this.order,
       isUser: data.isUser.present ? data.isUser.value : this.isUser,
+      isGraded: data.isGraded.present ? data.isGraded.value : this.isGraded,
       message: data.message.present ? data.message.value : this.message,
       audioFileUuid: data.audioFileUuid.present
           ? data.audioFileUuid.value
@@ -2981,7 +2837,6 @@ class SpeakingUtterancesTableData extends DataClass
       fluencyScore: data.fluencyScore.present
           ? data.fluencyScore.value
           : this.fluencyScore,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -2991,10 +2846,10 @@ class SpeakingUtterancesTableData extends DataClass
           ..write('userAnswerId: $userAnswerId, ')
           ..write('order: $order, ')
           ..write('isUser: $isUser, ')
+          ..write('isGraded: $isGraded, ')
           ..write('message: $message, ')
           ..write('audioFileUuid: $audioFileUuid, ')
-          ..write('fluencyScore: $fluencyScore, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('fluencyScore: $fluencyScore')
           ..write(')'))
         .toString();
   }
@@ -3004,10 +2859,10 @@ class SpeakingUtterancesTableData extends DataClass
     userAnswerId,
     order,
     isUser,
+    isGraded,
     message,
     audioFileUuid,
     fluencyScore,
-    updatedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -3016,10 +2871,10 @@ class SpeakingUtterancesTableData extends DataClass
           other.userAnswerId == this.userAnswerId &&
           other.order == this.order &&
           other.isUser == this.isUser &&
+          other.isGraded == this.isGraded &&
           other.message == this.message &&
           other.audioFileUuid == this.audioFileUuid &&
-          other.fluencyScore == this.fluencyScore &&
-          other.updatedAt == this.updatedAt);
+          other.fluencyScore == this.fluencyScore);
 }
 
 class SpeakingUtterancesTableCompanion
@@ -3027,29 +2882,29 @@ class SpeakingUtterancesTableCompanion
   final Value<int> userAnswerId;
   final Value<int> order;
   final Value<bool> isUser;
+  final Value<bool> isGraded;
   final Value<String> message;
   final Value<String?> audioFileUuid;
   final Value<double?> fluencyScore;
-  final Value<DateTime> updatedAt;
   final Value<int> rowid;
   const SpeakingUtterancesTableCompanion({
     this.userAnswerId = const Value.absent(),
     this.order = const Value.absent(),
     this.isUser = const Value.absent(),
+    this.isGraded = const Value.absent(),
     this.message = const Value.absent(),
     this.audioFileUuid = const Value.absent(),
     this.fluencyScore = const Value.absent(),
-    this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SpeakingUtterancesTableCompanion.insert({
     required int userAnswerId,
     required int order,
     required bool isUser,
+    this.isGraded = const Value.absent(),
     required String message,
     this.audioFileUuid = const Value.absent(),
     this.fluencyScore = const Value.absent(),
-    this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : userAnswerId = Value(userAnswerId),
        order = Value(order),
@@ -3059,20 +2914,20 @@ class SpeakingUtterancesTableCompanion
     Expression<int>? userAnswerId,
     Expression<int>? order,
     Expression<bool>? isUser,
+    Expression<bool>? isGraded,
     Expression<String>? message,
     Expression<String>? audioFileUuid,
     Expression<double>? fluencyScore,
-    Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (userAnswerId != null) 'user_answer_id': userAnswerId,
       if (order != null) 'order': order,
       if (isUser != null) 'is_user': isUser,
+      if (isGraded != null) 'is_graded': isGraded,
       if (message != null) 'message': message,
       if (audioFileUuid != null) 'audio_file_uuid': audioFileUuid,
       if (fluencyScore != null) 'fluency_score': fluencyScore,
-      if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -3081,20 +2936,20 @@ class SpeakingUtterancesTableCompanion
     Value<int>? userAnswerId,
     Value<int>? order,
     Value<bool>? isUser,
+    Value<bool>? isGraded,
     Value<String>? message,
     Value<String?>? audioFileUuid,
     Value<double?>? fluencyScore,
-    Value<DateTime>? updatedAt,
     Value<int>? rowid,
   }) {
     return SpeakingUtterancesTableCompanion(
       userAnswerId: userAnswerId ?? this.userAnswerId,
       order: order ?? this.order,
       isUser: isUser ?? this.isUser,
+      isGraded: isGraded ?? this.isGraded,
       message: message ?? this.message,
       audioFileUuid: audioFileUuid ?? this.audioFileUuid,
       fluencyScore: fluencyScore ?? this.fluencyScore,
-      updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3111,6 +2966,9 @@ class SpeakingUtterancesTableCompanion
     if (isUser.present) {
       map['is_user'] = Variable<bool>(isUser.value);
     }
+    if (isGraded.present) {
+      map['is_graded'] = Variable<bool>(isGraded.value);
+    }
     if (message.present) {
       map['message'] = Variable<String>(message.value);
     }
@@ -3119,9 +2977,6 @@ class SpeakingUtterancesTableCompanion
     }
     if (fluencyScore.present) {
       map['fluency_score'] = Variable<double>(fluencyScore.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -3135,10 +2990,10 @@ class SpeakingUtterancesTableCompanion
           ..write('userAnswerId: $userAnswerId, ')
           ..write('order: $order, ')
           ..write('isUser: $isUser, ')
+          ..write('isGraded: $isGraded, ')
           ..write('message: $message, ')
           ..write('audioFileUuid: $audioFileUuid, ')
           ..write('fluencyScore: $fluencyScore, ')
-          ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3810,7 +3665,6 @@ typedef $$WritingAnswerDetailsTableTableCreateCompanionBuilder =
       Value<String?> coherencekFeedback,
       Value<String?> lexialFeedback,
       Value<String?> grammaticalFeedback,
-      Value<DateTime> updatedAt,
     });
 typedef $$WritingAnswerDetailsTableTableUpdateCompanionBuilder =
     WritingAnswerDetailsTableCompanion Function({
@@ -3833,7 +3687,6 @@ typedef $$WritingAnswerDetailsTableTableUpdateCompanionBuilder =
       Value<String?> coherencekFeedback,
       Value<String?> lexialFeedback,
       Value<String?> grammaticalFeedback,
-      Value<DateTime> updatedAt,
     });
 
 final class $$WritingAnswerDetailsTableTableReferences
@@ -3971,11 +3824,6 @@ class $$WritingAnswerDetailsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
   $$UserAnswersTableTableFilterComposer get userAnswerId {
     final $$UserAnswersTableTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -4099,11 +3947,6 @@ class $$WritingAnswerDetailsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   $$UserAnswersTableTableOrderingComposer get userAnswerId {
     final $$UserAnswersTableTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4217,9 +4060,6 @@ class $$WritingAnswerDetailsTableTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
   $$UserAnswersTableTableAnnotationComposer get userAnswerId {
     final $$UserAnswersTableTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -4305,7 +4145,6 @@ class $$WritingAnswerDetailsTableTableTableManager
                 Value<String?> coherencekFeedback = const Value.absent(),
                 Value<String?> lexialFeedback = const Value.absent(),
                 Value<String?> grammaticalFeedback = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
               }) => WritingAnswerDetailsTableCompanion(
                 id: id,
                 userAnswerId: userAnswerId,
@@ -4326,7 +4165,6 @@ class $$WritingAnswerDetailsTableTableTableManager
                 coherencekFeedback: coherencekFeedback,
                 lexialFeedback: lexialFeedback,
                 grammaticalFeedback: grammaticalFeedback,
-                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
@@ -4349,7 +4187,6 @@ class $$WritingAnswerDetailsTableTableTableManager
                 Value<String?> coherencekFeedback = const Value.absent(),
                 Value<String?> lexialFeedback = const Value.absent(),
                 Value<String?> grammaticalFeedback = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
               }) => WritingAnswerDetailsTableCompanion.insert(
                 id: id,
                 userAnswerId: userAnswerId,
@@ -4370,7 +4207,6 @@ class $$WritingAnswerDetailsTableTableTableManager
                 coherencekFeedback: coherencekFeedback,
                 lexialFeedback: lexialFeedback,
                 grammaticalFeedback: grammaticalFeedback,
-                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -4758,9 +4594,7 @@ typedef $$SpeakingAnswerDetailsTableTableCreateCompanionBuilder =
       Value<String?> coherenceFeedback,
       Value<String?> lexicalFeedback,
       Value<String?> grammaticalFeedback,
-      Value<String?> fluencyFeedback,
       Value<String?> note,
-      Value<DateTime> updatedAt,
     });
 typedef $$SpeakingAnswerDetailsTableTableUpdateCompanionBuilder =
     SpeakingAnswerDetailsTableCompanion Function({
@@ -4776,9 +4610,7 @@ typedef $$SpeakingAnswerDetailsTableTableUpdateCompanionBuilder =
       Value<String?> coherenceFeedback,
       Value<String?> lexicalFeedback,
       Value<String?> grammaticalFeedback,
-      Value<String?> fluencyFeedback,
       Value<String?> note,
-      Value<DateTime> updatedAt,
     });
 
 final class $$SpeakingAnswerDetailsTableTableReferences
@@ -4881,18 +4713,8 @@ class $$SpeakingAnswerDetailsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get fluencyFeedback => $composableBuilder(
-    column: $table.fluencyFeedback,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<String> get note => $composableBuilder(
     column: $table.note,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4984,18 +4806,8 @@ class $$SpeakingAnswerDetailsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get fluencyFeedback => $composableBuilder(
-    column: $table.fluencyFeedback,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get note => $composableBuilder(
     column: $table.note,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5079,16 +4891,8 @@ class $$SpeakingAnswerDetailsTableTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get fluencyFeedback => $composableBuilder(
-    column: $table.fluencyFeedback,
-    builder: (column) => column,
-  );
-
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
   $$UserAnswersTableTableAnnotationComposer get userAnswerId {
     final $$UserAnswersTableTableAnnotationComposer composer = $composerBuilder(
@@ -5168,9 +4972,7 @@ class $$SpeakingAnswerDetailsTableTableTableManager
                 Value<String?> coherenceFeedback = const Value.absent(),
                 Value<String?> lexicalFeedback = const Value.absent(),
                 Value<String?> grammaticalFeedback = const Value.absent(),
-                Value<String?> fluencyFeedback = const Value.absent(),
                 Value<String?> note = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
               }) => SpeakingAnswerDetailsTableCompanion(
                 id: id,
                 userAnswerId: userAnswerId,
@@ -5184,9 +4986,7 @@ class $$SpeakingAnswerDetailsTableTableTableManager
                 coherenceFeedback: coherenceFeedback,
                 lexicalFeedback: lexicalFeedback,
                 grammaticalFeedback: grammaticalFeedback,
-                fluencyFeedback: fluencyFeedback,
                 note: note,
-                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
@@ -5202,9 +5002,7 @@ class $$SpeakingAnswerDetailsTableTableTableManager
                 Value<String?> coherenceFeedback = const Value.absent(),
                 Value<String?> lexicalFeedback = const Value.absent(),
                 Value<String?> grammaticalFeedback = const Value.absent(),
-                Value<String?> fluencyFeedback = const Value.absent(),
                 Value<String?> note = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
               }) => SpeakingAnswerDetailsTableCompanion.insert(
                 id: id,
                 userAnswerId: userAnswerId,
@@ -5218,9 +5016,7 @@ class $$SpeakingAnswerDetailsTableTableTableManager
                 coherenceFeedback: coherenceFeedback,
                 lexicalFeedback: lexicalFeedback,
                 grammaticalFeedback: grammaticalFeedback,
-                fluencyFeedback: fluencyFeedback,
                 note: note,
-                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -5299,10 +5095,10 @@ typedef $$SpeakingUtterancesTableTableCreateCompanionBuilder =
       required int userAnswerId,
       required int order,
       required bool isUser,
+      Value<bool> isGraded,
       required String message,
       Value<String?> audioFileUuid,
       Value<double?> fluencyScore,
-      Value<DateTime> updatedAt,
       Value<int> rowid,
     });
 typedef $$SpeakingUtterancesTableTableUpdateCompanionBuilder =
@@ -5310,10 +5106,10 @@ typedef $$SpeakingUtterancesTableTableUpdateCompanionBuilder =
       Value<int> userAnswerId,
       Value<int> order,
       Value<bool> isUser,
+      Value<bool> isGraded,
       Value<String> message,
       Value<String?> audioFileUuid,
       Value<double?> fluencyScore,
-      Value<DateTime> updatedAt,
       Value<int> rowid,
     });
 
@@ -5372,6 +5168,11 @@ class $$SpeakingUtterancesTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<bool> get isGraded => $composableBuilder(
+    column: $table.isGraded,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get message => $composableBuilder(
     column: $table.message,
     builder: (column) => ColumnFilters(column),
@@ -5384,11 +5185,6 @@ class $$SpeakingUtterancesTableTableFilterComposer
 
   ColumnFilters<double> get fluencyScore => $composableBuilder(
     column: $table.fluencyScore,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5435,6 +5231,11 @@ class $$SpeakingUtterancesTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isGraded => $composableBuilder(
+    column: $table.isGraded,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get message => $composableBuilder(
     column: $table.message,
     builder: (column) => ColumnOrderings(column),
@@ -5447,11 +5248,6 @@ class $$SpeakingUtterancesTableTableOrderingComposer
 
   ColumnOrderings<double> get fluencyScore => $composableBuilder(
     column: $table.fluencyScore,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5494,6 +5290,9 @@ class $$SpeakingUtterancesTableTableAnnotationComposer
   GeneratedColumn<bool> get isUser =>
       $composableBuilder(column: $table.isUser, builder: (column) => column);
 
+  GeneratedColumn<bool> get isGraded =>
+      $composableBuilder(column: $table.isGraded, builder: (column) => column);
+
   GeneratedColumn<String> get message =>
       $composableBuilder(column: $table.message, builder: (column) => column);
 
@@ -5506,9 +5305,6 @@ class $$SpeakingUtterancesTableTableAnnotationComposer
     column: $table.fluencyScore,
     builder: (column) => column,
   );
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
   $$UserAnswersTableTableAnnotationComposer get userAnswerId {
     final $$UserAnswersTableTableAnnotationComposer composer = $composerBuilder(
@@ -5579,19 +5375,19 @@ class $$SpeakingUtterancesTableTableTableManager
                 Value<int> userAnswerId = const Value.absent(),
                 Value<int> order = const Value.absent(),
                 Value<bool> isUser = const Value.absent(),
+                Value<bool> isGraded = const Value.absent(),
                 Value<String> message = const Value.absent(),
                 Value<String?> audioFileUuid = const Value.absent(),
                 Value<double?> fluencyScore = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SpeakingUtterancesTableCompanion(
                 userAnswerId: userAnswerId,
                 order: order,
                 isUser: isUser,
+                isGraded: isGraded,
                 message: message,
                 audioFileUuid: audioFileUuid,
                 fluencyScore: fluencyScore,
-                updatedAt: updatedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -5599,19 +5395,19 @@ class $$SpeakingUtterancesTableTableTableManager
                 required int userAnswerId,
                 required int order,
                 required bool isUser,
+                Value<bool> isGraded = const Value.absent(),
                 required String message,
                 Value<String?> audioFileUuid = const Value.absent(),
                 Value<double?> fluencyScore = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SpeakingUtterancesTableCompanion.insert(
                 userAnswerId: userAnswerId,
                 order: order,
                 isUser: isUser,
+                isGraded: isGraded,
                 message: message,
                 audioFileUuid: audioFileUuid,
                 fluencyScore: fluencyScore,
-                updatedAt: updatedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

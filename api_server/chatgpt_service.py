@@ -12,6 +12,7 @@ class ChatGptService:
     def __init__(self):
         self.client = OpenAI()
 
+    # TODO:
     def generate_topics(self, count: int) -> list[str]:
         """Generate topics for prompt generation.
 

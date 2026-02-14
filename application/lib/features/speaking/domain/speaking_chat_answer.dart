@@ -13,7 +13,6 @@ abstract class SpeakingChatAnswer with _$SpeakingChatAnswer {
     int? detailId,
     required List<SpeakingUtteranceVO> utterances,
     required DateTime createdAt,
-    required DateTime updatedAt,
     required List<PromptTopic> topics,
     required int duration,
     required bool isGraded,
@@ -26,6 +25,5 @@ abstract class SpeakingChatAnswer with _$SpeakingChatAnswer {
     String? coherenceFeedback,
     String? lexicalFeedback,
     String? grammaticalFeedback,
-    String? fluencyFeedback,
   }) = _SpeakingChatAnswer;
 }

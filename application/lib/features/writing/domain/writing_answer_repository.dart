@@ -55,7 +55,6 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
       detailId: detail.id,
       testTask: userAnswer.testTask,
       createdAt: userAnswer.createdAt,
-      updatedAt: detail.updatedAt,
       promptType: WritingPromptType.fromString(detail.promptType),
       writingPrompt: WritingPromptVo(
         taskContext: detail.taskContext,
@@ -145,7 +144,6 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
       coherencekFeedback: Value(answer.coherenceFeedback),
       lexialFeedback: Value(answer.lexialFeedback),
       grammaticalFeedback: Value(answer.grammaticalFeedback),
-      updatedAt: Value(answer.updatedAt.toUtc()),
     );
   }
 

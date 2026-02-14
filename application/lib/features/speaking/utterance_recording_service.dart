@@ -57,7 +57,7 @@ class UtteranceRecordingService {
 
     // Generate UUID for the identity for the audio file.
     final uuid = Uuid().v4();
-    final path = await _getFilePath(uuid);
+    final path = await getFilePath(uuid);
 
     // Start to record.
     await _audioRecorder.start(config, path: path);
@@ -73,7 +73,7 @@ class UtteranceRecordingService {
 
   /// Deletes the recording file.
   Future<void> deleteRecordingFile(String uuid) async {
-    final path = await _getFilePath(uuid);
+    final path = await getFilePath(uuid);
     final file = File(path);
     if (await file.exists()) {
       await file.delete();
@@ -82,7 +82,7 @@ class UtteranceRecordingService {
 
   /// Starts playing the audio file for the given UUID.
   Future<void> playAudio(String uuid) async {
-    final path = await _getFilePath(uuid);
+    final path = await getFilePath(uuid);
     await _audioPlayer.setSource(DeviceFileSource(path));
     await _audioPlayer.resume();
   }
@@ -94,7 +94,7 @@ class UtteranceRecordingService {
 
   /// Returns true if a recording file exists for the given UUID.
   Future<bool> recordingFileExists(String uuid) async {
-    final path = await _getFilePath(uuid);
+    final path = await getFilePath(uuid);
     final file = File(path);
     return await file.exists();
   }
@@ -117,7 +117,7 @@ class UtteranceRecordingService {
   }
 
   /// Returns the path of the recording file.
-  Future<String> _getFilePath(String uuid) async {
+  Future<String> getFilePath(String uuid) async {
     final dir = await getApplicationDocumentsDirectory();
     return p.join(dir.path, '$uuid.m4a');
   }

@@ -1,12 +1,17 @@
 from random import choice
 import math
 import time
+import tempfile
+import os
+import shutil
 
 from flask import Flask, request, jsonify
 from decorators import auth_required
 from dotenv import load_dotenv
 from exceptions import AppException
 from chatgpt_service import ChatGptService
+from streaming_form_data import StreamingFormDataParser
+from streaming_form_data.targets import FileTarget, ValueTarget
 
 # Load environment variables from .env file.
 load_dotenv()
@@ -20,6 +25,7 @@ app = Flask(__name__)
 @auth_required
 def hello():
     """API for health check."""
+
     if request.args.get("duration") is not None:
         duration = int(request.args.get("duration"))
         time.sleep(duration)
@@ -31,7 +37,14 @@ def hello():
 @app.route("/generate-topics", methods=["POST"])
 @auth_required
 def generate_topics():
-    """API for generating topics for Writing and Speaking."""
+    """API for generating topics for Writing and Speaking.
+
+    Args: application/json
+        count: See `ChatGptService.generate_topics`.
+
+    Returns: application/json
+        topics: See `ChatGptService.generate_topics`.
+    """
 
     json = request.get_json()
     _validate_parameters(json, "count")
@@ -52,7 +65,17 @@ def generate_topics():
 @app.route("/writing/task1/generate-prompt", methods=["POST"])
 @auth_required
 def writing_task1_generate_prompt():
-    """API for generating prompt for Writing Task 1."""
+    """API for generating prompt for Writing Task 1.
+
+    Args: application/json
+        diagram_type, topics:
+            See `ChatGptService.generate_writing_task1_prompt`.
+
+    Returns: application/json
+        topics, introduction, diagram_description, diagram_data:
+            See `ChatGptService.generate_writing_task1_prompt`.
+        instruction (str): Instruction sentence put after intruduction sentence.
+    """
 
     json = request.get_json()
     _validate_parameters(json, ["topics", "diagram_type"])
@@ -74,7 +97,6 @@ def writing_task1_generate_prompt():
         }
 
     except Exception as e:
-        print(e)
         raise AppException("failed to generate prompt: {}".format(json))
 
     return jsonify(resp_json)
@@ -83,7 +105,14 @@ def writing_task1_generate_prompt():
 @app.route("/writing/task2/generate-prompt", methods=["POST"])
 @auth_required
 def writing_task2_generate_prompt():
-    """API for generating prompt for Writing Task 2."""
+    """API for generating prompt for Writing Task 2.
+
+    Args: application/json
+        essay_type, topics: See `ChatGptService.generate_writing_task2_prompt`.
+
+    Returns: application/json
+        See `ChatGptService.generate_writing_task2_prompt`.
+    """
 
     json = request.get_json()
     _validate_parameters(json, ["topics", "essay_type"])
@@ -99,7 +128,6 @@ def writing_task2_generate_prompt():
             "instruction": prompt["instruction"],
         }
     except Exception as e:
-        print(e)
         raise AppException("failed to generate prompt: {}".format(json))
 
     return jsonify(resp_json)
@@ -108,14 +136,28 @@ def writing_task2_generate_prompt():
 @app.route("/speaking/part1/generate-question", methods=["POST"])
 @auth_required
 def speaking_part1_generate_question():
-    """API for generating question for Speaking Part 1."""
+    """API for generating question for Speaking Part 1.
+
+    Args: application/json
+        See `_speaking_generate_question`.
+
+    Returns: application/json
+        See `_speaking_generate_question`.
+    """
     return _speaking_generate_question(1, request.get_json())
 
 
 @app.route("/speaking/part2/generate-cuecard", methods=["POST"])
 @auth_required
 def speaking_part2_generate_cuecard():
-    """API for generating cur card content for Speaking Part 2."""
+    """API for generating cur card content for Speaking Part 2.
+
+    Args: application/json
+        topic: See `ChatGptService.generate_speaking_part2_cuecard`.
+
+    Returns: application/json
+        See `ChatGptService.generate_speaking_part2_cuecard`.
+    """
 
     json = request.get_json()
     _validate_parameters(json, "topic")
@@ -134,14 +176,29 @@ def speaking_part2_generate_cuecard():
 @app.route("/speaking/part3/generate-question", methods=["POST"])
 @auth_required
 def speaking_part3_generate_question():
-    """API for generating question for Speaking Part 3."""
+    """API for generating question for Speaking Part 3.
+
+    Args: application/json
+        See `_speaking_generate_question`.
+
+    Returns: application/json
+        See `_speaking_generate_question`.
+    """
+
     return _speaking_generate_question(3, request.get_json())
 
 
 @app.route("/speaking/generate-transition-message", methods=["POST"])
 @auth_required
 def speaking_transition_message():
-    """API for getting transition message for Speaking Part 1 and Part 3."""
+    """API for getting transition message for Speaking Part 1 and Part 3.
+
+    Args: application/json
+        topic (str): Topic to include message.
+
+    Returns: application/json
+        message (str): Generated transition message.
+    """
 
     json = request.get_json()
     _validate_parameters(json, "topic")
@@ -170,7 +227,14 @@ def speaking_transition_message():
 @app.route("/speaking/generate-closing-message", methods=["POST"])
 @auth_required
 def speaking_closing_message():
-    """API for getting closing message for Speaking Part 1 and Part 3."""
+    """API for getting closing message for Speaking Part 1 and Part 3.
+
+    Args: application/json
+        topic (str): Topic to include message.
+
+    Returns: application/json
+        message (str): Generated transition message.
+    """
 
     json = request.get_json()
     _validate_parameters(json, "part")
@@ -199,7 +263,24 @@ def speaking_closing_message():
 @app.route("/writing/task1/evaluate", methods=["POST"])
 @auth_required
 def writing_task1_evaluate():
-    """API for evaluating the answer for Writing Task 1."""
+    """API for evaluating the answer for Writing Task 1.
+
+    Args: application/json
+        prompt, diagram_type, diagram_description, answer:
+            See `ChatGptService.evaluate_writing_task1_answer`.
+
+    Returns: application/json
+        achievement_score, coherence_score, grammatical_score, lexical_score:
+            See `ChatGptService.evaluate_writing_task1_answer`.
+        achievement_feedback (str):
+            Feedback for Task Achievement, including positive and negative ones.
+        coherence_feedback (str):
+            Feedback for Coherence and Cohesion, including positive and negative ones.
+        grammatical_feedback (str):
+            Feedback for Grammatical Range and Accuracy, including positive and negative ones.
+        lexical_feedback (str):
+            Feedback for Lexical Resource, including positive and negative ones.
+    """
 
     json = request.get_json()
     _validate_parameters(
@@ -222,6 +303,7 @@ def writing_task1_evaluate():
         "coherence_score": evaluation.coherence_score,
         "grammatical_score": evaluation.grammatical_score,
         "lexical_score": evaluation.lexical_score,
+        # TODO:
         "band_score": _calculate_band_score(
             evaluation.achievement_score,
             evaluation.coherence_score,
@@ -252,7 +334,25 @@ def writing_task1_evaluate():
 @app.route("/writing/task2/evaluate", methods=["POST"])
 @auth_required
 def writing_task2_evaluate():
-    """API for evaluating the answer for Writing Task 2."""
+    """API for evaluating the answer for Writing Task 2.
+
+    Args: application/json
+        prompt, answer:
+            See `ChatGptService.evaluate_writing_task2_answer`.
+
+    Returns: application/json
+        response_score, coherence_score, grammatical_score, lexical_score:
+            See `ChatGptService.evaluate_writing_task2_answer`.
+        band_score: TODO:
+        response_feedback (str):
+            Feedback for Task Response, including positive and negative ones.
+        coherence_feedback (str):
+            Feedback for Coherence and Cohesion, including positive and negative ones.
+        grammatical_feedback (str):
+            Feedback for Grammatical Range and Accuracy, including positive and negative ones.
+        lexical_feedback (str):
+            Feedback for Lexical Resource, including positive and negative ones.
+    """
 
     json = request.get_json()
     _validate_parameters(json, ["prompt", "answer"])
@@ -301,14 +401,36 @@ def writing_task2_evaluate():
 @app.route("/speaking/part1/evaluate", methods=["POST"])
 @auth_required
 def speaking_part1_evaluate():
-    """API for evaluating the answer for Speaking Part 1."""
+    """API for evaluating the answer for Speaking Part 1.
+
+    Args: application/json
+        See `_speaking_answer_evaluate`.
+
+    Returns: application/json
+        See `_speaking_answer_evaluate`.
+    """
     return _speaking_answer_evaluate(1)
 
 
 @app.route("/speaking/part2/evaluate", methods=["POST"])
 @auth_required
 def speaking_part2_evaluate():
-    """API for evaluating the answer for Speaking Part 2."""
+    """API for evaluating the answer for Speaking Part 2.
+
+    Args: application/json
+        prompt, speech: See `ChatGptService.evaluate_speaking_part2_answer`.
+
+    Returns: application/json
+        coherence_score, lexical_score, grammatical_score:
+            See `ChatGptService.evaluate_speaking_part2_answer`.
+        coherence_feedback (str):
+            Feedback for Coherence and Cohesion, including positive and negative ones.
+        lexical_feedback (str):
+            Feedback for Lexical Resource, including positive and negative ones.
+        grammatical_feedback (str):
+            Feedback for Grammatical Range and Accuracy, including positive and negative ones.
+    """
+
     json = request.get_json()
     _validate_parameters(json, ["prompt", "speech"])
 
@@ -327,14 +449,82 @@ def speaking_part2_evaluate():
 @app.route("/speaking/part3/evaluate", methods=["POST"])
 @auth_required
 def speaking_part3_evaluate():
-    """API for evaluating the answer for Speaking Part 3."""
+    """API for evaluating the answer for Speaking Part 3.
+
+    Args: application/json
+        See `_speaking_answer_evaluate`.
+
+    Returns: application/json
+        See `_speaking_answer_evaluate`.
+    """
+
     return _speaking_answer_evaluate(3)
+
+
+@app.route("/speaking/evaluate-pronanciation", methods=["POST"])
+@auth_required
+def speaking_evaluate_pronanciation():
+    """API for evaluating pronanciation with script.
+
+    Args: multipart/form-data
+        script (str): Script of speech.
+        audio_data (bytes): Recorded audio data (m4a) of the user's speech.
+
+    Returns: application/json
+        score (float): Fluency score.
+    """
+
+    # Ref. https://github.com/siddhantgoel/streaming-form-data
+
+    # Create temporary .m4a file.
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".m4a") as f:
+        tmp_name = f.name
+
+    print("tmp_name: {}".format(tmp_name))
+
+    script_target = ValueTarget()
+    audio_file_target = FileTarget(tmp_name)
+
+    parser = StreamingFormDataParser(headers=request.headers)
+    parser.register("script", script_target)
+    parser.register("audio_data", audio_file_target)
+
+    # Read data through stream.
+    byte_len = 262144  # 256K bytes
+    try:
+        while True:
+            chunk = request.stream.read(byte_len)
+            if not chunk:
+                break
+            parser.data_received(chunk)
+
+        script = script_target.value.decode("utf-8")
+        audio_file_target.on_finish()
+
+        print("script: {}".format(script))
+
+        # TODO: Call Azure Speech Service
+
+        # TODO: test file check
+        target_dir = "/Users/hiro/oregon-work/gcs/cs406/repo_cs406_ielts_ai_trainer/api_server/_tests/audio"
+        shutil.copy2(tmp_name, target_dir)
+
+    finally:
+        # Delete temporary file.
+        if os.path.exists(tmp_name):
+            os.remove(tmp_name)
+
+    return jsonify(
+        {
+            "score": 3.5,
+        }
+    )
 
 
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Exception handler to return error information in JSON format."""
-    return jsonify({"error": e})
+    return jsonify({"error": str(e)})
 
 
 def _validate_parameters(json: dict, names: str | list[str]):
@@ -388,12 +578,12 @@ def _speaking_generate_question(part_no: int, json: any):
                 user_reply=json["reply"],
             )
     except Exception as e:
-        print(e)
         raise AppException("failed to generate prompt: {}".format(json))
 
     return jsonify(resp_json)
 
 
+# TODO:
 def _calculate_band_score(
     s1: float, s2: float, s3: float, s4: float = None
 ) -> float:

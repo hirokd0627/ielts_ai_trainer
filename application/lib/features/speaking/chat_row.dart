@@ -39,8 +39,8 @@ class ChatRow extends StatelessWidget {
   /// Whether to display on the result screen.
   final bool isResultView;
 
-  /// The fluency score of an audio.
-  final double? fluencyScore;
+  /// The widget to show score.
+  final Widget? scoreWidget;
 
   const ChatRow({
     super.key,
@@ -54,7 +54,7 @@ class ChatRow extends StatelessWidget {
     this.onPressedPlay,
     this.onPressedRecording,
     this.isResultView = false,
-    this.fluencyScore = 0.0,
+    this.scoreWidget,
   }) : _assetName = isUser ? _userImageAssetName : _aiImageAssetName;
 
   /// Font size for message texts.
@@ -117,6 +117,7 @@ class ChatRow extends StatelessWidget {
                     spacing: 10,
                     runSpacing: 10,
                     alignment: WrapAlignment.end,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       // Recording buttoon
                       if (showRecordingButton)
@@ -126,9 +127,8 @@ class ChatRow extends StatelessWidget {
                               ? null
                               : () => onPressedRecording!(index!),
                         ),
-                      if (isResultView && fluencyScore != null) ...[
-                        Text('Fluency: $fluencyScore'),
-                      ],
+                      // Score
+                      if (isResultView && scoreWidget != null) scoreWidget!,
                       // Play button
                       if (showPlayButton)
                         buildOutlinedButton(

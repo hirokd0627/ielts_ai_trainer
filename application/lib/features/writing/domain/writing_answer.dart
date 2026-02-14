@@ -16,7 +16,6 @@ abstract class WritingAnswer with _$WritingAnswer {
     int? detailId,
     required TestTask testTask,
     required DateTime createdAt,
-    required DateTime updatedAt,
     required WritingPromptType promptType,
     required WritingPromptVo writingPrompt,
     required List<PromptTopic> topics,

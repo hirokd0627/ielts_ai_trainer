@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Text widget styled as a screen title.
 class ScreenTitleText extends StatelessWidget {
@@ -33,9 +34,12 @@ class HeadlineText extends StatelessWidget {
   }
 
   TextStyle? _getStyle(BuildContext context) {
-    return level == 1
-        ? Theme.of(context).textTheme.headlineMedium
-        : Theme.of(context).textTheme.headlineSmall;
+    if (level == 1) {
+      return Theme.of(context).textTheme.headlineMedium;
+    }
+    return GoogleFonts.roboto(
+      textStyle: TextStyle(fontWeight: FontWeight.w500),
+    );
   }
 }
 

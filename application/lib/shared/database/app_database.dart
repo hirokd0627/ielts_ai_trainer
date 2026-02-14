@@ -21,7 +21,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
@@ -85,8 +85,6 @@ class WritingAnswerDetailsTable extends Table {
   TextColumn get coherencekFeedback => text().nullable()();
   TextColumn get lexialFeedback => text().nullable()();
   TextColumn get grammaticalFeedback => text().nullable()();
-  // creation date is the same as the parent UserAnswer
-  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 /// prompt_topics
@@ -120,10 +118,7 @@ class SpeakingAnswerDetailsTable extends Table {
   TextColumn get coherenceFeedback => text().nullable()();
   TextColumn get lexicalFeedback => text().nullable()();
   TextColumn get grammaticalFeedback => text().nullable()();
-  TextColumn get fluencyFeedback => text().nullable()();
   TextColumn get note => text().nullable()(); // used by only Part2
-  // creation date is the same as the parent UserAnswer
-  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 /// speaking_utterances
@@ -134,12 +129,11 @@ class SpeakingUtterancesTable extends Table {
   IntColumn get userAnswerId => integer().references(UserAnswersTable, #id)();
   IntColumn get order => integer()();
   BoolColumn get isUser => boolean()();
+  BoolColumn get isGraded => boolean().withDefault(Constant(false))();
   TextColumn get message => text()();
   TextColumn get audioFileUuid => text().nullable()();
   // score is nullable because it will be updated after evaluation.
   RealColumn get fluencyScore => real().nullable()();
-  // creation date is the same as the parent UserAnswer
-  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {userAnswerId, order};

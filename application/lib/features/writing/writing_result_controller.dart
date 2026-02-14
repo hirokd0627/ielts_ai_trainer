@@ -117,7 +117,6 @@ class WritingResultController extends ChangeNotifier {
       lexialFeedback: resp.lexicalFeedback.join(" "),
       grammaticalFeedback: resp.grammaticalFeedback.join(" "),
       isGraded: true,
-      updatedAt: DateTime.now(),
     );
 
     try {

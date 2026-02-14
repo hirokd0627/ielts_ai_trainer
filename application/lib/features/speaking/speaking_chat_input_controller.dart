@@ -217,7 +217,12 @@ class SpeakingChatInputController extends ChangeNotifier {
   void addMessage(bool isUser, String text) {
     final nextOrder = _messages.length + 1;
     _messages.add(
-      SpeakingUtteranceVO(order: nextOrder, isUser: isUser, text: text),
+      SpeakingUtteranceVO(
+        order: nextOrder,
+        isUser: isUser,
+        isGraded: false,
+        text: text,
+      ),
     );
 
     _recordingState[_messages.length - 1] = 0;
@@ -295,7 +300,6 @@ class SpeakingChatInputController extends ChangeNotifier {
     final answer = SpeakingChatAnswer(
       utterances: _messages,
       createdAt: now,
-      updatedAt: now,
       topics: topics,
       isGraded: false,
       duration: _elapsedDuration.inSeconds,
