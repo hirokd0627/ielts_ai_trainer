@@ -49,7 +49,7 @@ $Res call({
 });
 
 
-
+$WritingPromptVoCopyWith<$Res> get writingPrompt;
 
 }
 /// @nodoc
@@ -87,7 +87,16 @@ as String?,grammaticalFeedback: freezed == grammaticalFeedback ? _self.grammatic
 as String?,
   ));
 }
-
+/// Create a copy of WritingAnswer
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WritingPromptVoCopyWith<$Res> get writingPrompt {
+  
+  return $WritingPromptVoCopyWith<$Res>(_self.writingPrompt, (value) {
+    return _then(_self.copyWith(writingPrompt: value));
+  });
+}
 }
 
 
@@ -289,7 +298,7 @@ $Res call({
 });
 
 
-
+@override $WritingPromptVoCopyWith<$Res> get writingPrompt;
 
 }
 /// @nodoc
@@ -328,7 +337,16 @@ as String?,
   ));
 }
 
-
+/// Create a copy of WritingAnswer
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WritingPromptVoCopyWith<$Res> get writingPrompt {
+  
+  return $WritingPromptVoCopyWith<$Res>(_self.writingPrompt, (value) {
+    return _then(_self.copyWith(writingPrompt: value));
+  });
+}
 }
 
 // dart format on

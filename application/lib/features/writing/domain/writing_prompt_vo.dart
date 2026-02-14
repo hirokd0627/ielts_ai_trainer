@@ -4,17 +4,15 @@ part 'writing_prompt_vo.freezed.dart';
 
 /// Value object that represents Writing prompt components.
 @freezed
-class WritingPromptVo {
-  final String taskContext, taskInstruction;
-  String? diagramDescription;
-  String? diagramUuid;
+abstract class WritingPromptVo with _$WritingPromptVo {
+  const WritingPromptVo._();
 
-  WritingPromptVo({
-    required this.taskContext,
-    required this.taskInstruction,
-    this.diagramDescription,
-    this.diagramUuid,
-  });
+  const factory WritingPromptVo({
+    required String taskContext,
+    required String taskInstruction,
+    String? diagramDescription,
+    String? diagramUuid,
+  }) = _WritingPromptVo;
 
   String get promptText {
     return "$taskContext $taskInstruction";

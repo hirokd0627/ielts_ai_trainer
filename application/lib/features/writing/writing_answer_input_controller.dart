@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer_repository.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_prompt_vo.dart';
+import 'package:ielts_ai_trainer/features/writing/writing_diagram_service.dart';
 import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
@@ -13,6 +14,8 @@ import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 class WritingAnswerInputController extends ChangeNotifier {
   /// Repository for user answers related to writing tasks.
   final WritingAnswerRepository _repo;
+
+  final WritingDiagramService _diagramSrv = WritingDiagramService();
 
   /// The start time used to calculate the elapsed duration.
   late DateTime _startTime;
@@ -127,6 +130,12 @@ class WritingAnswerInputController extends ChangeNotifier {
       updatedAt: now,
     );
 
-    return await _repo.saveUserAnswerWriting(answer);
+    final id = await _repo.saveUserAnswerWriting(answer);
+
+    if (_testTask == TestTask.writingTask1) {
+      _diagramSrv.persistTmpFile(_writingPrompt.diagramUuid!);
+    }
+
+    return id;
   }
 }

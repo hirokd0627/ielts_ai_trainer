@@ -46,8 +46,8 @@ class WritingDiagramService {
   /// Deltes the temporary file.
   Future<void> removeTmpFiles() async {
     final dirPath = await getApplicationDocumentsDirectory();
-    final gp = Glob('$dirPath/tmp_*.jpg');
-    await for (final item in gp.list()) {
+    final gp = Glob(p.join(dirPath.path, 'tmp_*.jpg'));
+    for (final item in gp.listSync()) {
       if (item is File) {
         await item.delete();
       }

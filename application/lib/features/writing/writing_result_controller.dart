@@ -127,10 +127,6 @@ class WritingResultController extends ChangeNotifier {
       return;
     }
 
-    if (gradedAnswer.testTask == TestTask.writingTask1) {
-      _diagramSrv.persistTmpFile(gradedAnswer.writingPrompt.diagramUuid!);
-    }
-
     notifyListeners();
   }
 }

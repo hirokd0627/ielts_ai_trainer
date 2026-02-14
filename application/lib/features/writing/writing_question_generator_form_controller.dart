@@ -132,6 +132,10 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
     // Generate prompt.
     if (_testTask == TestTask.writingTask1) {
+      if (_diagramPath.isNotEmpty) {
+        await _diagramSrv.removeTmpFiles();
+      }
+
       final prompt = await _apiSrv.generateTask1Prompt(
         _promptType!.diagramType,
         targetTopics,
@@ -143,9 +147,6 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
         diagramDescription: prompt.diagramDescription,
         diagramUuid: uuid,
       );
-      if (_diagramPath.isNotEmpty) {
-        await _diagramSrv.removeTmpFiles();
-      }
       _diagramPath = await _diagramSrv.getTempFilePath(uuid);
     } else {
       final prompt = await _apiSrv.generateTask2Prompt(
