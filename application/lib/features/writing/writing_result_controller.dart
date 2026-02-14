@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer_repository.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
+import 'package:ielts_ai_trainer/features/writing/writing_diagram_service.dart';
+import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 
 /// Controller for WritingResultScreen.
 class WritingResultController extends ChangeNotifier {
@@ -12,8 +14,16 @@ class WritingResultController extends ChangeNotifier {
   /// API service to grade the answer.
   final WritingApiService _apiSrv;
 
+  final WritingDiagramService _diagramSrv = WritingDiagramService();
+
   /// The currently loaded writing answer to display and grade.
   WritingAnswer? _writingAnswer;
+
+  /// The diagram file path.
+  String _diagramPath = '';
+
+  /// Whether the diagram image file exists.
+  bool _existsDiagramFile = false;
 
   WritingResultController({
     required WritingAnswerRepository repo,
@@ -21,72 +31,101 @@ class WritingResultController extends ChangeNotifier {
   }) : _repo = repo,
        _apiSrv = apiSrv;
 
-  String get overallScore {
-    return _writingAnswer?.score.toString() ?? "";
+  String get diagramPath => _diagramPath;
+
+  String get bandScore => _writingAnswer?.bandScore.toString() ?? "";
+
+  String get taskScore => _writingAnswer?.taskScore.toString() ?? '';
+
+  String get coherenceScore => _writingAnswer?.coherenceScore.toString() ?? '';
+
+  String get grammaticalScore =>
+      _writingAnswer?.grammaticalScore.toString() ?? '';
+
+  String get lexialScore => _writingAnswer?.lexialScore.toString() ?? '';
+
+  String get taskFeedback => _writingAnswer?.taskFeedback ?? "";
+
+  String get coherenceFeedback => _writingAnswer?.coherenceFeedback ?? "";
+
+  String get lexialFeedback => _writingAnswer?.lexialFeedback ?? "";
+
+  String get grammaticalFeedback => _writingAnswer?.grammaticalFeedback ?? "";
+
+  String get taskContext => _writingAnswer?.writingPrompt.taskContext ?? "";
+
+  String get task2PromptText {
+    if (_writingAnswer == null) {
+      return '';
+    }
+    return "${_writingAnswer!.writingPrompt.taskContext} ${_writingAnswer!.writingPrompt.taskInstruction}";
   }
 
-  String get achievementScore {
-    return _writingAnswer?.achievement.toString() ?? '';
-  }
+  String get taskInstruction =>
+      _writingAnswer?.writingPrompt.taskInstruction ?? "";
 
-  String get coherenceScore {
-    return _writingAnswer?.coherence.toString() ?? '';
-  }
+  String get answerText => _writingAnswer?.answerText ?? "";
 
-  String get grammaticalScore {
-    return _writingAnswer?.grammatical.toString() ?? '';
-  }
+  bool get isGraded => _writingAnswer?.isGraded ?? false;
 
-  String get lexialScore {
-    return _writingAnswer?.lexial.toString() ?? '';
-  }
-
-  String get feedbackText {
-    return _writingAnswer?.feedback ?? "";
-  }
-
-  String get promptText {
-    return _writingAnswer?.promptText ?? "";
-  }
-
-  String get answerText {
-    return _writingAnswer?.answerText ?? "";
-  }
-
-  bool get isGraded {
-    return _writingAnswer?.isGraded ?? false;
-  }
+  bool get existsDiagramFile => _existsDiagramFile;
 
   /// Loads the answer by its id.
   Future<void> loadData(int id) async {
     _writingAnswer = await _repo.selectAnswerById(id);
 
+    if (_writingAnswer!.testTask == TestTask.writingTask1) {
+      _diagramPath = await _diagramSrv.getFilePath(
+        _writingAnswer!.writingPrompt.diagramUuid!,
+      );
+      if (_writingAnswer!.writingPrompt.diagramUuid != null &&
+          _writingAnswer!.writingPrompt.diagramUuid!.isNotEmpty) {
+        _existsDiagramFile = await _diagramSrv.existsFile(
+          _writingAnswer!.writingPrompt.diagramUuid!,
+        );
+      }
+    }
+
     notifyListeners();
   }
 
-  /// Grades the current answer and updates the answer in the repository,
-  Future<void> grade() async {
-    final resp = await _apiSrv.gradeAnswer(
-      testTask: _writingAnswer!.testTask,
-      promptType: _writingAnswer!.promptType,
-      promptText: _writingAnswer!.promptText,
-      answerText: _writingAnswer!.answerText,
-    );
+  /// Evaluates the current answer and updates the answer in the repository,
+  Future<void> evaluateAnswer() async {
+    late WritingEvaluationResponse resp;
+    if (_writingAnswer!.testTask == TestTask.writingTask1) {
+      resp = await _apiSrv.evaluateTask1Answer(
+        promptText: _writingAnswer!.writingPrompt.promptText,
+        promptType: _writingAnswer!.promptType,
+        diagramDescription: _writingAnswer!.writingPrompt.diagramDescription!,
+        answerText: _writingAnswer!.answerText,
+      );
+    } else {
+      resp = await _apiSrv.evaluateTask2Answer(
+        promptText: _writingAnswer!.writingPrompt.promptText,
+        answerText: _writingAnswer!.answerText,
+      );
+    }
 
-    // Updates results in answer
     final gradedAnswer = _writingAnswer!.copyWith(
-      achievement: resp.achievement,
-      coherence: resp.coherence,
-      lexial: resp.lexial,
-      grammatical: resp.grammatical,
-      score: resp.score,
-      feedback: resp.feedback,
+      bandScore: resp.bandScore,
+      taskScore: resp.taskScore,
+      coherenceScore: resp.coherenceScore,
+      lexialScore: resp.lexialScore,
+      grammaticalScore: resp.grammaticalScore,
+      taskFeedback: resp.taskFeedback.join(" "),
+      coherenceFeedback: resp.coherenceFeedback.join(" "),
+      lexialFeedback: resp.lexicalFeedback.join(" "),
+      grammaticalFeedback: resp.grammaticalFeedback.join(" "),
       isGraded: true,
       updatedAt: DateTime.now(),
     );
-    _repo.saveUserAnswerWriting(gradedAnswer);
 
-    _writingAnswer = gradedAnswer;
+    try {
+      _repo.saveUserAnswerWriting(gradedAnswer);
+      _writingAnswer = gradedAnswer;
+    } catch (e) {
+      return;
+    }
 
     notifyListeners();
   }

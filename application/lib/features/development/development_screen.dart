@@ -14,17 +14,6 @@ class DevelopmentScreen extends StatelessWidget {
     return BaseScreenScaffold(
       body: Column(
         children: [
-          // Button to reset database
-          TextButton(
-            onPressed: () async {
-              final db = context.read<AppDatabase>();
-              final logger = createLogger('DevelopmentScreenState');
-
-              await db.resetToDevelopmentData();
-              logger.d('DB reset completed');
-            },
-            child: Text("Reset DB data"),
-          ),
           // Button to erase database all data
           TextButton(
             onPressed: () async {

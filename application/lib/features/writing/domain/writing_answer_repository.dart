@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer.dart';
+import 'package:ielts_ai_trainer/features/writing/domain/writing_prompt_vo.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
@@ -56,17 +57,25 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
       createdAt: userAnswer.createdAt,
       updatedAt: detail.updatedAt,
       promptType: WritingPromptType.fromString(detail.promptType),
-      promptText: detail.promptText,
+      writingPrompt: WritingPromptVo(
+        taskContext: detail.taskContext,
+        taskInstruction: detail.taskInstruction,
+        diagramDescription: detail.diagramDescription,
+        diagramUuid: detail.diagramFileUuid,
+      ),
       topics: topics,
       answerText: detail.answerText,
       duration: detail.duration,
       isGraded: detail.isGraded,
-      achievement: detail.achievementScore,
-      coherence: detail.coherenceScore,
-      lexial: detail.lexialScore,
-      grammatical: detail.grammaticalScore,
-      score: detail.score,
-      feedback: detail.feedback,
+      taskScore: detail.taskScore,
+      coherenceScore: detail.coherenceScore,
+      lexialScore: detail.lexialScore,
+      grammaticalScore: detail.grammaticalScore,
+      bandScore: detail.bandScore,
+      taskFeedback: detail.taskFeedback,
+      coherenceFeedback: detail.coherencekFeedback,
+      lexialFeedback: detail.lexialFeedback,
+      grammaticalFeedback: detail.grammaticalFeedback,
     );
   }
 
@@ -119,17 +128,23 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
       userAnswerId: answer.id != null
           ? Value(answer.id!)
           : const Value.absent(),
+      taskContext: Value(answer.writingPrompt.taskContext),
+      taskInstruction: Value(answer.writingPrompt.taskInstruction),
+      diagramDescription: Value(answer.writingPrompt.diagramDescription),
+      diagramFileUuid: Value(answer.writingPrompt.diagramUuid),
       promptType: Value(answer.promptType.name),
-      promptText: Value(answer.promptText),
       answerText: Value(answer.answerText),
       duration: Value(answer.duration),
-      score: Value(answer.score),
-      achievementScore: Value(answer.achievement),
-      coherenceScore: Value(answer.coherence),
-      lexialScore: Value(answer.lexial),
-      grammaticalScore: Value(answer.grammatical),
+      bandScore: Value(answer.bandScore),
+      taskScore: Value(answer.taskScore),
+      coherenceScore: Value(answer.coherenceScore),
+      lexialScore: Value(answer.lexialScore),
+      grammaticalScore: Value(answer.grammaticalScore),
       isGraded: Value(answer.isGraded),
-      feedback: Value(answer.feedback),
+      taskFeedback: Value(answer.taskFeedback),
+      coherencekFeedback: Value(answer.coherenceFeedback),
+      lexialFeedback: Value(answer.lexialFeedback),
+      grammaticalFeedback: Value(answer.grammaticalFeedback),
       updatedAt: Value(answer.updatedAt.toUtc()),
     );
   }

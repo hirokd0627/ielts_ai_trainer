@@ -1,7 +1,8 @@
 from random import choice
+import math
 import time
 
-from flask import Flask, request, jsonify, json
+from flask import Flask, request, jsonify
 from decorators import auth_required
 from dotenv import load_dotenv
 from exceptions import AppException
@@ -195,19 +196,116 @@ def speaking_closing_message():
     return jsonify({"message": message})
 
 
+@app.route("/writing/task1/evaluate", methods=["POST"])
+@auth_required
+def writing_task1_evaluate():
+    """API for evaluating the answer for Writing Task 1."""
+
+    json = request.get_json()
+    _validate_parameters(
+        json, ["prompt", "diagram_type", "diagram_description", "answer"]
+    )
+
+    try:
+        chatgpt = ChatGptService()
+        evaluation = chatgpt.evaluate_writing_task1_answer(
+            prompt=json["prompt"],
+            diagram_type=json["diagram_type"],
+            diagram_description=json["diagram_description"],
+            answer=json["answer"],
+        )
+    except Exception:
+        raise AppException("failed to evaluate answer: {}".format(json))
+
+    resp_json = {
+        "achievement_score": evaluation.achievement_score,
+        "coherence_score": evaluation.coherence_score,
+        "grammatical_score": evaluation.grammatical_score,
+        "lexical_score": evaluation.lexical_score,
+        "band_score": _calculate_band_score(
+            evaluation.achievement_score,
+            evaluation.coherence_score,
+            evaluation.grammatical_score,
+            evaluation.lexical_score,
+        ),
+        "achievement_feedback": [
+            evaluation.achievement_feedback1,
+            evaluation.achievement_feedback2,
+        ],
+        "coherence_feedback": [
+            evaluation.coherence_feedback1,
+            evaluation.coherence_feedback2,
+        ],
+        "grammatical_feedback": [
+            evaluation.grammatical_feedback1,
+            evaluation.grammatical_feedback2,
+        ],
+        "lexical_feedback": [
+            evaluation.lexical_feedback1,
+            evaluation.lexical_feedback2,
+        ],
+    }
+
+    return jsonify(resp_json)
+
+
+@app.route("/writing/task2/evaluate", methods=["POST"])
+@auth_required
+def writing_task2_evaluate():
+    """API for evaluating the answer for Writing Task 2."""
+
+    json = request.get_json()
+    _validate_parameters(json, ["prompt", "answer"])
+
+    try:
+        chatgpt = ChatGptService()
+        evaluation = chatgpt.evaluate_writing_task2_answer(
+            prompt=json["prompt"],
+            answer=json["answer"],
+        )
+    except Exception:
+        raise AppException("failed to evaluate answer: {}".format(json))
+
+    resp_json = {
+        "response_score": evaluation.response_score,
+        "coherence_score": evaluation.coherence_score,
+        "grammatical_score": evaluation.grammatical_score,
+        "lexical_score": evaluation.lexical_score,
+        "band_score": _calculate_band_score(
+            evaluation.response_score,
+            evaluation.coherence_score,
+            evaluation.grammatical_score,
+            evaluation.lexical_score,
+        ),
+        "response_feedback": [
+            evaluation.response_feedback1,
+            evaluation.response_feedback2,
+        ],
+        "coherence_feedback": [
+            evaluation.coherence_feedback1,
+            evaluation.coherence_feedback2,
+        ],
+        "grammatical_feedback": [
+            evaluation.grammatical_feedback1,
+            evaluation.grammatical_feedback2,
+        ],
+        "lexical_feedback": [
+            evaluation.lexical_feedback1,
+            evaluation.lexical_feedback2,
+        ],
+    }
+
+    return jsonify(resp_json)
+
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Exception handler to return error information in JSON format."""
-    response = e.get_response()
-    response.data = json.dumps(
+    return jsonify(
         {
-            "code": e.code,
-            "name": e.name,
             "description": e.description,
         }
     )
-    response.content_type = "application/json"
-    return response
 
 
 def _validate_parameters(json: dict, names: str | list[str]):
@@ -265,3 +363,15 @@ def _speaking_generate_question(part_no: int, json: any):
         raise AppException("failed to generate prompt: {}".format(json))
 
     return jsonify(resp_json)
+
+
+def _calculate_band_score(s1: float, s2: float, s3: float, s4: float) -> float:
+    """Returns IELTS band score based on four criteria scores."""
+    avg = (s1 + s2 + s3 + s4) / 4
+    frac, score = math.modf(avg)
+    if frac >= 0.75:
+        score += 1.0
+    elif frac >= 0.25:
+        score += 0.5
+
+    return score
