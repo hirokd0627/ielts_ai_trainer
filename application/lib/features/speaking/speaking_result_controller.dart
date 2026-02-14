@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_answer_repository.dart';
@@ -50,40 +49,74 @@ class SpeakingResultController extends ChangeNotifier {
     );
   }
 
-  String get overallScore {
+  String get bandScore {
     return _chatAnswer != null
-        ? _chatAnswer!.score.toString()
-        : _speechAnswer?.score.toString() ?? '';
+        ? _chatAnswer!.bandScore.toString()
+        : _speechAnswer?.bandScore.toString() ?? '';
   }
 
   String get fluencyScore {
-    return _chatAnswer != null
-        ? _chatAnswer!.fluency.toString()
-        : _speechAnswer?.fluency.toString() ?? '';
+    if (_chatAnswer != null) {
+      return _chatAnswer!.fluencyScore != null
+          ? _chatAnswer!.fluencyScore.toString()
+          : '-';
+    }
+    return _speechAnswer!.fluencyScore != null
+        ? _speechAnswer!.fluencyScore.toString()
+        : '-';
   }
 
   String get coherenceScore {
     return _chatAnswer != null
-        ? _chatAnswer!.coherence.toString()
-        : _speechAnswer?.coherence.toString() ?? '';
+        ? _chatAnswer!.coherenceScore.toString()
+        : _speechAnswer?.coherenceScore.toString() ?? '';
   }
 
   String get grammaticalScore {
     return _chatAnswer != null
-        ? _chatAnswer!.grammatical.toString()
-        : _speechAnswer?.grammatical.toString() ?? '';
+        ? _chatAnswer!.grammaticalScore.toString()
+        : _speechAnswer?.grammaticalScore.toString() ?? '';
   }
 
-  String get lexialScore {
+  String get lexicalScore {
     return _chatAnswer != null
-        ? _chatAnswer!.lexial.toString()
-        : _speechAnswer?.lexial.toString() ?? '';
+        ? _chatAnswer!.lexicalScore.toString()
+        : _speechAnswer?.lexicalScore.toString() ?? '';
   }
 
-  String get feedbackText {
+  String get coherenceFeedback {
     return _chatAnswer != null
-        ? _chatAnswer!.feedback.toString()
-        : _speechAnswer?.feedback.toString() ?? '';
+        ? _chatAnswer!.coherenceFeedback != null
+              ? _chatAnswer!.coherenceFeedback.toString()
+              : '-'
+        : _speechAnswer?.coherenceFeedback.toString() ?? '-';
+  }
+
+  String get lexicalFeedback {
+    return _chatAnswer != null
+        ? _chatAnswer!.lexicalFeedback != null
+              ? _chatAnswer!.lexicalFeedback.toString()
+              : ''
+        : _speechAnswer?.lexicalFeedback.toString() ?? '-';
+  }
+
+  String get grammaticalFeedback {
+    return _chatAnswer != null
+        ? _chatAnswer!.grammaticalFeedback != null
+              ? _chatAnswer!.grammaticalFeedback.toString()
+              : ''
+        : _speechAnswer?.grammaticalFeedback.toString() ?? '-';
+  }
+
+  String get fluencyFeedback {
+    if (_chatAnswer != null) {
+      return _chatAnswer!.fluencyFeedback != null
+          ? _chatAnswer!.fluencyFeedback.toString()
+          : '';
+    }
+    return _speechAnswer!.fluencyFeedback != null
+        ? _speechAnswer!.fluencyFeedback.toString()
+        : '-';
   }
 
   String get promptText {
@@ -166,12 +199,12 @@ class SpeakingResultController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Grades the current answer and updates the answer in the repository,
-  Future<void> grade() async {
+  /// Evaluates the current answer and updates the answer in the repository,
+  Future<void> evaluateAnswer() async {
     if (_testTask == TestTask.speakingPart2) {
-      await _gradeSpeechAnswer();
+      await _evaluateSpeechAnswer();
     } else {
-      await _gradeChatAnswer();
+      await _evaluateChatAnswer();
     }
     notifyListeners();
   }
@@ -211,48 +244,45 @@ class SpeakingResultController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Grades the current answer for Part 1 or Part 3 and updates the answer in the repository,
-  Future<void> _gradeChatAnswer() async {
-    final resp = await _apiSrv.gradeChatAnswer(answer: _chatAnswer!);
-
-    final utterances = _chatAnswer!.utterances.mapIndexed((i, u) {
-      return u.copyWith(fluency: resp.utteranceFluency[i]);
-    }).toList();
+  /// Evaluates the current answer for Part 1 or Part 3 and updates the answer in the repository,
+  Future<void> _evaluateChatAnswer() async {
+    final resp = await _apiSrv.evaluateChatAnswer(answer: _chatAnswer!);
 
     // Updates results in answer
     final gradedAnswer = _chatAnswer!.copyWith(
-      fluency: resp.fluency,
-      coherence: resp.coherence,
-      lexial: resp.lexial,
-      grammatical: resp.grammatical,
-      score: resp.score,
-      feedback: resp.feedback,
+      coherenceScore: resp.coherenceScore,
+      lexicalScore: resp.lexicalScore,
+      grammaticalScore: resp.grammaticalScore,
+      coherenceFeedback: resp.coherenceFeedback.join(" "),
+      lexicalFeedback: resp.lexicalFeedback.join(" "),
+      grammaticalFeedback: resp.grammaticalFeedback.join(" "),
       isGraded: true,
       updatedAt: DateTime.now(),
       utterances: utterances,
+      bandScore: resp.bandScore,
     );
-    _repo.saveSpeakingChatAnswer(gradedAnswer);
 
+    _repo.saveSpeakingChatAnswer(gradedAnswer);
     _chatAnswer = gradedAnswer;
 
     notifyListeners();
   }
 
-  /// Grades the current answer for Part 2 and updates the answer in the repository,
-  Future<void> _gradeSpeechAnswer() async {
-    final resp = await _apiSrv.gradeSpeechAnswer(answer: _speechAnswer!);
+  /// Evaluates the current answer for Part 2 and updates the answer in the repository,
+  Future<void> _evaluateSpeechAnswer() async {
+    final resp = await _apiSrv.evaluateSpeechAnswer(answer: _speechAnswer!);
 
     // Updates results in answer
     final gradedAnswer = _speechAnswer!.copyWith(
-      fluency: resp.fluency,
-      coherence: resp.coherence,
-      lexial: resp.lexial,
-      grammatical: resp.grammatical,
-      score: resp.score,
-      feedback: resp.feedback,
-      isGraded: true,
       updatedAt: DateTime.now(),
-      answer: _speechAnswer!.answer.copyWith(fluency: resp.fluency),
+      isGraded: true,
+      coherenceScore: resp.coherenceScore,
+      lexicalScore: resp.lexicalScore,
+      grammaticalScore: resp.grammaticalScore,
+      bandScore: resp.bandScore,
+      coherenceFeedback: resp.coherenceFeedback.join(" "),
+      lexicalFeedback: resp.lexicalFeedback.join(" "),
+      grammaticalFeedback: resp.grammaticalFeedback.join(" "),
     );
     _repo.saveSpeakingSpeechAnswer(gradedAnswer);
 

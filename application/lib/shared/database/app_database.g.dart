@@ -1776,10 +1776,12 @@ class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _scoreMeta = const VerificationMeta('score');
+  static const VerificationMeta _bandScoreMeta = const VerificationMeta(
+    'bandScore',
+  );
   @override
-  late final GeneratedColumn<double> score = GeneratedColumn<double>(
-    'score',
+  late final GeneratedColumn<double> bandScore = GeneratedColumn<double>(
+    'band_score',
     aliasedName,
     true,
     type: DriftSqlType.double,
@@ -1843,12 +1845,46 @@ class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
       'CHECK ("is_graded" IN (0, 1))',
     ),
   );
-  static const VerificationMeta _feedbackMeta = const VerificationMeta(
-    'feedback',
+  static const VerificationMeta _coherenceFeedbackMeta = const VerificationMeta(
+    'coherenceFeedback',
   );
   @override
-  late final GeneratedColumn<String> feedback = GeneratedColumn<String>(
-    'feedback',
+  late final GeneratedColumn<String> coherenceFeedback =
+      GeneratedColumn<String>(
+        'coherence_feedback',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _lexicalFeedbackMeta = const VerificationMeta(
+    'lexicalFeedback',
+  );
+  @override
+  late final GeneratedColumn<String> lexicalFeedback = GeneratedColumn<String>(
+    'lexical_feedback',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _grammaticalFeedbackMeta =
+      const VerificationMeta('grammaticalFeedback');
+  @override
+  late final GeneratedColumn<String> grammaticalFeedback =
+      GeneratedColumn<String>(
+        'grammatical_feedback',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _fluencyFeedbackMeta = const VerificationMeta(
+    'fluencyFeedback',
+  );
+  @override
+  late final GeneratedColumn<String> fluencyFeedback = GeneratedColumn<String>(
+    'fluency_feedback',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -1880,13 +1916,16 @@ class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
     id,
     userAnswerId,
     duration,
-    score,
+    bandScore,
     coherenceScore,
     lexialScore,
     grammaticalScore,
     fluencyScore,
     isGraded,
-    feedback,
+    coherenceFeedback,
+    lexicalFeedback,
+    grammaticalFeedback,
+    fluencyFeedback,
     note,
     updatedAt,
   ];
@@ -1924,10 +1963,10 @@ class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
     } else if (isInserting) {
       context.missing(_durationMeta);
     }
-    if (data.containsKey('score')) {
+    if (data.containsKey('band_score')) {
       context.handle(
-        _scoreMeta,
-        score.isAcceptableOrUnknown(data['score']!, _scoreMeta),
+        _bandScoreMeta,
+        bandScore.isAcceptableOrUnknown(data['band_score']!, _bandScoreMeta),
       );
     }
     if (data.containsKey('coherence_score')) {
@@ -1974,10 +2013,40 @@ class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
     } else if (isInserting) {
       context.missing(_isGradedMeta);
     }
-    if (data.containsKey('feedback')) {
+    if (data.containsKey('coherence_feedback')) {
       context.handle(
-        _feedbackMeta,
-        feedback.isAcceptableOrUnknown(data['feedback']!, _feedbackMeta),
+        _coherenceFeedbackMeta,
+        coherenceFeedback.isAcceptableOrUnknown(
+          data['coherence_feedback']!,
+          _coherenceFeedbackMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lexical_feedback')) {
+      context.handle(
+        _lexicalFeedbackMeta,
+        lexicalFeedback.isAcceptableOrUnknown(
+          data['lexical_feedback']!,
+          _lexicalFeedbackMeta,
+        ),
+      );
+    }
+    if (data.containsKey('grammatical_feedback')) {
+      context.handle(
+        _grammaticalFeedbackMeta,
+        grammaticalFeedback.isAcceptableOrUnknown(
+          data['grammatical_feedback']!,
+          _grammaticalFeedbackMeta,
+        ),
+      );
+    }
+    if (data.containsKey('fluency_feedback')) {
+      context.handle(
+        _fluencyFeedbackMeta,
+        fluencyFeedback.isAcceptableOrUnknown(
+          data['fluency_feedback']!,
+          _fluencyFeedbackMeta,
+        ),
       );
     }
     if (data.containsKey('note')) {
@@ -2016,9 +2085,9 @@ class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
         DriftSqlType.int,
         data['${effectivePrefix}duration'],
       )!,
-      score: attachedDatabase.typeMapping.read(
+      bandScore: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}score'],
+        data['${effectivePrefix}band_score'],
       ),
       coherenceScore: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
@@ -2040,9 +2109,21 @@ class $SpeakingAnswerDetailsTableTable extends SpeakingAnswerDetailsTable
         DriftSqlType.bool,
         data['${effectivePrefix}is_graded'],
       )!,
-      feedback: attachedDatabase.typeMapping.read(
+      coherenceFeedback: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}feedback'],
+        data['${effectivePrefix}coherence_feedback'],
+      ),
+      lexicalFeedback: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}lexical_feedback'],
+      ),
+      grammaticalFeedback: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grammatical_feedback'],
+      ),
+      fluencyFeedback: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fluency_feedback'],
       ),
       note: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -2066,26 +2147,32 @@ class SpeakingAnswerDetailsTableData extends DataClass
   final int id;
   final int userAnswerId;
   final int duration;
-  final double? score;
+  final double? bandScore;
   final double? coherenceScore;
   final double? lexialScore;
   final double? grammaticalScore;
   final double? fluencyScore;
   final bool isGraded;
-  final String? feedback;
+  final String? coherenceFeedback;
+  final String? lexicalFeedback;
+  final String? grammaticalFeedback;
+  final String? fluencyFeedback;
   final String? note;
   final DateTime updatedAt;
   const SpeakingAnswerDetailsTableData({
     required this.id,
     required this.userAnswerId,
     required this.duration,
-    this.score,
+    this.bandScore,
     this.coherenceScore,
     this.lexialScore,
     this.grammaticalScore,
     this.fluencyScore,
     required this.isGraded,
-    this.feedback,
+    this.coherenceFeedback,
+    this.lexicalFeedback,
+    this.grammaticalFeedback,
+    this.fluencyFeedback,
     this.note,
     required this.updatedAt,
   });
@@ -2095,8 +2182,8 @@ class SpeakingAnswerDetailsTableData extends DataClass
     map['id'] = Variable<int>(id);
     map['user_answer_id'] = Variable<int>(userAnswerId);
     map['duration'] = Variable<int>(duration);
-    if (!nullToAbsent || score != null) {
-      map['score'] = Variable<double>(score);
+    if (!nullToAbsent || bandScore != null) {
+      map['band_score'] = Variable<double>(bandScore);
     }
     if (!nullToAbsent || coherenceScore != null) {
       map['coherence_score'] = Variable<double>(coherenceScore);
@@ -2111,8 +2198,17 @@ class SpeakingAnswerDetailsTableData extends DataClass
       map['fluency_score'] = Variable<double>(fluencyScore);
     }
     map['is_graded'] = Variable<bool>(isGraded);
-    if (!nullToAbsent || feedback != null) {
-      map['feedback'] = Variable<String>(feedback);
+    if (!nullToAbsent || coherenceFeedback != null) {
+      map['coherence_feedback'] = Variable<String>(coherenceFeedback);
+    }
+    if (!nullToAbsent || lexicalFeedback != null) {
+      map['lexical_feedback'] = Variable<String>(lexicalFeedback);
+    }
+    if (!nullToAbsent || grammaticalFeedback != null) {
+      map['grammatical_feedback'] = Variable<String>(grammaticalFeedback);
+    }
+    if (!nullToAbsent || fluencyFeedback != null) {
+      map['fluency_feedback'] = Variable<String>(fluencyFeedback);
     }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
@@ -2126,9 +2222,9 @@ class SpeakingAnswerDetailsTableData extends DataClass
       id: Value(id),
       userAnswerId: Value(userAnswerId),
       duration: Value(duration),
-      score: score == null && nullToAbsent
+      bandScore: bandScore == null && nullToAbsent
           ? const Value.absent()
-          : Value(score),
+          : Value(bandScore),
       coherenceScore: coherenceScore == null && nullToAbsent
           ? const Value.absent()
           : Value(coherenceScore),
@@ -2142,9 +2238,18 @@ class SpeakingAnswerDetailsTableData extends DataClass
           ? const Value.absent()
           : Value(fluencyScore),
       isGraded: Value(isGraded),
-      feedback: feedback == null && nullToAbsent
+      coherenceFeedback: coherenceFeedback == null && nullToAbsent
           ? const Value.absent()
-          : Value(feedback),
+          : Value(coherenceFeedback),
+      lexicalFeedback: lexicalFeedback == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lexicalFeedback),
+      grammaticalFeedback: grammaticalFeedback == null && nullToAbsent
+          ? const Value.absent()
+          : Value(grammaticalFeedback),
+      fluencyFeedback: fluencyFeedback == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fluencyFeedback),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       updatedAt: Value(updatedAt),
     );
@@ -2159,13 +2264,20 @@ class SpeakingAnswerDetailsTableData extends DataClass
       id: serializer.fromJson<int>(json['id']),
       userAnswerId: serializer.fromJson<int>(json['userAnswerId']),
       duration: serializer.fromJson<int>(json['duration']),
-      score: serializer.fromJson<double?>(json['score']),
+      bandScore: serializer.fromJson<double?>(json['bandScore']),
       coherenceScore: serializer.fromJson<double?>(json['coherenceScore']),
       lexialScore: serializer.fromJson<double?>(json['lexialScore']),
       grammaticalScore: serializer.fromJson<double?>(json['grammaticalScore']),
       fluencyScore: serializer.fromJson<double?>(json['fluencyScore']),
       isGraded: serializer.fromJson<bool>(json['isGraded']),
-      feedback: serializer.fromJson<String?>(json['feedback']),
+      coherenceFeedback: serializer.fromJson<String?>(
+        json['coherenceFeedback'],
+      ),
+      lexicalFeedback: serializer.fromJson<String?>(json['lexicalFeedback']),
+      grammaticalFeedback: serializer.fromJson<String?>(
+        json['grammaticalFeedback'],
+      ),
+      fluencyFeedback: serializer.fromJson<String?>(json['fluencyFeedback']),
       note: serializer.fromJson<String?>(json['note']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -2177,13 +2289,16 @@ class SpeakingAnswerDetailsTableData extends DataClass
       'id': serializer.toJson<int>(id),
       'userAnswerId': serializer.toJson<int>(userAnswerId),
       'duration': serializer.toJson<int>(duration),
-      'score': serializer.toJson<double?>(score),
+      'bandScore': serializer.toJson<double?>(bandScore),
       'coherenceScore': serializer.toJson<double?>(coherenceScore),
       'lexialScore': serializer.toJson<double?>(lexialScore),
       'grammaticalScore': serializer.toJson<double?>(grammaticalScore),
       'fluencyScore': serializer.toJson<double?>(fluencyScore),
       'isGraded': serializer.toJson<bool>(isGraded),
-      'feedback': serializer.toJson<String?>(feedback),
+      'coherenceFeedback': serializer.toJson<String?>(coherenceFeedback),
+      'lexicalFeedback': serializer.toJson<String?>(lexicalFeedback),
+      'grammaticalFeedback': serializer.toJson<String?>(grammaticalFeedback),
+      'fluencyFeedback': serializer.toJson<String?>(fluencyFeedback),
       'note': serializer.toJson<String?>(note),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -2193,20 +2308,23 @@ class SpeakingAnswerDetailsTableData extends DataClass
     int? id,
     int? userAnswerId,
     int? duration,
-    Value<double?> score = const Value.absent(),
+    Value<double?> bandScore = const Value.absent(),
     Value<double?> coherenceScore = const Value.absent(),
     Value<double?> lexialScore = const Value.absent(),
     Value<double?> grammaticalScore = const Value.absent(),
     Value<double?> fluencyScore = const Value.absent(),
     bool? isGraded,
-    Value<String?> feedback = const Value.absent(),
+    Value<String?> coherenceFeedback = const Value.absent(),
+    Value<String?> lexicalFeedback = const Value.absent(),
+    Value<String?> grammaticalFeedback = const Value.absent(),
+    Value<String?> fluencyFeedback = const Value.absent(),
     Value<String?> note = const Value.absent(),
     DateTime? updatedAt,
   }) => SpeakingAnswerDetailsTableData(
     id: id ?? this.id,
     userAnswerId: userAnswerId ?? this.userAnswerId,
     duration: duration ?? this.duration,
-    score: score.present ? score.value : this.score,
+    bandScore: bandScore.present ? bandScore.value : this.bandScore,
     coherenceScore: coherenceScore.present
         ? coherenceScore.value
         : this.coherenceScore,
@@ -2216,7 +2334,18 @@ class SpeakingAnswerDetailsTableData extends DataClass
         : this.grammaticalScore,
     fluencyScore: fluencyScore.present ? fluencyScore.value : this.fluencyScore,
     isGraded: isGraded ?? this.isGraded,
-    feedback: feedback.present ? feedback.value : this.feedback,
+    coherenceFeedback: coherenceFeedback.present
+        ? coherenceFeedback.value
+        : this.coherenceFeedback,
+    lexicalFeedback: lexicalFeedback.present
+        ? lexicalFeedback.value
+        : this.lexicalFeedback,
+    grammaticalFeedback: grammaticalFeedback.present
+        ? grammaticalFeedback.value
+        : this.grammaticalFeedback,
+    fluencyFeedback: fluencyFeedback.present
+        ? fluencyFeedback.value
+        : this.fluencyFeedback,
     note: note.present ? note.value : this.note,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -2229,7 +2358,7 @@ class SpeakingAnswerDetailsTableData extends DataClass
           ? data.userAnswerId.value
           : this.userAnswerId,
       duration: data.duration.present ? data.duration.value : this.duration,
-      score: data.score.present ? data.score.value : this.score,
+      bandScore: data.bandScore.present ? data.bandScore.value : this.bandScore,
       coherenceScore: data.coherenceScore.present
           ? data.coherenceScore.value
           : this.coherenceScore,
@@ -2243,7 +2372,18 @@ class SpeakingAnswerDetailsTableData extends DataClass
           ? data.fluencyScore.value
           : this.fluencyScore,
       isGraded: data.isGraded.present ? data.isGraded.value : this.isGraded,
-      feedback: data.feedback.present ? data.feedback.value : this.feedback,
+      coherenceFeedback: data.coherenceFeedback.present
+          ? data.coherenceFeedback.value
+          : this.coherenceFeedback,
+      lexicalFeedback: data.lexicalFeedback.present
+          ? data.lexicalFeedback.value
+          : this.lexicalFeedback,
+      grammaticalFeedback: data.grammaticalFeedback.present
+          ? data.grammaticalFeedback.value
+          : this.grammaticalFeedback,
+      fluencyFeedback: data.fluencyFeedback.present
+          ? data.fluencyFeedback.value
+          : this.fluencyFeedback,
       note: data.note.present ? data.note.value : this.note,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -2255,13 +2395,16 @@ class SpeakingAnswerDetailsTableData extends DataClass
           ..write('id: $id, ')
           ..write('userAnswerId: $userAnswerId, ')
           ..write('duration: $duration, ')
-          ..write('score: $score, ')
+          ..write('bandScore: $bandScore, ')
           ..write('coherenceScore: $coherenceScore, ')
           ..write('lexialScore: $lexialScore, ')
           ..write('grammaticalScore: $grammaticalScore, ')
           ..write('fluencyScore: $fluencyScore, ')
           ..write('isGraded: $isGraded, ')
-          ..write('feedback: $feedback, ')
+          ..write('coherenceFeedback: $coherenceFeedback, ')
+          ..write('lexicalFeedback: $lexicalFeedback, ')
+          ..write('grammaticalFeedback: $grammaticalFeedback, ')
+          ..write('fluencyFeedback: $fluencyFeedback, ')
           ..write('note: $note, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2273,13 +2416,16 @@ class SpeakingAnswerDetailsTableData extends DataClass
     id,
     userAnswerId,
     duration,
-    score,
+    bandScore,
     coherenceScore,
     lexialScore,
     grammaticalScore,
     fluencyScore,
     isGraded,
-    feedback,
+    coherenceFeedback,
+    lexicalFeedback,
+    grammaticalFeedback,
+    fluencyFeedback,
     note,
     updatedAt,
   );
@@ -2290,13 +2436,16 @@ class SpeakingAnswerDetailsTableData extends DataClass
           other.id == this.id &&
           other.userAnswerId == this.userAnswerId &&
           other.duration == this.duration &&
-          other.score == this.score &&
+          other.bandScore == this.bandScore &&
           other.coherenceScore == this.coherenceScore &&
           other.lexialScore == this.lexialScore &&
           other.grammaticalScore == this.grammaticalScore &&
           other.fluencyScore == this.fluencyScore &&
           other.isGraded == this.isGraded &&
-          other.feedback == this.feedback &&
+          other.coherenceFeedback == this.coherenceFeedback &&
+          other.lexicalFeedback == this.lexicalFeedback &&
+          other.grammaticalFeedback == this.grammaticalFeedback &&
+          other.fluencyFeedback == this.fluencyFeedback &&
           other.note == this.note &&
           other.updatedAt == this.updatedAt);
 }
@@ -2306,26 +2455,32 @@ class SpeakingAnswerDetailsTableCompanion
   final Value<int> id;
   final Value<int> userAnswerId;
   final Value<int> duration;
-  final Value<double?> score;
+  final Value<double?> bandScore;
   final Value<double?> coherenceScore;
   final Value<double?> lexialScore;
   final Value<double?> grammaticalScore;
   final Value<double?> fluencyScore;
   final Value<bool> isGraded;
-  final Value<String?> feedback;
+  final Value<String?> coherenceFeedback;
+  final Value<String?> lexicalFeedback;
+  final Value<String?> grammaticalFeedback;
+  final Value<String?> fluencyFeedback;
   final Value<String?> note;
   final Value<DateTime> updatedAt;
   const SpeakingAnswerDetailsTableCompanion({
     this.id = const Value.absent(),
     this.userAnswerId = const Value.absent(),
     this.duration = const Value.absent(),
-    this.score = const Value.absent(),
+    this.bandScore = const Value.absent(),
     this.coherenceScore = const Value.absent(),
     this.lexialScore = const Value.absent(),
     this.grammaticalScore = const Value.absent(),
     this.fluencyScore = const Value.absent(),
     this.isGraded = const Value.absent(),
-    this.feedback = const Value.absent(),
+    this.coherenceFeedback = const Value.absent(),
+    this.lexicalFeedback = const Value.absent(),
+    this.grammaticalFeedback = const Value.absent(),
+    this.fluencyFeedback = const Value.absent(),
     this.note = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -2333,13 +2488,16 @@ class SpeakingAnswerDetailsTableCompanion
     this.id = const Value.absent(),
     required int userAnswerId,
     required int duration,
-    this.score = const Value.absent(),
+    this.bandScore = const Value.absent(),
     this.coherenceScore = const Value.absent(),
     this.lexialScore = const Value.absent(),
     this.grammaticalScore = const Value.absent(),
     this.fluencyScore = const Value.absent(),
     required bool isGraded,
-    this.feedback = const Value.absent(),
+    this.coherenceFeedback = const Value.absent(),
+    this.lexicalFeedback = const Value.absent(),
+    this.grammaticalFeedback = const Value.absent(),
+    this.fluencyFeedback = const Value.absent(),
     this.note = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : userAnswerId = Value(userAnswerId),
@@ -2349,13 +2507,16 @@ class SpeakingAnswerDetailsTableCompanion
     Expression<int>? id,
     Expression<int>? userAnswerId,
     Expression<int>? duration,
-    Expression<double>? score,
+    Expression<double>? bandScore,
     Expression<double>? coherenceScore,
     Expression<double>? lexialScore,
     Expression<double>? grammaticalScore,
     Expression<double>? fluencyScore,
     Expression<bool>? isGraded,
-    Expression<String>? feedback,
+    Expression<String>? coherenceFeedback,
+    Expression<String>? lexicalFeedback,
+    Expression<String>? grammaticalFeedback,
+    Expression<String>? fluencyFeedback,
     Expression<String>? note,
     Expression<DateTime>? updatedAt,
   }) {
@@ -2363,13 +2524,17 @@ class SpeakingAnswerDetailsTableCompanion
       if (id != null) 'id': id,
       if (userAnswerId != null) 'user_answer_id': userAnswerId,
       if (duration != null) 'duration': duration,
-      if (score != null) 'score': score,
+      if (bandScore != null) 'band_score': bandScore,
       if (coherenceScore != null) 'coherence_score': coherenceScore,
       if (lexialScore != null) 'lexial_score': lexialScore,
       if (grammaticalScore != null) 'grammatical_score': grammaticalScore,
       if (fluencyScore != null) 'fluency_score': fluencyScore,
       if (isGraded != null) 'is_graded': isGraded,
-      if (feedback != null) 'feedback': feedback,
+      if (coherenceFeedback != null) 'coherence_feedback': coherenceFeedback,
+      if (lexicalFeedback != null) 'lexical_feedback': lexicalFeedback,
+      if (grammaticalFeedback != null)
+        'grammatical_feedback': grammaticalFeedback,
+      if (fluencyFeedback != null) 'fluency_feedback': fluencyFeedback,
       if (note != null) 'note': note,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -2379,13 +2544,16 @@ class SpeakingAnswerDetailsTableCompanion
     Value<int>? id,
     Value<int>? userAnswerId,
     Value<int>? duration,
-    Value<double?>? score,
+    Value<double?>? bandScore,
     Value<double?>? coherenceScore,
     Value<double?>? lexialScore,
     Value<double?>? grammaticalScore,
     Value<double?>? fluencyScore,
     Value<bool>? isGraded,
-    Value<String?>? feedback,
+    Value<String?>? coherenceFeedback,
+    Value<String?>? lexicalFeedback,
+    Value<String?>? grammaticalFeedback,
+    Value<String?>? fluencyFeedback,
     Value<String?>? note,
     Value<DateTime>? updatedAt,
   }) {
@@ -2393,13 +2561,16 @@ class SpeakingAnswerDetailsTableCompanion
       id: id ?? this.id,
       userAnswerId: userAnswerId ?? this.userAnswerId,
       duration: duration ?? this.duration,
-      score: score ?? this.score,
+      bandScore: bandScore ?? this.bandScore,
       coherenceScore: coherenceScore ?? this.coherenceScore,
       lexialScore: lexialScore ?? this.lexialScore,
       grammaticalScore: grammaticalScore ?? this.grammaticalScore,
       fluencyScore: fluencyScore ?? this.fluencyScore,
       isGraded: isGraded ?? this.isGraded,
-      feedback: feedback ?? this.feedback,
+      coherenceFeedback: coherenceFeedback ?? this.coherenceFeedback,
+      lexicalFeedback: lexicalFeedback ?? this.lexicalFeedback,
+      grammaticalFeedback: grammaticalFeedback ?? this.grammaticalFeedback,
+      fluencyFeedback: fluencyFeedback ?? this.fluencyFeedback,
       note: note ?? this.note,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -2417,8 +2588,8 @@ class SpeakingAnswerDetailsTableCompanion
     if (duration.present) {
       map['duration'] = Variable<int>(duration.value);
     }
-    if (score.present) {
-      map['score'] = Variable<double>(score.value);
+    if (bandScore.present) {
+      map['band_score'] = Variable<double>(bandScore.value);
     }
     if (coherenceScore.present) {
       map['coherence_score'] = Variable<double>(coherenceScore.value);
@@ -2435,8 +2606,17 @@ class SpeakingAnswerDetailsTableCompanion
     if (isGraded.present) {
       map['is_graded'] = Variable<bool>(isGraded.value);
     }
-    if (feedback.present) {
-      map['feedback'] = Variable<String>(feedback.value);
+    if (coherenceFeedback.present) {
+      map['coherence_feedback'] = Variable<String>(coherenceFeedback.value);
+    }
+    if (lexicalFeedback.present) {
+      map['lexical_feedback'] = Variable<String>(lexicalFeedback.value);
+    }
+    if (grammaticalFeedback.present) {
+      map['grammatical_feedback'] = Variable<String>(grammaticalFeedback.value);
+    }
+    if (fluencyFeedback.present) {
+      map['fluency_feedback'] = Variable<String>(fluencyFeedback.value);
     }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
@@ -2453,13 +2633,16 @@ class SpeakingAnswerDetailsTableCompanion
           ..write('id: $id, ')
           ..write('userAnswerId: $userAnswerId, ')
           ..write('duration: $duration, ')
-          ..write('score: $score, ')
+          ..write('bandScore: $bandScore, ')
           ..write('coherenceScore: $coherenceScore, ')
           ..write('lexialScore: $lexialScore, ')
           ..write('grammaticalScore: $grammaticalScore, ')
           ..write('fluencyScore: $fluencyScore, ')
           ..write('isGraded: $isGraded, ')
-          ..write('feedback: $feedback, ')
+          ..write('coherenceFeedback: $coherenceFeedback, ')
+          ..write('lexicalFeedback: $lexicalFeedback, ')
+          ..write('grammaticalFeedback: $grammaticalFeedback, ')
+          ..write('fluencyFeedback: $fluencyFeedback, ')
           ..write('note: $note, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -4566,13 +4749,16 @@ typedef $$SpeakingAnswerDetailsTableTableCreateCompanionBuilder =
       Value<int> id,
       required int userAnswerId,
       required int duration,
-      Value<double?> score,
+      Value<double?> bandScore,
       Value<double?> coherenceScore,
       Value<double?> lexialScore,
       Value<double?> grammaticalScore,
       Value<double?> fluencyScore,
       required bool isGraded,
-      Value<String?> feedback,
+      Value<String?> coherenceFeedback,
+      Value<String?> lexicalFeedback,
+      Value<String?> grammaticalFeedback,
+      Value<String?> fluencyFeedback,
       Value<String?> note,
       Value<DateTime> updatedAt,
     });
@@ -4581,13 +4767,16 @@ typedef $$SpeakingAnswerDetailsTableTableUpdateCompanionBuilder =
       Value<int> id,
       Value<int> userAnswerId,
       Value<int> duration,
-      Value<double?> score,
+      Value<double?> bandScore,
       Value<double?> coherenceScore,
       Value<double?> lexialScore,
       Value<double?> grammaticalScore,
       Value<double?> fluencyScore,
       Value<bool> isGraded,
-      Value<String?> feedback,
+      Value<String?> coherenceFeedback,
+      Value<String?> lexicalFeedback,
+      Value<String?> grammaticalFeedback,
+      Value<String?> fluencyFeedback,
       Value<String?> note,
       Value<DateTime> updatedAt,
     });
@@ -4647,8 +4836,8 @@ class $$SpeakingAnswerDetailsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get score => $composableBuilder(
-    column: $table.score,
+  ColumnFilters<double> get bandScore => $composableBuilder(
+    column: $table.bandScore,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4677,8 +4866,23 @@ class $$SpeakingAnswerDetailsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get feedback => $composableBuilder(
-    column: $table.feedback,
+  ColumnFilters<String> get coherenceFeedback => $composableBuilder(
+    column: $table.coherenceFeedback,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lexicalFeedback => $composableBuilder(
+    column: $table.lexicalFeedback,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get grammaticalFeedback => $composableBuilder(
+    column: $table.grammaticalFeedback,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fluencyFeedback => $composableBuilder(
+    column: $table.fluencyFeedback,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4735,8 +4939,8 @@ class $$SpeakingAnswerDetailsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get score => $composableBuilder(
-    column: $table.score,
+  ColumnOrderings<double> get bandScore => $composableBuilder(
+    column: $table.bandScore,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4765,8 +4969,23 @@ class $$SpeakingAnswerDetailsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get feedback => $composableBuilder(
-    column: $table.feedback,
+  ColumnOrderings<String> get coherenceFeedback => $composableBuilder(
+    column: $table.coherenceFeedback,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lexicalFeedback => $composableBuilder(
+    column: $table.lexicalFeedback,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get grammaticalFeedback => $composableBuilder(
+    column: $table.grammaticalFeedback,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fluencyFeedback => $composableBuilder(
+    column: $table.fluencyFeedback,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4819,8 +5038,8 @@ class $$SpeakingAnswerDetailsTableTableAnnotationComposer
   GeneratedColumn<int> get duration =>
       $composableBuilder(column: $table.duration, builder: (column) => column);
 
-  GeneratedColumn<double> get score =>
-      $composableBuilder(column: $table.score, builder: (column) => column);
+  GeneratedColumn<double> get bandScore =>
+      $composableBuilder(column: $table.bandScore, builder: (column) => column);
 
   GeneratedColumn<double> get coherenceScore => $composableBuilder(
     column: $table.coherenceScore,
@@ -4845,8 +5064,25 @@ class $$SpeakingAnswerDetailsTableTableAnnotationComposer
   GeneratedColumn<bool> get isGraded =>
       $composableBuilder(column: $table.isGraded, builder: (column) => column);
 
-  GeneratedColumn<String> get feedback =>
-      $composableBuilder(column: $table.feedback, builder: (column) => column);
+  GeneratedColumn<String> get coherenceFeedback => $composableBuilder(
+    column: $table.coherenceFeedback,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lexicalFeedback => $composableBuilder(
+    column: $table.lexicalFeedback,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get grammaticalFeedback => $composableBuilder(
+    column: $table.grammaticalFeedback,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get fluencyFeedback => $composableBuilder(
+    column: $table.fluencyFeedback,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
@@ -4923,26 +5159,32 @@ class $$SpeakingAnswerDetailsTableTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> userAnswerId = const Value.absent(),
                 Value<int> duration = const Value.absent(),
-                Value<double?> score = const Value.absent(),
+                Value<double?> bandScore = const Value.absent(),
                 Value<double?> coherenceScore = const Value.absent(),
                 Value<double?> lexialScore = const Value.absent(),
                 Value<double?> grammaticalScore = const Value.absent(),
                 Value<double?> fluencyScore = const Value.absent(),
                 Value<bool> isGraded = const Value.absent(),
-                Value<String?> feedback = const Value.absent(),
+                Value<String?> coherenceFeedback = const Value.absent(),
+                Value<String?> lexicalFeedback = const Value.absent(),
+                Value<String?> grammaticalFeedback = const Value.absent(),
+                Value<String?> fluencyFeedback = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => SpeakingAnswerDetailsTableCompanion(
                 id: id,
                 userAnswerId: userAnswerId,
                 duration: duration,
-                score: score,
+                bandScore: bandScore,
                 coherenceScore: coherenceScore,
                 lexialScore: lexialScore,
                 grammaticalScore: grammaticalScore,
                 fluencyScore: fluencyScore,
                 isGraded: isGraded,
-                feedback: feedback,
+                coherenceFeedback: coherenceFeedback,
+                lexicalFeedback: lexicalFeedback,
+                grammaticalFeedback: grammaticalFeedback,
+                fluencyFeedback: fluencyFeedback,
                 note: note,
                 updatedAt: updatedAt,
               ),
@@ -4951,26 +5193,32 @@ class $$SpeakingAnswerDetailsTableTableTableManager
                 Value<int> id = const Value.absent(),
                 required int userAnswerId,
                 required int duration,
-                Value<double?> score = const Value.absent(),
+                Value<double?> bandScore = const Value.absent(),
                 Value<double?> coherenceScore = const Value.absent(),
                 Value<double?> lexialScore = const Value.absent(),
                 Value<double?> grammaticalScore = const Value.absent(),
                 Value<double?> fluencyScore = const Value.absent(),
                 required bool isGraded,
-                Value<String?> feedback = const Value.absent(),
+                Value<String?> coherenceFeedback = const Value.absent(),
+                Value<String?> lexicalFeedback = const Value.absent(),
+                Value<String?> grammaticalFeedback = const Value.absent(),
+                Value<String?> fluencyFeedback = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => SpeakingAnswerDetailsTableCompanion.insert(
                 id: id,
                 userAnswerId: userAnswerId,
                 duration: duration,
-                score: score,
+                bandScore: bandScore,
                 coherenceScore: coherenceScore,
                 lexialScore: lexialScore,
                 grammaticalScore: grammaticalScore,
                 fluencyScore: fluencyScore,
                 isGraded: isGraded,
-                feedback: feedback,
+                coherenceFeedback: coherenceFeedback,
+                lexicalFeedback: lexicalFeedback,
+                grammaticalFeedback: grammaticalFeedback,
+                fluencyFeedback: fluencyFeedback,
                 note: note,
                 updatedAt: updatedAt,
               ),

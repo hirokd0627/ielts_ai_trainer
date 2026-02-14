@@ -298,14 +298,43 @@ def writing_task2_evaluate():
     return jsonify(resp_json)
 
 
+@app.route("/speaking/part1/evaluate", methods=["POST"])
+@auth_required
+def speaking_part1_evaluate():
+    """API for evaluating the answer for Speaking Part 1."""
+    return _speaking_answer_evaluate(1)
+
+
+@app.route("/speaking/part2/evaluate", methods=["POST"])
+@auth_required
+def speaking_part2_evaluate():
+    """API for evaluating the answer for Speaking Part 2."""
+    json = request.get_json()
+    _validate_parameters(json, ["prompt", "speech"])
+
+    try:
+        chatgpt = ChatGptService()
+        evaluation = chatgpt.evaluate_speaking_part2_answer(
+            prompt=json["prompt"],
+            speech=json["speech"],
+        )
+    except Exception:
+        raise AppException("failed to evaluate answer: {}".format(json))
+
+    return _build_speaking_answer_evaluate_reponse(evaluation=evaluation)
+
+
+@app.route("/speaking/part3/evaluate", methods=["POST"])
+@auth_required
+def speaking_part3_evaluate():
+    """API for evaluating the answer for Speaking Part 3."""
+    return _speaking_answer_evaluate(3)
+
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Exception handler to return error information in JSON format."""
-    return jsonify(
-        {
-            "description": e.description,
-        }
-    )
+    return jsonify({"error": e})
 
 
 def _validate_parameters(json: dict, names: str | list[str]):
@@ -365,9 +394,14 @@ def _speaking_generate_question(part_no: int, json: any):
     return jsonify(resp_json)
 
 
-def _calculate_band_score(s1: float, s2: float, s3: float, s4: float) -> float:
+def _calculate_band_score(
+    s1: float, s2: float, s3: float, s4: float = None
+) -> float:
     """Returns IELTS band score based on four criteria scores."""
-    avg = (s1 + s2 + s3 + s4) / 4
+    sum = s1 + s2 + s3
+    if s4 is not None:
+        sum += s4
+    avg = sum / 4 if s4 is not None else sum / 3
     frac, score = math.modf(avg)
     if frac >= 0.75:
         score += 1.0
@@ -375,3 +409,59 @@ def _calculate_band_score(s1: float, s2: float, s3: float, s4: float) -> float:
         score += 0.5
 
     return score
+
+
+def _speaking_answer_evaluate(part_no: int):
+    """Evaluate the answer for Speaking Part 1 and 3.
+
+    Args:
+        part_no: Speaking Part number.
+
+    Returns:
+        see _build_speaking_answer_evaluate_reponse.
+    """
+    json = request.get_json()
+    _validate_parameters(json, ["script"])
+
+    try:
+        chatgpt = ChatGptService()
+        if part_no == 1:
+            evaluation = chatgpt.evaluate_speaking_part1_answer(
+                script=json["script"],
+            )
+        elif part_no == 3:
+            evaluation = chatgpt.evaluate_speaking_part3_answer(
+                script=json["script"],
+            )
+    except Exception:
+        raise AppException("failed to evaluate answer: {}".format(json))
+
+    return _build_speaking_answer_evaluate_reponse(evaluation=evaluation)
+
+
+def _build_speaking_answer_evaluate_reponse(evaluation: dict) -> str:
+    """Build response of evaluation for Speaking Parts."""
+    resp_json = {
+        "coherence_score": evaluation.coherence_score,
+        "lexical_score": evaluation.lexical_score,
+        "grammatical_score": evaluation.grammatical_score,
+        "band_score": _calculate_band_score(
+            evaluation.coherence_score,
+            evaluation.lexical_score,
+            evaluation.grammatical_score,
+        ),
+        "coherence_feedback": [
+            evaluation.coherence_feedback1,
+            evaluation.coherence_feedback2,
+        ],
+        "lexical_feedback": [
+            evaluation.lexical_feedback1,
+            evaluation.lexical_feedback2,
+        ],
+        "grammatical_feedback": [
+            evaluation.grammatical_feedback1,
+            evaluation.grammatical_feedback2,
+        ],
+    }
+
+    return jsonify(resp_json)
