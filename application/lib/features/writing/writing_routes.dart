@@ -36,7 +36,7 @@ final writingRoutes = [
     builder: (BuildContext context, GoRouterState state) {
       final extra = state.extra as RouterExtra?;
       return WritingTask1QuestionGeneratorScreen(
-        promptText: extra?.getValue('promptText'),
+        writingPrompt: extra?.getValue('writingPrompt'),
         topics: extra?.getValue('topics'),
         promptType: extra?.getValue('promptType'),
       );
@@ -46,13 +46,13 @@ final writingRoutes = [
     path: writingTask1AnswerInputScreenRoutePath,
     builder: (BuildContext context, GoRouterState state) {
       final extra = RouterExtra.validate(state, [
-        'promptText',
+        'writingPrompt',
         'topics',
         'promptType',
       ]);
 
       return WritingTask1AnswerInputScreen(
-        promptText: extra.getValue('promptText'),
+        writingPrompt: extra.getValue('writingPrompt'),
         topics: extra.getValue('topics'),
         promptType: extra.getValue('promptType'),
       );
@@ -74,7 +74,7 @@ final writingRoutes = [
     builder: (BuildContext context, GoRouterState state) {
       final extra = state.extra as RouterExtra?;
       return WritingTask2QuestionGeneratorScreen(
-        promptText: extra?.getValue('promptText'),
+        writingPrompt: extra?.getValue('writingPrompt'),
         topics: extra?.getValue('topics'),
         promptType: extra?.getValue('promptType'),
       );
@@ -84,13 +84,13 @@ final writingRoutes = [
     path: writingTask2AnswerInputScreenRoutePath,
     builder: (BuildContext context, GoRouterState state) {
       final extra = RouterExtra.validate(state, [
-        'promptText',
+        'writingPrompt',
         'topics',
         'promptType',
       ]);
 
       return WritingTask2AnswerInputScreen(
-        promptText: extra.getValue('promptText'),
+        writingPrompt: extra.getValue('writingPrompt'),
         topics: extra.getValue('topics'),
         promptType: extra.getValue('promptType'),
       );

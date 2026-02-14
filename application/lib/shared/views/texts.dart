@@ -19,16 +19,23 @@ class ScreenTitleText extends StatelessWidget {
 /// Text widget styled as a headline text.
 class HeadlineText extends StatelessWidget {
   final String text;
+  final int level;
 
-  const HeadlineText(this.text, {super.key});
+  const HeadlineText(this.text, {super.key, this.level = 1});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(),
       padding: EdgeInsets.only(),
-      child: Text(text, style: Theme.of(context).textTheme.headlineMedium),
+      child: Text(text, style: _getStyle(context)),
     );
+  }
+
+  TextStyle? _getStyle(BuildContext context) {
+    return level == 1
+        ? Theme.of(context).textTheme.headlineMedium
+        : Theme.of(context).textTheme.headlineSmall;
   }
 }
 

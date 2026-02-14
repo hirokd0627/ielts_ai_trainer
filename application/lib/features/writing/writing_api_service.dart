@@ -1,8 +1,6 @@
 import 'dart:convert';
 
-import 'package:faker/faker.dart';
 import 'package:ielts_ai_trainer/shared/api/common_api_service.dart';
-import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/http/api_requester.dart';
 
@@ -40,25 +38,36 @@ class WritingApiService with ApiRequester, TopicApiService {
     );
   }
 
-  /// Grades the given writing answer.
-  Future<WritingGradingResponse> gradeAnswer({
-    required TestTask testTask,
+  /// Evaluate the given answer for Writing Task 1.
+  Future<WritingEvaluationResponse> evaluateTask1Answer({
+    required String promptText,
     required WritingPromptType promptType,
+    required String diagramDescription,
+    required String answerText,
+  }) async {
+    final data = {
+      'prompt': promptText,
+      'diagram_type': promptType.task1DiagramType,
+      'diagram_description': diagramDescription,
+      'answer': answerText,
+    };
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest('writing/task1/evaluate', dataJson);
+    return WritingEvaluationResponse.fromTask1Json(
+      jsonDecode(resp.body) as Map<String, dynamic>,
+    );
+  }
+
+  /// Evaluate the given answer for Writing Task 2.
+  Future<WritingEvaluationResponse> evaluateTask2Answer({
     required String promptText,
     required String answerText,
   }) async {
-    // TODO: dummy data
-    await Future.delayed(const Duration(seconds: 2));
-    return WritingGradingResponse(
-      achievement:
-          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      coherence:
-          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      lexial: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      grammatical:
-          (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      score: (faker.randomGenerator.decimal(min: 0, scale: 9) * 2).round() / 2,
-      feedback: faker.lorem.sentences(3).join("\n"),
+    final data = {'prompt': promptText, 'answer': answerText};
+    final dataJson = jsonEncode(data);
+    final resp = await sendPostRequest('writing/task2/evaluate', dataJson);
+    return WritingEvaluationResponse.fromTask2Json(
+      jsonDecode(resp.body) as Map<String, dynamic>,
     );
   }
 }
@@ -151,21 +160,87 @@ class WritingTask2Response {
   }
 }
 
-/// Response of the result of grading a writing answer.
-class WritingGradingResponse {
-  final double achievement;
-  final double coherence;
-  final double lexial;
-  final double grammatical;
-  final double score;
-  final String feedback;
+/// Response of evaluateTask1Answer.
+class WritingEvaluationResponse {
+  final double taskScore,
+      coherenceScore,
+      grammaticalScore,
+      lexialScore,
+      bandScore;
+  final List<String> taskFeedback,
+      coherenceFeedback,
+      grammaticalFeedback,
+      lexicalFeedback;
 
-  const WritingGradingResponse({
-    required this.achievement,
-    required this.coherence,
-    required this.lexial,
-    required this.grammatical,
-    required this.score,
-    required this.feedback,
+  const WritingEvaluationResponse({
+    required this.taskScore,
+    required this.coherenceScore,
+    required this.grammaticalScore,
+    required this.lexialScore,
+    required this.bandScore,
+    required this.taskFeedback,
+    required this.coherenceFeedback,
+    required this.grammaticalFeedback,
+    required this.lexicalFeedback,
   });
+
+  /// Creaates WritingEvaluationResponse with the response of Task 1.
+  factory WritingEvaluationResponse.fromTask1Json(Map<String, dynamic> json) {
+    for (var name in ["achievement_score", "achievement_feedback"]) {
+      if (!json.containsKey(name)) {
+        throw Exception('Missing required key: $name');
+      }
+    }
+    return _fromJson(
+      json["achievement_score"],
+      List<String>.from(json["achievement_feedback"]),
+      json,
+    );
+  }
+
+  /// Creaates WritingEvaluationResponse with the response of Task 2.
+  factory WritingEvaluationResponse.fromTask2Json(Map<String, dynamic> json) {
+    for (var name in ["response_score", "response_feedback"]) {
+      if (!json.containsKey(name)) {
+        throw Exception('Missing required key: $name');
+      }
+    }
+    return _fromJson(
+      json["response_score"],
+      List<String>.from(json["response_feedback"]),
+      json,
+    );
+  }
+
+  static WritingEvaluationResponse _fromJson(
+    double taskScore,
+    List<String> taskFeedback,
+    Map<String, dynamic> json,
+  ) {
+    for (var name in [
+      "coherence_score",
+      "grammatical_score",
+      "lexical_score",
+      "band_score",
+      "coherence_feedback",
+      "grammatical_feedback",
+      "lexical_feedback",
+    ]) {
+      if (!json.containsKey(name)) {
+        throw Exception('Missing required key: $name');
+      }
+    }
+
+    return WritingEvaluationResponse(
+      taskScore: taskScore,
+      coherenceScore: json["coherence_score"],
+      grammaticalScore: json["grammatical_score"],
+      lexialScore: json["lexical_score"],
+      bandScore: json["band_score"],
+      taskFeedback: taskFeedback,
+      coherenceFeedback: List<String>.from(json["coherence_feedback"]),
+      grammaticalFeedback: List<String>.from(json["grammatical_feedback"]),
+      lexicalFeedback: List<String>.from(json["lexical_feedback"]),
+    );
+  }
 }

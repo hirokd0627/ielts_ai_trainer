@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
@@ -40,6 +41,13 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
         : 'Writing Task 2 Result';
   }
 
+  /// Returns the task criteria label.
+  String get _taskCriteriaLabel {
+    return widget.testTask == TestTask.writingTask1
+        ? 'Task Achievement'
+        : 'Task Response';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -58,35 +66,121 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
 
     // Grades the answer if it is not graded.
     if (!_ctrl.isGraded) {
-      _ctrl.grade();
+      _ctrl.evaluateAnswer();
     }
   }
 
-  /// Returns a widget that shows score label and value.
-  Widget _scoreCellBuilder(
-    BuildContext context,
-    String title,
-    String value,
-    bool small,
-  ) {
-    final titleStyle = small
-        ? TextStyle(fontSize: 15, fontWeight: FontWeight.w400)
-        : TextStyle(fontSize: 22, fontWeight: FontWeight.w400);
-    final valueStyle = small
-        ? TextStyle(fontSize: 20, fontWeight: FontWeight.w500)
-        : TextStyle(fontSize: 40, fontWeight: FontWeight.w500);
+  /// Builds a widget to show each criteria score.
+  Widget _buildCriteriaRow(String label, String score) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          children: [
+            Text(
+              "$label:",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+            ),
+            SizedBox(width: 5),
+            Text(
+              score,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+        SizedBox(height: 15),
+      ],
+    );
+  }
 
+  /// Builds a widget to show the scores.
+  Widget _buildScore() {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(title, style: titleStyle),
-          const SizedBox(height: 8),
-          Text(value, style: valueStyle),
-        ],
+      child: SizedBox(
+        height: 200,
+        width: 600,
+        child: !_ctrl.isGraded
+            ? Center(child: const Text('grading...'))
+            : Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Band Score',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _ctrl.bandScore,
+                          style: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildCriteriaRow(_taskCriteriaLabel, _ctrl.taskScore),
+                        _buildCriteriaRow(
+                          'Coherence & Cohesion',
+                          _ctrl.coherenceScore,
+                        ),
+                        _buildCriteriaRow(
+                          'Lexical Resource',
+                          _ctrl.lexialScore,
+                        ),
+                        _buildCriteriaRow(
+                          'Grammatical Range & Accuracy',
+                          _ctrl.grammaticalScore,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
+  }
+
+  /// Builds widgets to show feedback for the answer.
+  List<Widget> _buildFeedback() {
+    return [
+      HeadlineText("Feedback"),
+      SizedBox(height: 20),
+      ConstrainedBox(
+        constraints: BoxConstraints(minHeight: 60),
+        child: !_ctrl.isGraded
+            ? Text('grading...')
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  HeadlineText('Task Achievement', level: 2),
+                  Text(_ctrl.taskFeedback),
+                  SizedBox(height: 20),
+                  HeadlineText('Coherence & Cohesion', level: 2),
+                  Text(_ctrl.coherenceFeedback),
+                  SizedBox(height: 20),
+                  HeadlineText('Lexical Resource', level: 2),
+                  Text(_ctrl.lexialFeedback),
+                  SizedBox(height: 20),
+                  HeadlineText('Grammatical Range & Accuracy', level: 2),
+                  Text(_ctrl.grammaticalFeedback),
+                ],
+              ),
+      ),
+    ];
   }
 
   @override
@@ -110,85 +204,9 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
                   // Score
-                  Center(
-                    child: SizedBox(
-                      height: 200,
-                      width: 500,
-                      child: !_ctrl.isGraded
-                          ? Center(child: const Text('grading...'))
-                          : Row(
-                              children: [
-                                // one cell at left
-                                Expanded(
-                                  flex: 3,
-                                  child: _scoreCellBuilder(
-                                    context,
-                                    'Overall',
-                                    _ctrl.overallScore,
-                                    false,
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                // Four cells at right
-                                Expanded(
-                                  flex: 7,
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: _scoreCellBuilder(
-                                                context,
-                                                'Achievement',
-                                                _ctrl.achievementScore,
-                                                true,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Expanded(
-                                              child: _scoreCellBuilder(
-                                                context,
-                                                'Coherence',
-                                                _ctrl.coherenceScore,
-                                                true,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Expanded(
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: _scoreCellBuilder(
-                                                context,
-                                                'Grammatical',
-                                                _ctrl.grammaticalScore,
-                                                true,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Expanded(
-                                              child: _scoreCellBuilder(
-                                                context,
-                                                'Lexial',
-                                                _ctrl.lexialScore,
-                                                true,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ),
+                  _buildScore(),
                   SizedBox(height: 40),
+                  // Question, Answer, Feedback
                   SizedBox(
                     width: double.infinity,
                     child: Column(
@@ -197,11 +215,28 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                         // Question
                         HeadlineText("Question"),
                         SizedBox(height: 4),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(minHeight: 60),
-                          child: Text(_ctrl.promptText),
-                        ),
-                        SizedBox(height: 20),
+                        if (widget.testTask == TestTask.writingTask1) ...[
+                          ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: 60),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(_ctrl.taskContext),
+                                if (_ctrl.existsDiagramFile)
+                                  Image.file(File(_ctrl.diagramPath)),
+                                Text(_ctrl.taskInstruction),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                        ],
+                        if (widget.testTask == TestTask.writingTask2) ...[
+                          ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: 60),
+                            child: Text(_ctrl.task2PromptText),
+                          ),
+                          SizedBox(height: 20),
+                        ],
                         // Answer
                         HeadlineText("Answer"),
                         SizedBox(height: 4),
@@ -211,14 +246,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                         ),
                         SizedBox(height: 20),
                         // Feedback
-                        HeadlineText("Feedback"),
-                        SizedBox(height: 4),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(minHeight: 60),
-                          child: !_ctrl.isGraded
-                              ? Text('grading...')
-                              : Text(_ctrl.feedbackText),
-                        ),
+                        ..._buildFeedback(),
 
                         SizedBox(height: AppStyles.screenBottomPadding),
                       ],

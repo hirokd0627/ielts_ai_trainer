@@ -41,4 +41,12 @@ enum WritingPromptType {
 
     return WritingPromptType.values.firstWhere((e) => e.name == name);
   }
+
+  /// Returns the diagram type name.
+  String get task1DiagramType {
+    if (isTask2) {
+      throw ArgumentError("$name is not Task 1");
+    }
+    return name;
+  }
 }
