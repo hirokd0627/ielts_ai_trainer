@@ -50,7 +50,6 @@ erDiagram
         REAL coherence_score
         REAL lexical_score
         REAL grammatical_score
-        REAL fluency_score
         INTEGER is_graded
         TEXT coherence_feedback
         TEXT lexical_feedback

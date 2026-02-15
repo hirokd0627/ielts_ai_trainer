@@ -6,6 +6,7 @@ import 'package:ielts_ai_trainer/features/speaking/domain/speaking_speech_answer
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_vo.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/utterance_recording_service.dart';
+import 'package:ielts_ai_trainer/shared/domain/score_calculation_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 
 /// Controller for SpeakingResultScreen.
@@ -53,20 +54,53 @@ class SpeakingResultController extends ChangeNotifier {
   }
 
   String get bandScore {
-    return _chatAnswer != null
-        ? _chatAnswer!.bandScore.toString()
-        : _speechAnswer?.bandScore.toString() ?? '';
+    if (_chatAnswer != null) {
+      if (!_chatAnswer!.isGraded ||
+          _chatAnswer!.coherenceScore == null ||
+          _chatAnswer!.lexicalScore == null ||
+          _chatAnswer!.grammaticalScore == null) {
+        return '-';
+      }
+      final scores = [
+        _chatAnswer!.coherenceScore!,
+        _chatAnswer!.lexicalScore!,
+        _chatAnswer!.grammaticalScore!,
+      ];
+      if (_chatAnswer!.hasFluencyScore) {
+        scores.add(_chatAnswer!.fluencyScore);
+      }
+      return ScoreCalculationService.calculateScore(scores).toString();
+    }
+
+    if (_speechAnswer != null) {
+      if (!_speechAnswer!.isGraded ||
+          _speechAnswer!.coherenceScore == null ||
+          _speechAnswer!.lexicalScore == null ||
+          _speechAnswer!.grammaticalScore == null) {
+        return '-';
+      }
+      final scores = [
+        _speechAnswer!.coherenceScore!,
+        _speechAnswer!.lexicalScore!,
+        _speechAnswer!.grammaticalScore!,
+      ];
+      if (_speechAnswer!.hasFluencyScore) {
+        scores.add(_speechAnswer!.fluencyScore);
+      }
+      return ScoreCalculationService.calculateScore(scores).toString();
+    }
+
+    return '-';
   }
 
   String get fluencyScore {
-    if (_chatAnswer != null) {
-      return _chatAnswer!.fluencyScore != null
-          ? _chatAnswer!.fluencyScore.toString()
-          : '-';
+    if (_chatAnswer != null && _chatAnswer!.hasFluencyScore) {
+      return _chatAnswer!.fluencyScore.toString();
     }
-    return _speechAnswer!.fluencyScore != null
-        ? _speechAnswer!.fluencyScore.toString()
-        : '-';
+    if (_speechAnswer != null && _speechAnswer!.hasFluencyScore) {
+      return _speechAnswer!.fluencyScore.toString();
+    }
+    return '-';
   }
 
   String get coherenceScore {
@@ -265,7 +299,6 @@ class SpeakingResultController extends ChangeNotifier {
         lexicalFeedback: resp.lexicalFeedback.join(" "),
         grammaticalFeedback: resp.grammaticalFeedback.join(" "),
         isGraded: true,
-        bandScore: resp.bandScore,
       );
 
       _repo.saveSpeakingChatAnswer(gradedAnswer);
@@ -286,7 +319,6 @@ class SpeakingResultController extends ChangeNotifier {
         coherenceScore: resp.coherenceScore,
         lexicalScore: resp.lexicalScore,
         grammaticalScore: resp.grammaticalScore,
-        bandScore: resp.bandScore,
         coherenceFeedback: resp.coherenceFeedback.join(" "),
         lexicalFeedback: resp.lexicalFeedback.join(" "),
         grammaticalFeedback: resp.grammaticalFeedback.join(" "),

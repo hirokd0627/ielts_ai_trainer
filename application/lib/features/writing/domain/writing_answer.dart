@@ -26,7 +26,6 @@ abstract class WritingAnswer with _$WritingAnswer {
     double? coherenceScore,
     double? lexicalScore,
     double? grammaticalScore,
-    double? bandScore,
     String? taskFeedback,
     String? coherenceFeedback,
     String? lexicalFeedback,

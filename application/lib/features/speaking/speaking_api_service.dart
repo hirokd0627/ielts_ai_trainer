@@ -239,7 +239,7 @@ and explain ${json['q4']}
 
 /// Response of evaluate speaking answer.
 class SpeakingEvaluationResponse {
-  final double coherenceScore, lexicalScore, grammaticalScore, bandScore;
+  final double coherenceScore, lexicalScore, grammaticalScore;
 
   final List<String> coherenceFeedback, lexicalFeedback, grammaticalFeedback;
 
@@ -247,7 +247,6 @@ class SpeakingEvaluationResponse {
     required this.coherenceScore,
     required this.lexicalScore,
     required this.grammaticalScore,
-    required this.bandScore,
     required this.coherenceFeedback,
     required this.lexicalFeedback,
     required this.grammaticalFeedback,
@@ -258,7 +257,6 @@ class SpeakingEvaluationResponse {
       'coherence_score',
       'lexical_score',
       'grammatical_score',
-      'band_score',
       'coherence_feedback',
       'lexical_feedback',
       'grammatical_feedback',
@@ -272,7 +270,6 @@ class SpeakingEvaluationResponse {
       coherenceScore: json["coherence_score"],
       grammaticalScore: json["grammatical_score"],
       lexicalScore: json["lexical_score"],
-      bandScore: json["band_score"],
       coherenceFeedback: List<String>.from(json["coherence_feedback"]),
       grammaticalFeedback: List<String>.from(json["grammatical_feedback"]),
       lexicalFeedback: List<String>.from(json["lexical_feedback"]),

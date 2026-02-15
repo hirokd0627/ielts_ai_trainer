@@ -7,6 +7,8 @@ part 'speaking_speech_answer.freezed.dart';
 /// User's answer entity for the Speaking Part 2.
 @freezed
 abstract class SpeakingSpeechAnswer with _$SpeakingSpeechAnswer {
+  const SpeakingSpeechAnswer._();
+
   const factory SpeakingSpeechAnswer({
     int? id,
     int? detailId,
@@ -21,10 +23,18 @@ abstract class SpeakingSpeechAnswer with _$SpeakingSpeechAnswer {
     double? coherenceScore,
     double? lexicalScore,
     double? grammaticalScore,
-    double? fluencyScore,
-    double? bandScore,
     String? coherenceFeedback,
     String? lexicalFeedback,
     String? grammaticalFeedback,
   }) = _SpeakingSpeechAnswer;
+
+  /// Whether the fluency score can be calculated.
+  bool get hasFluencyScore {
+    return answer.isGraded;
+  }
+
+  /// Returns the fluency score.
+  double get fluencyScore {
+    return answer.fluency ?? 0.0;
+  }
 }

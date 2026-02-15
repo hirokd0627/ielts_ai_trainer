@@ -1,5 +1,4 @@
 from random import choice
-import math
 import time
 import tempfile
 import os
@@ -303,13 +302,6 @@ def writing_task1_evaluate():
         "coherence_score": evaluation.coherence_score,
         "grammatical_score": evaluation.grammatical_score,
         "lexical_score": evaluation.lexical_score,
-        # TODO:
-        "band_score": _calculate_band_score(
-            evaluation.achievement_score,
-            evaluation.coherence_score,
-            evaluation.grammatical_score,
-            evaluation.lexical_score,
-        ),
         "achievement_feedback": [
             evaluation.achievement_feedback1,
             evaluation.achievement_feedback2,
@@ -343,7 +335,6 @@ def writing_task2_evaluate():
     Returns: application/json
         response_score, coherence_score, grammatical_score, lexical_score:
             See `ChatGptService.evaluate_writing_task2_answer`.
-        band_score: TODO:
         response_feedback (str):
             Feedback for Task Response, including positive and negative ones.
         coherence_feedback (str):
@@ -371,12 +362,6 @@ def writing_task2_evaluate():
         "coherence_score": evaluation.coherence_score,
         "grammatical_score": evaluation.grammatical_score,
         "lexical_score": evaluation.lexical_score,
-        "band_score": _calculate_band_score(
-            evaluation.response_score,
-            evaluation.coherence_score,
-            evaluation.grammatical_score,
-            evaluation.lexical_score,
-        ),
         "response_feedback": [
             evaluation.response_feedback1,
             evaluation.response_feedback2,
@@ -583,24 +568,6 @@ def _speaking_generate_question(part_no: int, json: any):
     return jsonify(resp_json)
 
 
-# TODO:
-def _calculate_band_score(
-    s1: float, s2: float, s3: float, s4: float = None
-) -> float:
-    """Returns IELTS band score based on four criteria scores."""
-    sum = s1 + s2 + s3
-    if s4 is not None:
-        sum += s4
-    avg = sum / 4 if s4 is not None else sum / 3
-    frac, score = math.modf(avg)
-    if frac >= 0.75:
-        score += 1.0
-    elif frac >= 0.25:
-        score += 0.5
-
-    return score
-
-
 def _speaking_answer_evaluate(part_no: int):
     """Evaluate the answer for Speaking Part 1 and 3.
 
@@ -635,11 +602,6 @@ def _build_speaking_answer_evaluate_reponse(evaluation: dict) -> str:
         "coherence_score": evaluation.coherence_score,
         "lexical_score": evaluation.lexical_score,
         "grammatical_score": evaluation.grammatical_score,
-        "band_score": _calculate_band_score(
-            evaluation.coherence_score,
-            evaluation.lexical_score,
-            evaluation.grammatical_score,
-        ),
         "coherence_feedback": [
             evaluation.coherence_feedback1,
             evaluation.coherence_feedback2,

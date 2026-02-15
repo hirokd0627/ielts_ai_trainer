@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SpeakingChatAnswer {
 
- int? get id; int? get detailId; List<SpeakingUtteranceVO> get utterances; DateTime get createdAt; List<PromptTopic> get topics; int get duration; bool get isGraded; TestTask get testTask; double? get coherenceScore; double? get lexicalScore; double? get grammaticalScore; double? get fluencyScore; double? get bandScore; String? get coherenceFeedback; String? get lexicalFeedback; String? get grammaticalFeedback;
+ int? get id; int? get detailId; List<SpeakingUtteranceVO> get utterances; DateTime get createdAt; List<PromptTopic> get topics; int get duration; bool get isGraded; TestTask get testTask; double? get coherenceScore; double? get lexicalScore; double? get grammaticalScore; String? get coherenceFeedback; String? get lexicalFeedback; String? get grammaticalFeedback;
 /// Create a copy of SpeakingChatAnswer
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $SpeakingChatAnswerCopyWith<SpeakingChatAnswer> get copyWith => _$SpeakingChatAn
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SpeakingChatAnswer&&(identical(other.id, id) || other.id == id)&&(identical(other.detailId, detailId) || other.detailId == detailId)&&const DeepCollectionEquality().equals(other.utterances, utterances)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other.topics, topics)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.isGraded, isGraded) || other.isGraded == isGraded)&&(identical(other.testTask, testTask) || other.testTask == testTask)&&(identical(other.coherenceScore, coherenceScore) || other.coherenceScore == coherenceScore)&&(identical(other.lexicalScore, lexicalScore) || other.lexicalScore == lexicalScore)&&(identical(other.grammaticalScore, grammaticalScore) || other.grammaticalScore == grammaticalScore)&&(identical(other.fluencyScore, fluencyScore) || other.fluencyScore == fluencyScore)&&(identical(other.bandScore, bandScore) || other.bandScore == bandScore)&&(identical(other.coherenceFeedback, coherenceFeedback) || other.coherenceFeedback == coherenceFeedback)&&(identical(other.lexicalFeedback, lexicalFeedback) || other.lexicalFeedback == lexicalFeedback)&&(identical(other.grammaticalFeedback, grammaticalFeedback) || other.grammaticalFeedback == grammaticalFeedback));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SpeakingChatAnswer&&(identical(other.id, id) || other.id == id)&&(identical(other.detailId, detailId) || other.detailId == detailId)&&const DeepCollectionEquality().equals(other.utterances, utterances)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other.topics, topics)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.isGraded, isGraded) || other.isGraded == isGraded)&&(identical(other.testTask, testTask) || other.testTask == testTask)&&(identical(other.coherenceScore, coherenceScore) || other.coherenceScore == coherenceScore)&&(identical(other.lexicalScore, lexicalScore) || other.lexicalScore == lexicalScore)&&(identical(other.grammaticalScore, grammaticalScore) || other.grammaticalScore == grammaticalScore)&&(identical(other.coherenceFeedback, coherenceFeedback) || other.coherenceFeedback == coherenceFeedback)&&(identical(other.lexicalFeedback, lexicalFeedback) || other.lexicalFeedback == lexicalFeedback)&&(identical(other.grammaticalFeedback, grammaticalFeedback) || other.grammaticalFeedback == grammaticalFeedback));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,detailId,const DeepCollectionEquality().hash(utterances),createdAt,const DeepCollectionEquality().hash(topics),duration,isGraded,testTask,coherenceScore,lexicalScore,grammaticalScore,fluencyScore,bandScore,coherenceFeedback,lexicalFeedback,grammaticalFeedback);
+int get hashCode => Object.hash(runtimeType,id,detailId,const DeepCollectionEquality().hash(utterances),createdAt,const DeepCollectionEquality().hash(topics),duration,isGraded,testTask,coherenceScore,lexicalScore,grammaticalScore,coherenceFeedback,lexicalFeedback,grammaticalFeedback);
 
 @override
 String toString() {
-  return 'SpeakingChatAnswer(id: $id, detailId: $detailId, utterances: $utterances, createdAt: $createdAt, topics: $topics, duration: $duration, isGraded: $isGraded, testTask: $testTask, coherenceScore: $coherenceScore, lexicalScore: $lexicalScore, grammaticalScore: $grammaticalScore, fluencyScore: $fluencyScore, bandScore: $bandScore, coherenceFeedback: $coherenceFeedback, lexicalFeedback: $lexicalFeedback, grammaticalFeedback: $grammaticalFeedback)';
+  return 'SpeakingChatAnswer(id: $id, detailId: $detailId, utterances: $utterances, createdAt: $createdAt, topics: $topics, duration: $duration, isGraded: $isGraded, testTask: $testTask, coherenceScore: $coherenceScore, lexicalScore: $lexicalScore, grammaticalScore: $grammaticalScore, coherenceFeedback: $coherenceFeedback, lexicalFeedback: $lexicalFeedback, grammaticalFeedback: $grammaticalFeedback)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $SpeakingChatAnswerCopyWith<$Res>  {
   factory $SpeakingChatAnswerCopyWith(SpeakingChatAnswer value, $Res Function(SpeakingChatAnswer) _then) = _$SpeakingChatAnswerCopyWithImpl;
 @useResult
 $Res call({
- int? id, int? detailId, List<SpeakingUtteranceVO> utterances, DateTime createdAt, List<PromptTopic> topics, int duration, bool isGraded, TestTask testTask, double? coherenceScore, double? lexicalScore, double? grammaticalScore, double? fluencyScore, double? bandScore, String? coherenceFeedback, String? lexicalFeedback, String? grammaticalFeedback
+ int? id, int? detailId, List<SpeakingUtteranceVO> utterances, DateTime createdAt, List<PromptTopic> topics, int duration, bool isGraded, TestTask testTask, double? coherenceScore, double? lexicalScore, double? grammaticalScore, String? coherenceFeedback, String? lexicalFeedback, String? grammaticalFeedback
 });
 
 
@@ -62,7 +62,7 @@ class _$SpeakingChatAnswerCopyWithImpl<$Res>
 
 /// Create a copy of SpeakingChatAnswer
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? detailId = freezed,Object? utterances = null,Object? createdAt = null,Object? topics = null,Object? duration = null,Object? isGraded = null,Object? testTask = null,Object? coherenceScore = freezed,Object? lexicalScore = freezed,Object? grammaticalScore = freezed,Object? fluencyScore = freezed,Object? bandScore = freezed,Object? coherenceFeedback = freezed,Object? lexicalFeedback = freezed,Object? grammaticalFeedback = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? detailId = freezed,Object? utterances = null,Object? createdAt = null,Object? topics = null,Object? duration = null,Object? isGraded = null,Object? testTask = null,Object? coherenceScore = freezed,Object? lexicalScore = freezed,Object? grammaticalScore = freezed,Object? coherenceFeedback = freezed,Object? lexicalFeedback = freezed,Object? grammaticalFeedback = freezed,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,detailId: freezed == detailId ? _self.detailId : detailId // ignore: cast_nullable_to_non_nullable
@@ -75,8 +75,6 @@ as bool,testTask: null == testTask ? _self.testTask : testTask // ignore: cast_n
 as TestTask,coherenceScore: freezed == coherenceScore ? _self.coherenceScore : coherenceScore // ignore: cast_nullable_to_non_nullable
 as double?,lexicalScore: freezed == lexicalScore ? _self.lexicalScore : lexicalScore // ignore: cast_nullable_to_non_nullable
 as double?,grammaticalScore: freezed == grammaticalScore ? _self.grammaticalScore : grammaticalScore // ignore: cast_nullable_to_non_nullable
-as double?,fluencyScore: freezed == fluencyScore ? _self.fluencyScore : fluencyScore // ignore: cast_nullable_to_non_nullable
-as double?,bandScore: freezed == bandScore ? _self.bandScore : bandScore // ignore: cast_nullable_to_non_nullable
 as double?,coherenceFeedback: freezed == coherenceFeedback ? _self.coherenceFeedback : coherenceFeedback // ignore: cast_nullable_to_non_nullable
 as String?,lexicalFeedback: freezed == lexicalFeedback ? _self.lexicalFeedback : lexicalFeedback // ignore: cast_nullable_to_non_nullable
 as String?,grammaticalFeedback: freezed == grammaticalFeedback ? _self.grammaticalFeedback : grammaticalFeedback // ignore: cast_nullable_to_non_nullable
@@ -165,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  int? detailId,  List<SpeakingUtteranceVO> utterances,  DateTime createdAt,  List<PromptTopic> topics,  int duration,  bool isGraded,  TestTask testTask,  double? coherenceScore,  double? lexicalScore,  double? grammaticalScore,  double? fluencyScore,  double? bandScore,  String? coherenceFeedback,  String? lexicalFeedback,  String? grammaticalFeedback)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  int? detailId,  List<SpeakingUtteranceVO> utterances,  DateTime createdAt,  List<PromptTopic> topics,  int duration,  bool isGraded,  TestTask testTask,  double? coherenceScore,  double? lexicalScore,  double? grammaticalScore,  String? coherenceFeedback,  String? lexicalFeedback,  String? grammaticalFeedback)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SpeakingChatAnswer() when $default != null:
-return $default(_that.id,_that.detailId,_that.utterances,_that.createdAt,_that.topics,_that.duration,_that.isGraded,_that.testTask,_that.coherenceScore,_that.lexicalScore,_that.grammaticalScore,_that.fluencyScore,_that.bandScore,_that.coherenceFeedback,_that.lexicalFeedback,_that.grammaticalFeedback);case _:
+return $default(_that.id,_that.detailId,_that.utterances,_that.createdAt,_that.topics,_that.duration,_that.isGraded,_that.testTask,_that.coherenceScore,_that.lexicalScore,_that.grammaticalScore,_that.coherenceFeedback,_that.lexicalFeedback,_that.grammaticalFeedback);case _:
   return orElse();
 
 }
@@ -186,10 +184,10 @@ return $default(_that.id,_that.detailId,_that.utterances,_that.createdAt,_that.t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  int? detailId,  List<SpeakingUtteranceVO> utterances,  DateTime createdAt,  List<PromptTopic> topics,  int duration,  bool isGraded,  TestTask testTask,  double? coherenceScore,  double? lexicalScore,  double? grammaticalScore,  double? fluencyScore,  double? bandScore,  String? coherenceFeedback,  String? lexicalFeedback,  String? grammaticalFeedback)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  int? detailId,  List<SpeakingUtteranceVO> utterances,  DateTime createdAt,  List<PromptTopic> topics,  int duration,  bool isGraded,  TestTask testTask,  double? coherenceScore,  double? lexicalScore,  double? grammaticalScore,  String? coherenceFeedback,  String? lexicalFeedback,  String? grammaticalFeedback)  $default,) {final _that = this;
 switch (_that) {
 case _SpeakingChatAnswer():
-return $default(_that.id,_that.detailId,_that.utterances,_that.createdAt,_that.topics,_that.duration,_that.isGraded,_that.testTask,_that.coherenceScore,_that.lexicalScore,_that.grammaticalScore,_that.fluencyScore,_that.bandScore,_that.coherenceFeedback,_that.lexicalFeedback,_that.grammaticalFeedback);case _:
+return $default(_that.id,_that.detailId,_that.utterances,_that.createdAt,_that.topics,_that.duration,_that.isGraded,_that.testTask,_that.coherenceScore,_that.lexicalScore,_that.grammaticalScore,_that.coherenceFeedback,_that.lexicalFeedback,_that.grammaticalFeedback);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -206,10 +204,10 @@ return $default(_that.id,_that.detailId,_that.utterances,_that.createdAt,_that.t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  int? detailId,  List<SpeakingUtteranceVO> utterances,  DateTime createdAt,  List<PromptTopic> topics,  int duration,  bool isGraded,  TestTask testTask,  double? coherenceScore,  double? lexicalScore,  double? grammaticalScore,  double? fluencyScore,  double? bandScore,  String? coherenceFeedback,  String? lexicalFeedback,  String? grammaticalFeedback)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  int? detailId,  List<SpeakingUtteranceVO> utterances,  DateTime createdAt,  List<PromptTopic> topics,  int duration,  bool isGraded,  TestTask testTask,  double? coherenceScore,  double? lexicalScore,  double? grammaticalScore,  String? coherenceFeedback,  String? lexicalFeedback,  String? grammaticalFeedback)?  $default,) {final _that = this;
 switch (_that) {
 case _SpeakingChatAnswer() when $default != null:
-return $default(_that.id,_that.detailId,_that.utterances,_that.createdAt,_that.topics,_that.duration,_that.isGraded,_that.testTask,_that.coherenceScore,_that.lexicalScore,_that.grammaticalScore,_that.fluencyScore,_that.bandScore,_that.coherenceFeedback,_that.lexicalFeedback,_that.grammaticalFeedback);case _:
+return $default(_that.id,_that.detailId,_that.utterances,_that.createdAt,_that.topics,_that.duration,_that.isGraded,_that.testTask,_that.coherenceScore,_that.lexicalScore,_that.grammaticalScore,_that.coherenceFeedback,_that.lexicalFeedback,_that.grammaticalFeedback);case _:
   return null;
 
 }
@@ -220,8 +218,8 @@ return $default(_that.id,_that.detailId,_that.utterances,_that.createdAt,_that.t
 /// @nodoc
 
 
-class _SpeakingChatAnswer implements SpeakingChatAnswer {
-  const _SpeakingChatAnswer({this.id, this.detailId, required final  List<SpeakingUtteranceVO> utterances, required this.createdAt, required final  List<PromptTopic> topics, required this.duration, required this.isGraded, required this.testTask, this.coherenceScore, this.lexicalScore, this.grammaticalScore, this.fluencyScore, this.bandScore, this.coherenceFeedback, this.lexicalFeedback, this.grammaticalFeedback}): _utterances = utterances,_topics = topics;
+class _SpeakingChatAnswer extends SpeakingChatAnswer {
+  const _SpeakingChatAnswer({this.id, this.detailId, required final  List<SpeakingUtteranceVO> utterances, required this.createdAt, required final  List<PromptTopic> topics, required this.duration, required this.isGraded, required this.testTask, this.coherenceScore, this.lexicalScore, this.grammaticalScore, this.coherenceFeedback, this.lexicalFeedback, this.grammaticalFeedback}): _utterances = utterances,_topics = topics,super._();
   
 
 @override final  int? id;
@@ -247,8 +245,6 @@ class _SpeakingChatAnswer implements SpeakingChatAnswer {
 @override final  double? coherenceScore;
 @override final  double? lexicalScore;
 @override final  double? grammaticalScore;
-@override final  double? fluencyScore;
-@override final  double? bandScore;
 @override final  String? coherenceFeedback;
 @override final  String? lexicalFeedback;
 @override final  String? grammaticalFeedback;
@@ -263,16 +259,16 @@ _$SpeakingChatAnswerCopyWith<_SpeakingChatAnswer> get copyWith => __$SpeakingCha
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SpeakingChatAnswer&&(identical(other.id, id) || other.id == id)&&(identical(other.detailId, detailId) || other.detailId == detailId)&&const DeepCollectionEquality().equals(other._utterances, _utterances)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other._topics, _topics)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.isGraded, isGraded) || other.isGraded == isGraded)&&(identical(other.testTask, testTask) || other.testTask == testTask)&&(identical(other.coherenceScore, coherenceScore) || other.coherenceScore == coherenceScore)&&(identical(other.lexicalScore, lexicalScore) || other.lexicalScore == lexicalScore)&&(identical(other.grammaticalScore, grammaticalScore) || other.grammaticalScore == grammaticalScore)&&(identical(other.fluencyScore, fluencyScore) || other.fluencyScore == fluencyScore)&&(identical(other.bandScore, bandScore) || other.bandScore == bandScore)&&(identical(other.coherenceFeedback, coherenceFeedback) || other.coherenceFeedback == coherenceFeedback)&&(identical(other.lexicalFeedback, lexicalFeedback) || other.lexicalFeedback == lexicalFeedback)&&(identical(other.grammaticalFeedback, grammaticalFeedback) || other.grammaticalFeedback == grammaticalFeedback));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SpeakingChatAnswer&&(identical(other.id, id) || other.id == id)&&(identical(other.detailId, detailId) || other.detailId == detailId)&&const DeepCollectionEquality().equals(other._utterances, _utterances)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other._topics, _topics)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.isGraded, isGraded) || other.isGraded == isGraded)&&(identical(other.testTask, testTask) || other.testTask == testTask)&&(identical(other.coherenceScore, coherenceScore) || other.coherenceScore == coherenceScore)&&(identical(other.lexicalScore, lexicalScore) || other.lexicalScore == lexicalScore)&&(identical(other.grammaticalScore, grammaticalScore) || other.grammaticalScore == grammaticalScore)&&(identical(other.coherenceFeedback, coherenceFeedback) || other.coherenceFeedback == coherenceFeedback)&&(identical(other.lexicalFeedback, lexicalFeedback) || other.lexicalFeedback == lexicalFeedback)&&(identical(other.grammaticalFeedback, grammaticalFeedback) || other.grammaticalFeedback == grammaticalFeedback));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,detailId,const DeepCollectionEquality().hash(_utterances),createdAt,const DeepCollectionEquality().hash(_topics),duration,isGraded,testTask,coherenceScore,lexicalScore,grammaticalScore,fluencyScore,bandScore,coherenceFeedback,lexicalFeedback,grammaticalFeedback);
+int get hashCode => Object.hash(runtimeType,id,detailId,const DeepCollectionEquality().hash(_utterances),createdAt,const DeepCollectionEquality().hash(_topics),duration,isGraded,testTask,coherenceScore,lexicalScore,grammaticalScore,coherenceFeedback,lexicalFeedback,grammaticalFeedback);
 
 @override
 String toString() {
-  return 'SpeakingChatAnswer(id: $id, detailId: $detailId, utterances: $utterances, createdAt: $createdAt, topics: $topics, duration: $duration, isGraded: $isGraded, testTask: $testTask, coherenceScore: $coherenceScore, lexicalScore: $lexicalScore, grammaticalScore: $grammaticalScore, fluencyScore: $fluencyScore, bandScore: $bandScore, coherenceFeedback: $coherenceFeedback, lexicalFeedback: $lexicalFeedback, grammaticalFeedback: $grammaticalFeedback)';
+  return 'SpeakingChatAnswer(id: $id, detailId: $detailId, utterances: $utterances, createdAt: $createdAt, topics: $topics, duration: $duration, isGraded: $isGraded, testTask: $testTask, coherenceScore: $coherenceScore, lexicalScore: $lexicalScore, grammaticalScore: $grammaticalScore, coherenceFeedback: $coherenceFeedback, lexicalFeedback: $lexicalFeedback, grammaticalFeedback: $grammaticalFeedback)';
 }
 
 
@@ -283,7 +279,7 @@ abstract mixin class _$SpeakingChatAnswerCopyWith<$Res> implements $SpeakingChat
   factory _$SpeakingChatAnswerCopyWith(_SpeakingChatAnswer value, $Res Function(_SpeakingChatAnswer) _then) = __$SpeakingChatAnswerCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, int? detailId, List<SpeakingUtteranceVO> utterances, DateTime createdAt, List<PromptTopic> topics, int duration, bool isGraded, TestTask testTask, double? coherenceScore, double? lexicalScore, double? grammaticalScore, double? fluencyScore, double? bandScore, String? coherenceFeedback, String? lexicalFeedback, String? grammaticalFeedback
+ int? id, int? detailId, List<SpeakingUtteranceVO> utterances, DateTime createdAt, List<PromptTopic> topics, int duration, bool isGraded, TestTask testTask, double? coherenceScore, double? lexicalScore, double? grammaticalScore, String? coherenceFeedback, String? lexicalFeedback, String? grammaticalFeedback
 });
 
 
@@ -300,7 +296,7 @@ class __$SpeakingChatAnswerCopyWithImpl<$Res>
 
 /// Create a copy of SpeakingChatAnswer
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? detailId = freezed,Object? utterances = null,Object? createdAt = null,Object? topics = null,Object? duration = null,Object? isGraded = null,Object? testTask = null,Object? coherenceScore = freezed,Object? lexicalScore = freezed,Object? grammaticalScore = freezed,Object? fluencyScore = freezed,Object? bandScore = freezed,Object? coherenceFeedback = freezed,Object? lexicalFeedback = freezed,Object? grammaticalFeedback = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? detailId = freezed,Object? utterances = null,Object? createdAt = null,Object? topics = null,Object? duration = null,Object? isGraded = null,Object? testTask = null,Object? coherenceScore = freezed,Object? lexicalScore = freezed,Object? grammaticalScore = freezed,Object? coherenceFeedback = freezed,Object? lexicalFeedback = freezed,Object? grammaticalFeedback = freezed,}) {
   return _then(_SpeakingChatAnswer(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,detailId: freezed == detailId ? _self.detailId : detailId // ignore: cast_nullable_to_non_nullable
@@ -313,8 +309,6 @@ as bool,testTask: null == testTask ? _self.testTask : testTask // ignore: cast_n
 as TestTask,coherenceScore: freezed == coherenceScore ? _self.coherenceScore : coherenceScore // ignore: cast_nullable_to_non_nullable
 as double?,lexicalScore: freezed == lexicalScore ? _self.lexicalScore : lexicalScore // ignore: cast_nullable_to_non_nullable
 as double?,grammaticalScore: freezed == grammaticalScore ? _self.grammaticalScore : grammaticalScore // ignore: cast_nullable_to_non_nullable
-as double?,fluencyScore: freezed == fluencyScore ? _self.fluencyScore : fluencyScore // ignore: cast_nullable_to_non_nullable
-as double?,bandScore: freezed == bandScore ? _self.bandScore : bandScore // ignore: cast_nullable_to_non_nullable
 as double?,coherenceFeedback: freezed == coherenceFeedback ? _self.coherenceFeedback : coherenceFeedback // ignore: cast_nullable_to_non_nullable
 as String?,lexicalFeedback: freezed == lexicalFeedback ? _self.lexicalFeedback : lexicalFeedback // ignore: cast_nullable_to_non_nullable
 as String?,grammaticalFeedback: freezed == grammaticalFeedback ? _self.grammaticalFeedback : grammaticalFeedback // ignore: cast_nullable_to_non_nullable

@@ -162,11 +162,7 @@ class WritingTask2Response {
 
 /// Response of evaluateTask1Answer.
 class WritingEvaluationResponse {
-  final double taskScore,
-      coherenceScore,
-      grammaticalScore,
-      lexicalScore,
-      bandScore;
+  final double taskScore, coherenceScore, grammaticalScore, lexicalScore;
   final List<String> taskFeedback,
       coherenceFeedback,
       grammaticalFeedback,
@@ -177,7 +173,6 @@ class WritingEvaluationResponse {
     required this.coherenceScore,
     required this.grammaticalScore,
     required this.lexicalScore,
-    required this.bandScore,
     required this.taskFeedback,
     required this.coherenceFeedback,
     required this.grammaticalFeedback,
@@ -221,7 +216,6 @@ class WritingEvaluationResponse {
       "coherence_score",
       "grammatical_score",
       "lexical_score",
-      "band_score",
       "coherence_feedback",
       "grammatical_feedback",
       "lexical_feedback",
@@ -236,7 +230,6 @@ class WritingEvaluationResponse {
       coherenceScore: json["coherence_score"],
       grammaticalScore: json["grammatical_score"],
       lexicalScore: json["lexical_score"],
-      bandScore: json["band_score"],
       taskFeedback: taskFeedback,
       coherenceFeedback: List<String>.from(json["coherence_feedback"]),
       grammaticalFeedback: List<String>.from(json["grammatical_feedback"]),
