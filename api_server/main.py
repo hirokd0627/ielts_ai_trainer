@@ -456,7 +456,7 @@ def speaking_evaluate_pronunciation():
         audio_data (bytes): Recorded audio data (m4a) of the user's speech.
 
     Returns: application/json
-        score (float): Fluency score.
+        score (float): Pronunciation score.
     """
 
     # Ref. https://github.com/siddhantgoel/streaming-form-data

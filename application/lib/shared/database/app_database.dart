@@ -21,7 +21,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
@@ -130,7 +130,7 @@ class SpeakingUtterancesTable extends Table {
   TextColumn get message => text()();
   TextColumn get audioFileUuid => text().nullable()();
   // score is nullable because it will be updated after evaluation.
-  RealColumn get fluencyScore => real().nullable()();
+  RealColumn get pronunciationScore => real().nullable()();
 
   @override
   Set<Column> get primaryKey => {userAnswerId, order};

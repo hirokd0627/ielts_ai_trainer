@@ -64,6 +64,6 @@ erDiagram
         INTEGER is_graded
         TEXT message
         TEXT audio_file_uuid
-        REAL fluency_score
+        REAL pronunciation_score
     }
 ```

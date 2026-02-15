@@ -66,8 +66,8 @@ class SpeakingResultController extends ChangeNotifier {
         _chatAnswer!.lexicalScore!,
         _chatAnswer!.grammaticalScore!,
       ];
-      if (_chatAnswer!.hasFluencyScore) {
-        scores.add(_chatAnswer!.fluencyScore);
+      if (_chatAnswer!.hasPronunciationScore) {
+        scores.add(_chatAnswer!.pronunciationScore);
       }
       return ScoreCalculationService.calculateScore(scores).toString();
     }
@@ -84,8 +84,8 @@ class SpeakingResultController extends ChangeNotifier {
         _speechAnswer!.lexicalScore!,
         _speechAnswer!.grammaticalScore!,
       ];
-      if (_speechAnswer!.hasFluencyScore) {
-        scores.add(_speechAnswer!.fluencyScore);
+      if (_speechAnswer!.hasPronunciationScore) {
+        scores.add(_speechAnswer!.pronunciationScore);
       }
       return ScoreCalculationService.calculateScore(scores).toString();
     }
@@ -93,12 +93,12 @@ class SpeakingResultController extends ChangeNotifier {
     return '-';
   }
 
-  String get fluencyScore {
-    if (_chatAnswer != null && _chatAnswer!.hasFluencyScore) {
-      return _chatAnswer!.fluencyScore.toString();
+  String get pronunciationScore {
+    if (_chatAnswer != null && _chatAnswer!.hasPronunciationScore) {
+      return _chatAnswer!.pronunciationScore.toString();
     }
-    if (_speechAnswer != null && _speechAnswer!.hasFluencyScore) {
-      return _speechAnswer!.fluencyScore.toString();
+    if (_speechAnswer != null && _speechAnswer!.hasPronunciationScore) {
+      return _speechAnswer!.pronunciationScore.toString();
     }
     return '-';
   }
@@ -164,9 +164,13 @@ class SpeakingResultController extends ChangeNotifier {
   }
 
   List<SpeakingUtteranceVO> get utterances {
-    return _chatAnswer != null
-        ? _chatAnswer?.utterances ?? []
-        : [_speechAnswer!.prompt, _speechAnswer!.answer];
+    if (_chatAnswer != null) {
+      return _chatAnswer!.utterances;
+    }
+    if (_speechAnswer != null) {
+      return [_speechAnswer!.prompt, _speechAnswer!.answer];
+    }
+    return [];
   }
 
   SpeakingUtteranceVO get speechUtterance => _speechAnswer!.answer;
@@ -360,7 +364,10 @@ class SpeakingResultController extends ChangeNotifier {
     );
 
     // Saves results in utterance
-    final graded = utterance.copyWith(fluency: resp.score, isGraded: true);
+    final graded = utterance.copyWith(
+      pronunciationScore: resp.score,
+      isGraded: true,
+    );
     await _repo.saveUtterance(userAnswerId, graded);
 
     // Updates screen.

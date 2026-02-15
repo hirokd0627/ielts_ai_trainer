@@ -151,7 +151,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
           isUser: row.isUser,
           isGraded: row.isGraded,
           text: row.message,
-          fluency: row.fluencyScore,
+          pronunciationScore: row.pronunciationScore,
           audioFileUuid: row.audioFileUuid,
         ),
       );
@@ -252,7 +252,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
       audioFileUuid: utterance.audioFileUuid != null
           ? Value(utterance.audioFileUuid!)
           : Value.absent(),
-      fluencyScore: Value(utterance.fluency),
+      pronunciationScore: Value(utterance.pronunciationScore),
     );
     speakingUtterancesTable.insertOnConflictUpdate(u);
   }

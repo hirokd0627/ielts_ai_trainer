@@ -214,7 +214,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                       children: [
                         // Question
                         HeadlineText("Question"),
-                        SizedBox(height: 4),
+                        SizedBox(height: 20),
                         if (widget.testTask == TestTask.writingTask1) ...[
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,7 +237,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                         SizedBox(height: 40),
                         // Answer
                         HeadlineText("Answer"),
-                        SizedBox(height: 4),
+                        SizedBox(height: 20),
                         Text(_ctrl.answerText),
                         SizedBox(height: 40),
                         // Feedback

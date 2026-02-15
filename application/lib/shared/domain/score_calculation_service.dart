@@ -2,11 +2,8 @@ import 'package:collection/collection.dart';
 
 /// Band score calculator.
 class ScoreCalculationService {
-  /// Returns band score calculated with the given scores.
+  /// Calculates average score of given scores based on IELTS round rule.
   static double calculateScore(List<double> scores) {
-    if (scores.length < 3) {
-      throw ArgumentError('Require more than two scores.');
-    }
     final sum = scores.sum;
     final avg = sum / scores.length;
     var score = avg.truncateToDouble();

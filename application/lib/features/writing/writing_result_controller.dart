@@ -37,10 +37,10 @@ class WritingResultController extends ChangeNotifier {
   String get bandScore {
     if (_writingAnswer == null ||
         !_writingAnswer!.isGraded ||
-        (_writingAnswer!.coherenceScore != null &&
-            _writingAnswer!.lexicalScore != null &&
-            _writingAnswer!.grammaticalScore != null &&
-            _writingAnswer!.taskScore != null)) {
+        (_writingAnswer!.coherenceScore == null &&
+            _writingAnswer!.lexicalScore == null &&
+            _writingAnswer!.grammaticalScore == null &&
+            _writingAnswer!.taskScore == null)) {
       return '-';
     }
     return ScoreCalculationService.calculateScore([

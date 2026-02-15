@@ -28,13 +28,13 @@ abstract class SpeakingSpeechAnswer with _$SpeakingSpeechAnswer {
     String? grammaticalFeedback,
   }) = _SpeakingSpeechAnswer;
 
-  /// Whether the fluency score can be calculated.
-  bool get hasFluencyScore {
+  /// Whether the pronunciation score can be calculated.
+  bool get hasPronunciationScore {
     return answer.isGraded;
   }
 
-  /// Returns the fluency score.
-  double get fluencyScore {
-    return answer.fluency ?? 0.0;
+  /// Returns the pronunciation score.
+  double get pronunciationScore {
+    return answer.pronunciationScore ?? 0.0;
   }
 }

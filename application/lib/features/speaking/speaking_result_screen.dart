@@ -109,7 +109,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
   Widget _buildScore() {
     return Center(
       child: SizedBox(
-        height: 200,
+        height: 160,
         width: 600,
         child: !_ctrl.isGraded
             ? Center(child: LoadingIndicator('Reviewing...'))
@@ -126,7 +126,6 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        const SizedBox(height: 8),
                         Text(
                           _ctrl.bandScore,
                           style: TextStyle(
@@ -134,7 +133,6 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
@@ -152,7 +150,10 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                           'Grammatical Range & Accuracy',
                           _ctrl.grammaticalScore,
                         ),
-                        _buildCriteriaRow('Pronunciation', _ctrl.fluencyScore),
+                        _buildCriteriaRow(
+                          'Pronunciation',
+                          _ctrl.pronunciationScore,
+                        ),
                       ],
                     ),
                   ),
@@ -188,12 +189,12 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
     ];
   }
 
-  /// Builds a widget to show fluency score.
-  Widget _buildFluencyScoreWidget(SpeakingUtteranceVO u) {
+  /// Builds a widget to show pronunciation score.
+  Widget _buildPronunciationScoreWidget(SpeakingUtteranceVO u) {
     if (!u.isGraded) {
-      return Text('Reviewing...');
+      return LoadingIndicator('Reviewing...');
     }
-    return Text('Fluency: ${u.fluency}');
+    return Text('Pronunciation: ${u.pronunciationScore}');
   }
 
   @override
@@ -216,9 +217,10 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                     _screenTitle,
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
+                  SizedBox(height: 20),
                   // Score
                   _buildScore(),
-                  SizedBox(height: 40),
+                  SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     child: Column(
@@ -229,32 +231,29 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                           // Part 2 result details
                           // Question
                           HeadlineText("Question"),
-                          SizedBox(height: 4),
-                          ConstrainedBox(
-                            constraints: BoxConstraints(minHeight: 60),
-                            child: Text(_ctrl.promptText),
-                          ),
                           SizedBox(height: 20),
+                          Text(_ctrl.promptText),
+                          SizedBox(height: 40),
                           // Note
                           HeadlineText("Note"),
-                          SizedBox(height: 4),
-                          ConstrainedBox(
-                            constraints: BoxConstraints(minHeight: 60),
-                            child: Text(_ctrl.note),
-                          ),
                           SizedBox(height: 20),
+                          Text(_ctrl.note),
+                          SizedBox(height: 40),
                           // Answer
                           HeadlineText("Answer"),
-                          SizedBox(height: 4),
-                          ConstrainedBox(
-                            constraints: BoxConstraints(minHeight: 60),
-                            child: Text(_ctrl.answerText),
-                          ),
+                          SizedBox(height: 20),
+                          Text(_ctrl.answerText),
+                          SizedBox(height: 10),
                           Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            alignment: WrapAlignment.end,
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               if (_ctrl.isRecorded(1))
-                                _buildFluencyScoreWidget(_ctrl.speechUtterance),
+                                _buildPronunciationScoreWidget(
+                                  _ctrl.speechUtterance,
+                                ),
                               // Play button
                               buildOutlinedButton(
                                 _ctrl.getPlayButtonLabelAt(1),
@@ -268,7 +267,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                           // Part 1 or Part 3
                           // Conversation
                           HeadlineText("Conversation"),
-                          SizedBox(height: 16),
+                          SizedBox(height: 20),
                           Column(
                             children: _ctrl.utterances.mapIndexed((i, u) {
                               return Padding(
@@ -284,16 +283,15 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                                   showPlayButton: true,
                                   playingButtonLabel: _ctrl
                                       .getPlayButtonLabelAt(i),
-                                  // TODO: fluency -> pronunciation
                                   scoreWidget: _ctrl.isRecorded(i)
-                                      ? _buildFluencyScoreWidget(u)
+                                      ? _buildPronunciationScoreWidget(u)
                                       : null,
                                 ),
                               );
                             }).toList(),
                           ),
                         ],
-                        SizedBox(height: 20),
+                        SizedBox(height: 40),
                         // Feedback
                         ..._buildFeedback(),
 

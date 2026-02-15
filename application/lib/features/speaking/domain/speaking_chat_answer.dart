@@ -28,22 +28,22 @@ abstract class SpeakingChatAnswer with _$SpeakingChatAnswer {
     String? grammaticalFeedback,
   }) = _SpeakingChatAnswer;
 
-  /// Whether the fluency score can be calculated.
-  bool get hasFluencyScore {
+  /// Whether the pronunciation score can be calculated.
+  bool get hasPronunciationScore {
     for (final u in utterances) {
-      if (u.isUser && u.isGraded && u.fluency != null) {
+      if (u.isUser && u.isGraded && u.pronunciationScore != null) {
         return true;
       }
     }
     return false;
   }
 
-  /// Returns the fluency score.
-  double get fluencyScore {
+  /// Returns the pronunciation score.
+  double get pronunciationScore {
     final scores = <double>[];
     for (final u in utterances) {
-      if (u.isUser && u.isGraded && u.fluency != null) {
-        scores.add(u.fluency!);
+      if (u.isUser && u.isGraded && u.pronunciationScore != null) {
+        scores.add(u.pronunciationScore!);
       }
     }
     return ScoreCalculationService.calculateScore(scores);

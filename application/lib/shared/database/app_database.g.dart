@@ -2429,17 +2429,17 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _fluencyScoreMeta = const VerificationMeta(
-    'fluencyScore',
-  );
+  static const VerificationMeta _pronunciationScoreMeta =
+      const VerificationMeta('pronunciationScore');
   @override
-  late final GeneratedColumn<double> fluencyScore = GeneratedColumn<double>(
-    'fluency_score',
-    aliasedName,
-    true,
-    type: DriftSqlType.double,
-    requiredDuringInsert: false,
-  );
+  late final GeneratedColumn<double> pronunciationScore =
+      GeneratedColumn<double>(
+        'pronunciation_score',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     userAnswerId,
@@ -2448,7 +2448,7 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
     isGraded,
     message,
     audioFileUuid,
-    fluencyScore,
+    pronunciationScore,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2512,12 +2512,12 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
         ),
       );
     }
-    if (data.containsKey('fluency_score')) {
+    if (data.containsKey('pronunciation_score')) {
       context.handle(
-        _fluencyScoreMeta,
-        fluencyScore.isAcceptableOrUnknown(
-          data['fluency_score']!,
-          _fluencyScoreMeta,
+        _pronunciationScoreMeta,
+        pronunciationScore.isAcceptableOrUnknown(
+          data['pronunciation_score']!,
+          _pronunciationScoreMeta,
         ),
       );
     }
@@ -2557,9 +2557,9 @@ class $SpeakingUtterancesTableTable extends SpeakingUtterancesTable
         DriftSqlType.string,
         data['${effectivePrefix}audio_file_uuid'],
       ),
-      fluencyScore: attachedDatabase.typeMapping.read(
+      pronunciationScore: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}fluency_score'],
+        data['${effectivePrefix}pronunciation_score'],
       ),
     );
   }
@@ -2578,7 +2578,7 @@ class SpeakingUtterancesTableData extends DataClass
   final bool isGraded;
   final String message;
   final String? audioFileUuid;
-  final double? fluencyScore;
+  final double? pronunciationScore;
   const SpeakingUtterancesTableData({
     required this.userAnswerId,
     required this.order,
@@ -2586,7 +2586,7 @@ class SpeakingUtterancesTableData extends DataClass
     required this.isGraded,
     required this.message,
     this.audioFileUuid,
-    this.fluencyScore,
+    this.pronunciationScore,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2599,8 +2599,8 @@ class SpeakingUtterancesTableData extends DataClass
     if (!nullToAbsent || audioFileUuid != null) {
       map['audio_file_uuid'] = Variable<String>(audioFileUuid);
     }
-    if (!nullToAbsent || fluencyScore != null) {
-      map['fluency_score'] = Variable<double>(fluencyScore);
+    if (!nullToAbsent || pronunciationScore != null) {
+      map['pronunciation_score'] = Variable<double>(pronunciationScore);
     }
     return map;
   }
@@ -2615,9 +2615,9 @@ class SpeakingUtterancesTableData extends DataClass
       audioFileUuid: audioFileUuid == null && nullToAbsent
           ? const Value.absent()
           : Value(audioFileUuid),
-      fluencyScore: fluencyScore == null && nullToAbsent
+      pronunciationScore: pronunciationScore == null && nullToAbsent
           ? const Value.absent()
-          : Value(fluencyScore),
+          : Value(pronunciationScore),
     );
   }
 
@@ -2633,7 +2633,9 @@ class SpeakingUtterancesTableData extends DataClass
       isGraded: serializer.fromJson<bool>(json['isGraded']),
       message: serializer.fromJson<String>(json['message']),
       audioFileUuid: serializer.fromJson<String?>(json['audioFileUuid']),
-      fluencyScore: serializer.fromJson<double?>(json['fluencyScore']),
+      pronunciationScore: serializer.fromJson<double?>(
+        json['pronunciationScore'],
+      ),
     );
   }
   @override
@@ -2646,7 +2648,7 @@ class SpeakingUtterancesTableData extends DataClass
       'isGraded': serializer.toJson<bool>(isGraded),
       'message': serializer.toJson<String>(message),
       'audioFileUuid': serializer.toJson<String?>(audioFileUuid),
-      'fluencyScore': serializer.toJson<double?>(fluencyScore),
+      'pronunciationScore': serializer.toJson<double?>(pronunciationScore),
     };
   }
 
@@ -2657,7 +2659,7 @@ class SpeakingUtterancesTableData extends DataClass
     bool? isGraded,
     String? message,
     Value<String?> audioFileUuid = const Value.absent(),
-    Value<double?> fluencyScore = const Value.absent(),
+    Value<double?> pronunciationScore = const Value.absent(),
   }) => SpeakingUtterancesTableData(
     userAnswerId: userAnswerId ?? this.userAnswerId,
     order: order ?? this.order,
@@ -2667,7 +2669,9 @@ class SpeakingUtterancesTableData extends DataClass
     audioFileUuid: audioFileUuid.present
         ? audioFileUuid.value
         : this.audioFileUuid,
-    fluencyScore: fluencyScore.present ? fluencyScore.value : this.fluencyScore,
+    pronunciationScore: pronunciationScore.present
+        ? pronunciationScore.value
+        : this.pronunciationScore,
   );
   SpeakingUtterancesTableData copyWithCompanion(
     SpeakingUtterancesTableCompanion data,
@@ -2683,9 +2687,9 @@ class SpeakingUtterancesTableData extends DataClass
       audioFileUuid: data.audioFileUuid.present
           ? data.audioFileUuid.value
           : this.audioFileUuid,
-      fluencyScore: data.fluencyScore.present
-          ? data.fluencyScore.value
-          : this.fluencyScore,
+      pronunciationScore: data.pronunciationScore.present
+          ? data.pronunciationScore.value
+          : this.pronunciationScore,
     );
   }
 
@@ -2698,7 +2702,7 @@ class SpeakingUtterancesTableData extends DataClass
           ..write('isGraded: $isGraded, ')
           ..write('message: $message, ')
           ..write('audioFileUuid: $audioFileUuid, ')
-          ..write('fluencyScore: $fluencyScore')
+          ..write('pronunciationScore: $pronunciationScore')
           ..write(')'))
         .toString();
   }
@@ -2711,7 +2715,7 @@ class SpeakingUtterancesTableData extends DataClass
     isGraded,
     message,
     audioFileUuid,
-    fluencyScore,
+    pronunciationScore,
   );
   @override
   bool operator ==(Object other) =>
@@ -2723,7 +2727,7 @@ class SpeakingUtterancesTableData extends DataClass
           other.isGraded == this.isGraded &&
           other.message == this.message &&
           other.audioFileUuid == this.audioFileUuid &&
-          other.fluencyScore == this.fluencyScore);
+          other.pronunciationScore == this.pronunciationScore);
 }
 
 class SpeakingUtterancesTableCompanion
@@ -2734,7 +2738,7 @@ class SpeakingUtterancesTableCompanion
   final Value<bool> isGraded;
   final Value<String> message;
   final Value<String?> audioFileUuid;
-  final Value<double?> fluencyScore;
+  final Value<double?> pronunciationScore;
   final Value<int> rowid;
   const SpeakingUtterancesTableCompanion({
     this.userAnswerId = const Value.absent(),
@@ -2743,7 +2747,7 @@ class SpeakingUtterancesTableCompanion
     this.isGraded = const Value.absent(),
     this.message = const Value.absent(),
     this.audioFileUuid = const Value.absent(),
-    this.fluencyScore = const Value.absent(),
+    this.pronunciationScore = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SpeakingUtterancesTableCompanion.insert({
@@ -2753,7 +2757,7 @@ class SpeakingUtterancesTableCompanion
     this.isGraded = const Value.absent(),
     required String message,
     this.audioFileUuid = const Value.absent(),
-    this.fluencyScore = const Value.absent(),
+    this.pronunciationScore = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : userAnswerId = Value(userAnswerId),
        order = Value(order),
@@ -2766,7 +2770,7 @@ class SpeakingUtterancesTableCompanion
     Expression<bool>? isGraded,
     Expression<String>? message,
     Expression<String>? audioFileUuid,
-    Expression<double>? fluencyScore,
+    Expression<double>? pronunciationScore,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2776,7 +2780,7 @@ class SpeakingUtterancesTableCompanion
       if (isGraded != null) 'is_graded': isGraded,
       if (message != null) 'message': message,
       if (audioFileUuid != null) 'audio_file_uuid': audioFileUuid,
-      if (fluencyScore != null) 'fluency_score': fluencyScore,
+      if (pronunciationScore != null) 'pronunciation_score': pronunciationScore,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2788,7 +2792,7 @@ class SpeakingUtterancesTableCompanion
     Value<bool>? isGraded,
     Value<String>? message,
     Value<String?>? audioFileUuid,
-    Value<double?>? fluencyScore,
+    Value<double?>? pronunciationScore,
     Value<int>? rowid,
   }) {
     return SpeakingUtterancesTableCompanion(
@@ -2798,7 +2802,7 @@ class SpeakingUtterancesTableCompanion
       isGraded: isGraded ?? this.isGraded,
       message: message ?? this.message,
       audioFileUuid: audioFileUuid ?? this.audioFileUuid,
-      fluencyScore: fluencyScore ?? this.fluencyScore,
+      pronunciationScore: pronunciationScore ?? this.pronunciationScore,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2824,8 +2828,8 @@ class SpeakingUtterancesTableCompanion
     if (audioFileUuid.present) {
       map['audio_file_uuid'] = Variable<String>(audioFileUuid.value);
     }
-    if (fluencyScore.present) {
-      map['fluency_score'] = Variable<double>(fluencyScore.value);
+    if (pronunciationScore.present) {
+      map['pronunciation_score'] = Variable<double>(pronunciationScore.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -2842,7 +2846,7 @@ class SpeakingUtterancesTableCompanion
           ..write('isGraded: $isGraded, ')
           ..write('message: $message, ')
           ..write('audioFileUuid: $audioFileUuid, ')
-          ..write('fluencyScore: $fluencyScore, ')
+          ..write('pronunciationScore: $pronunciationScore, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4888,7 +4892,7 @@ typedef $$SpeakingUtterancesTableTableCreateCompanionBuilder =
       Value<bool> isGraded,
       required String message,
       Value<String?> audioFileUuid,
-      Value<double?> fluencyScore,
+      Value<double?> pronunciationScore,
       Value<int> rowid,
     });
 typedef $$SpeakingUtterancesTableTableUpdateCompanionBuilder =
@@ -4899,7 +4903,7 @@ typedef $$SpeakingUtterancesTableTableUpdateCompanionBuilder =
       Value<bool> isGraded,
       Value<String> message,
       Value<String?> audioFileUuid,
-      Value<double?> fluencyScore,
+      Value<double?> pronunciationScore,
       Value<int> rowid,
     });
 
@@ -4973,8 +4977,8 @@ class $$SpeakingUtterancesTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get fluencyScore => $composableBuilder(
-    column: $table.fluencyScore,
+  ColumnFilters<double> get pronunciationScore => $composableBuilder(
+    column: $table.pronunciationScore,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5036,8 +5040,8 @@ class $$SpeakingUtterancesTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get fluencyScore => $composableBuilder(
-    column: $table.fluencyScore,
+  ColumnOrderings<double> get pronunciationScore => $composableBuilder(
+    column: $table.pronunciationScore,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5091,8 +5095,8 @@ class $$SpeakingUtterancesTableTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<double> get fluencyScore => $composableBuilder(
-    column: $table.fluencyScore,
+  GeneratedColumn<double> get pronunciationScore => $composableBuilder(
+    column: $table.pronunciationScore,
     builder: (column) => column,
   );
 
@@ -5168,7 +5172,7 @@ class $$SpeakingUtterancesTableTableTableManager
                 Value<bool> isGraded = const Value.absent(),
                 Value<String> message = const Value.absent(),
                 Value<String?> audioFileUuid = const Value.absent(),
-                Value<double?> fluencyScore = const Value.absent(),
+                Value<double?> pronunciationScore = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SpeakingUtterancesTableCompanion(
                 userAnswerId: userAnswerId,
@@ -5177,7 +5181,7 @@ class $$SpeakingUtterancesTableTableTableManager
                 isGraded: isGraded,
                 message: message,
                 audioFileUuid: audioFileUuid,
-                fluencyScore: fluencyScore,
+                pronunciationScore: pronunciationScore,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -5188,7 +5192,7 @@ class $$SpeakingUtterancesTableTableTableManager
                 Value<bool> isGraded = const Value.absent(),
                 required String message,
                 Value<String?> audioFileUuid = const Value.absent(),
-                Value<double?> fluencyScore = const Value.absent(),
+                Value<double?> pronunciationScore = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SpeakingUtterancesTableCompanion.insert(
                 userAnswerId: userAnswerId,
@@ -5197,7 +5201,7 @@ class $$SpeakingUtterancesTableTableTableManager
                 isGraded: isGraded,
                 message: message,
                 audioFileUuid: audioFileUuid,
-                fluencyScore: fluencyScore,
+                pronunciationScore: pronunciationScore,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
