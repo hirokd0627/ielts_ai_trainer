@@ -1,3 +1,4 @@
+import logging
 from random import choice
 import time
 import tempfile
@@ -18,6 +19,9 @@ load_dotenv()
 # Ref. https://flask.palletsprojects.com/en/stable/api/#flask.Request
 
 app = Flask(__name__)
+
+# Set up logger
+app.logger.setLevel(logging.DEBUG)
 
 
 @app.route("/hello", methods=["GET"])
@@ -49,7 +53,7 @@ def generate_topics():
     _validate_parameters(json, ["count", "exclude_topics"])
 
     try:
-        chatgpt = ChatGptService()
+        chatgpt = ChatGptService(app.logger)
         topics = chatgpt.generate_topics(json["count"], json["exclude_topics"])
         resp_json = {
             "topics": topics,
@@ -80,7 +84,7 @@ def writing_task1_generate_prompt():
     _validate_parameters(json, ["topics", "diagram_type"])
 
     try:
-        chatgpt = ChatGptService()
+        chatgpt = ChatGptService(app.logger)
         prompt = chatgpt.generate_writing_task1_prompt(
             json["diagram_type"], json["topics"]
         )
@@ -95,7 +99,7 @@ def writing_task1_generate_prompt():
             "relevant.",
         }
 
-    except Exception as e:
+    except Exception:
         raise AppException("failed to generate prompt: {}".format(json))
 
     return jsonify(resp_json)
@@ -117,7 +121,7 @@ def writing_task2_generate_prompt():
     _validate_parameters(json, ["topics", "essay_type"])
 
     try:
-        chatgpt = ChatGptService()
+        chatgpt = ChatGptService(app.logger)
         prompt = chatgpt.generate_writing_task2_prompt(
             json["essay_type"], json["topics"]
         )
@@ -162,7 +166,7 @@ def speaking_part2_generate_cuecard():
     _validate_parameters(json, "topic")
 
     try:
-        chatgpt = ChatGptService()
+        chatgpt = ChatGptService(app.logger)
         resp_json = chatgpt.generate_speaking_part2_cuecard(
             topic=json["topic"]
         )
@@ -287,7 +291,7 @@ def writing_task1_evaluate():
     )
 
     try:
-        chatgpt = ChatGptService()
+        chatgpt = ChatGptService(app.logger)
         evaluation = chatgpt.evaluate_writing_task1_answer(
             prompt=json["prompt"],
             diagram_type=json["diagram_type"],
@@ -349,7 +353,7 @@ def writing_task2_evaluate():
     _validate_parameters(json, ["prompt", "answer"])
 
     try:
-        chatgpt = ChatGptService()
+        chatgpt = ChatGptService(app.logger)
         evaluation = chatgpt.evaluate_writing_task2_answer(
             prompt=json["prompt"],
             answer=json["answer"],
@@ -420,7 +424,7 @@ def speaking_part2_evaluate():
     _validate_parameters(json, ["prompt", "speech"])
 
     try:
-        chatgpt = ChatGptService()
+        chatgpt = ChatGptService(app.logger)
         evaluation = chatgpt.evaluate_speaking_part2_answer(
             prompt=json["prompt"],
             speech=json["speech"],
@@ -550,7 +554,7 @@ def _speaking_generate_question(part_no: int, json: any):
         _validate_parameters(json, ["prompt_id", "reply"])
 
     try:
-        chatgpt = ChatGptService()
+        chatgpt = ChatGptService(app.logger)
 
         if initial_generation:
             resp_json = chatgpt.generate_speaking_initial_question(
@@ -581,7 +585,7 @@ def _speaking_answer_evaluate(part_no: int):
     _validate_parameters(json, ["script"])
 
     try:
-        chatgpt = ChatGptService()
+        chatgpt = ChatGptService(app.logger)
         if part_no == 1:
             evaluation = chatgpt.evaluate_speaking_part1_answer(
                 script=json["script"],

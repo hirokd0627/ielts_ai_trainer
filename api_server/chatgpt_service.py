@@ -9,8 +9,9 @@ class ChatGptService:
     """A service class to generate prompts and evaluate user's answers for
     IELTS Writing and Specaking practice using Chat GPT API"""
 
-    def __init__(self):
+    def __init__(self, logger):
         self.client = OpenAI()
+        self._logger = logger
 
     def generate_topics(
         self, count: int, exclude_topics: list[str]
@@ -41,33 +42,28 @@ Constraints on the output format:
 
 Constraints on the input exclude topics:
 Exclude: <topic 1>,<topic 2>,...
-"""
+""".strip()
 
         input = """
 Output three topics based on the instructions.
 
 Exclude: {}
-""".format(",".join(exclude_topics))
+""".strip().format(",".join(exclude_topics))
 
         class Response(BaseModel):
             topic1: str
             topic2: str
             topic3: str
 
-        response = self.client.responses.parse(
-            model="gpt-5-nano",
-            reasoning={"effort": "medium"},
-            instructions=instructions,
-            input=input,
-            text_format=Response,
-            # Expanding the range of output expression
-            # nano does not support temperature
-            # temperature=0.6,
-            # top_p= 0.9,
+        _, parsed_response = self._fetch_response(
+            instructions=instructions, input=input, text_format=Response
         )
-        response = response.output_parsed
 
-        topics = [response.topic1, response.topic2, response.topic3]
+        topics = [
+            parsed_response.topic1,
+            parsed_response.topic2,
+            parsed_response.topic3,
+        ]
         topics = [s.lower() for s in topics]
         return topics[0:count]
 
@@ -147,7 +143,7 @@ Instruction:
 - Do not include an "You should spend about 40 minutes..."
 - Do not include an instruction such as "Give reasons for your answer..." or "Write at least 250 words."
 - Do not combine multiple clauses using a semicolon.
-"""
+""".strip()
 
         input = """
 Generate a prompt for IELTS Writing Task 2 practice.
@@ -159,29 +155,20 @@ Use the following expressions as a main base in an instruction, but choose only 
 - Discuss both views and give your opinion.
 Do not include multiple expressions, use only one expression.
 Do not limit to the expressions on the above expressions, but allow to use a variety of expressions with equivalent meanings that may appear in the actual IELTS Writing Task 2.
-"""
+""".strip()
 
-        class Prompt(BaseModel):
+        class Response(BaseModel):
             statement: str
             instruction: str
 
-        response = self.client.responses.parse(
-            model="gpt-5-nano",
-            reasoning={"effort": "medium"},
-            instructions=instructions,
-            input=input,
-            text_format=Prompt,
-            # Expanding the range of output expression
-            # nano does not support temperature
-            # temperature=0.6,
-            # top_p= 0.9,
+        _, parsed_response = self._fetch_response(
+            instructions=instructions, input=input, text_format=Response
         )
-        prompt = response.output_parsed
 
         return {
             "topics": topics,
-            "statement": prompt.statement,
-            "instruction": prompt.instruction,
+            "statement": parsed_response.statement,
+            "instruction": parsed_response.instruction,
         }
 
     def generate_speaking_initial_question(
@@ -302,9 +289,21 @@ Constraints on the given description of the diagram:
 
 Constraints on the given description of the diagram type:
 - The diagram type is given as 'diagram_type: <diagram_type>.'.
-        """
+""".strip()
 
-        class Message(BaseModel):
+        input = """
+Evaluate the given answer for the given prompt, diagram_type, and diagram of Writing Task 1.
+
+prompt: {}
+
+diagram_type: {}
+
+diagram_description: {}
+
+answer: {}
+        """.strip().format(prompt, diagram_type, diagram_description, answer)
+
+        class Response(BaseModel):
             achievement_score: float
             coherence_score: float
             grammatical_score: float
@@ -318,59 +317,8 @@ Constraints on the given description of the diagram type:
             lexical_feedback1: str
             lexical_feedback2: str
 
-        prompt_input = """
-Evaluate the given answer for the given prompt, diagram_type, and diagram of Writing Task 1.
-
-prompt: {}
-
-diagram_type: {}
-
-diagram_description: {}
-
-answer: {}
-        """.format(prompt, diagram_type, diagram_description, answer)
-
-        response = self.client.responses.parse(
-            model="gpt-5-nano",
-            # reasoning={"effort": "medium"},
-            reasoning={"effort": "low"},
-            # reasoning={"effort": "minimal"},
-            instructions=instructions,
-            text_format=Message,
-            input=prompt_input,
-        )
-
-        msg = response.output_parsed
-
-        # debug
-        print(
-            """
-achievement_score: {}
-coherence_score: {}
-grammatical_score: {}
-lexical_score: {}
-achievement_feedback1: {}
-achievement_feedback2: {}
-coherence_feedback1: {}
-coherence_feedback2: {}
-grammatical_feedback1: {}
-grammatical_feedback2: {}
-lexical_feedback1: {}
-lexical_feedback2: {}
-            """.format(
-                msg.achievement_score,
-                msg.coherence_score,
-                msg.grammatical_score,
-                msg.lexical_score,
-                msg.achievement_feedback1,
-                msg.achievement_feedback2,
-                msg.coherence_feedback1,
-                msg.coherence_feedback2,
-                msg.grammatical_feedback1,
-                msg.grammatical_feedback2,
-                msg.lexical_feedback1,
-                msg.lexical_feedback2,
-            )
+        _, msg = self._fetch_response(
+            instructions=instructions, input=input, text_format=Response
         )
 
         return msg
@@ -430,9 +378,17 @@ Constraints on the given prompt:
 
 Constraints on the given answer:
 - The answer that you must evaluate is given as 'answer: <answer>.'.
-"""
+""".strip()
 
-        class Message(BaseModel):
+        input = """
+Evaluate the given answer for the given prompt, diagram_type, and diagram of Writing Task 1.
+
+prompt: {}
+
+answer: {}
+        """.strip().format(prompt, answer)
+
+        class Response(BaseModel):
             response_score: float
             coherence_score: float
             grammatical_score: float
@@ -446,57 +402,8 @@ Constraints on the given answer:
             lexical_feedback1: str
             lexical_feedback2: str
 
-        prompt = {}
-
-        prompt_input = """
-Evaluate the given answer for the given prompt, diagram_type, and diagram of Writing Task 1.
-
-prompt: {}
-
-answer: {}
-        """.format(prompt, answer)
-
-        response = self.client.responses.parse(
-            model="gpt-5-nano",
-            # reasoning={"effort": "medium"},
-            reasoning={"effort": "low"},
-            # reasoning={"effort": "minimal"},
-            instructions=instructions,
-            text_format=Message,
-            input=prompt_input,
-        )
-
-        msg = response.output_parsed
-
-        # debug
-        print(
-            """
-response_score: {}
-coherence_score: {}
-grammatical_score: {}
-lexical_score: {}
-response_feedback1: {}
-response_feedback2: {}
-coherence_feedback1: {}
-coherence_feedback2: {}
-grammatical_feedback1: {}
-grammatical_feedback2: {}
-lexical_feedback1: {}
-lexical_feedback2: {}
-            """.format(
-                msg.response_score,
-                msg.coherence_score,
-                msg.grammatical_score,
-                msg.lexical_score,
-                msg.response_feedback1,
-                msg.response_feedback2,
-                msg.coherence_feedback1,
-                msg.coherence_feedback2,
-                msg.grammatical_feedback1,
-                msg.grammatical_feedback2,
-                msg.lexical_feedback1,
-                msg.lexical_feedback2,
-            )
+        _, msg = self._fetch_response(
+            instructions=instructions, input=input, text_format=Response
         )
 
         return msg
@@ -567,9 +474,17 @@ Constraints on the input speech script and prompt:
 - prompt: <Prompt>
 
 - speech: <Speech>
-"""
+""".strip()
 
-        class Message(BaseModel):
+        input = """
+Evaluate the following script based on the instructions.
+
+prompt: {}
+
+speech: {}
+        """.strip().format(prompt, speech)
+
+        class Response(BaseModel):
             coherence_score: float
             lexical_score: float
             grammatical_score: float
@@ -580,49 +495,8 @@ Constraints on the input speech script and prompt:
             grammatical_feedback1: str
             grammatical_feedback2: str
 
-        prompt_input = """
-Evaluate the following script based on the instructions.
-
-prompt: {}
-
-speech: {}
-        """.format(prompt, speech)
-
-        response = self.client.responses.parse(
-            model="gpt-5-nano",
-            # reasoning={"effort": "medium"},
-            reasoning={"effort": "low"},
-            # reasoning={"effort": "minimal"},
-            instructions=instructions,
-            text_format=Message,
-            input=prompt_input,
-        )
-
-        msg = response.output_parsed
-
-        # debug
-        print(
-            """
-coherence_score: {}
-grammatical_score: {}
-lexical_score: {}
-coherence_feedback1: {}
-coherence_feedback2: {}
-grammatical_feedback1: {}
-grammatical_feedback2: {}
-lexical_feedback1: {}
-lexical_feedback2: {}
-            """.format(
-                msg.coherence_score,
-                msg.grammatical_score,
-                msg.lexical_score,
-                msg.coherence_feedback1,
-                msg.coherence_feedback2,
-                msg.grammatical_feedback1,
-                msg.grammatical_feedback2,
-                msg.lexical_feedback1,
-                msg.lexical_feedback2,
-            )
+        _, msg = self._fetch_response(
+            instructions=instructions, input=input, text_format=Response
         )
 
         return msg
@@ -678,9 +552,22 @@ Constraints on the input script:
 - Evaluate the following interaction.
 - <Role: Examiner or Examinee>: <Question if the role is examiner, otherwise, Answer>
 - (Repeat for all questions)
-""".format(part_no)
+""".strip().format(part_no)
 
-        class Message(BaseModel):
+        interactions = []
+        for item in script:
+            if item["role"] == "examiner":
+                interactions.append("Examiner: {}".format(item["message"]))
+            else:
+                interactions.append("Examinee: {}".format(item["message"]))
+
+        input = """
+Evaluate the following script based on the instructions.
+
+{}
+        """.strip().format("\n".join(interactions))
+
+        class Response(BaseModel):
             coherence_score: float
             lexical_score: float
             grammatical_score: float
@@ -691,54 +578,8 @@ Constraints on the input script:
             grammatical_feedback1: str
             grammatical_feedback2: str
 
-        interactions = []
-        for item in script:
-            if item["role"] == "examiner":
-                interactions.append("Examiner: {}".format(item["message"]))
-            else:
-                interactions.append("Examinee: {}".format(item["message"]))
-
-        prompt_input = """
-Evaluate the following script based on the instructions.
-
-{}
-        """.format("\n".join(interactions))
-
-        response = self.client.responses.parse(
-            model="gpt-5-nano",
-            # reasoning={"effort": "medium"},
-            reasoning={"effort": "low"},
-            # reasoning={"effort": "minimal"},
-            instructions=instructions,
-            text_format=Message,
-            input=prompt_input,
-        )
-
-        msg = response.output_parsed
-
-        # debug
-        print(
-            """
-coherence_score: {}
-grammatical_score: {}
-lexical_score: {}
-coherence_feedback1: {}
-coherence_feedback2: {}
-grammatical_feedback1: {}
-grammatical_feedback2: {}
-lexical_feedback1: {}
-lexical_feedback2: {}
-            """.format(
-                msg.coherence_score,
-                msg.grammatical_score,
-                msg.lexical_score,
-                msg.coherence_feedback1,
-                msg.coherence_feedback2,
-                msg.grammatical_feedback1,
-                msg.grammatical_feedback2,
-                msg.lexical_feedback1,
-                msg.lexical_feedback2,
-            )
+        _, msg = self._fetch_response(
+            instructions=instructions, input=input, text_format=Response
         )
 
         return msg
@@ -844,9 +685,9 @@ Constraints on the output format:
 
 Constraints on the given topic:
 - The topic for the test is given as 'topic: <topic>.'.
-        """
+        """.strip()
 
-        class Message(BaseModel):
+        class Response(BaseModel):
             question: str
 
         initial = prompt_id is None
@@ -854,42 +695,22 @@ Constraints on the given topic:
         prompt = {}
 
         if initial:
-            prompt_input = """
+            input = """
 Start mock test of IELTS Speaking Part 1.
 You are the examinar.
 Topic: {}.
-            """.format(topic)
+            """.strip().format(topic)
 
-            response = self.client.responses.parse(
-                model="gpt-5-nano",
-                # reasoning={"effort": "medium"},
-                reasoning={"effort": "low"},
-                # reasoning={"effort": "minimal"},
-                instructions=instructions,
-                text_format=Message,
-                input=prompt_input,
+            response, msg = self._fetch_response(
+                instructions=instructions, input=input, text_format=Response
             )
         else:
-            response = self.client.responses.parse(
-                model="gpt-5-nano",
-                # reasoning={"effort": "medium"},
-                reasoning={"effort": "low"},
-                # reasoning={"effort": "minimal"},
+            response, msg = self._fetch_response(
                 instructions=instructions,
-                text_format=Message,
                 input=reply,
+                text_format=Response,
                 previous_response_id=prompt_id,
             )
-
-        msg = response.output_parsed
-
-        # debug
-        print(
-            """
-        previous_response_id: {}
-        question: {}
-            """.format(prompt_id, msg.question)
-        )
 
         prompt["prompt_id"] = response.id
         prompt["question"] = msg.question
@@ -927,7 +748,12 @@ Field Definitions:
 - q2: The concise interrogative sentence to ask background the main subject in instruction. The sentence must start with 'When' or 'Where'. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g., when you first saw it)
 - q3: The concise interrogative sentence to ask the details of the main subject in instruction. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g., what you know about it)
 - q4: The concise interrogative sentence to ask the reason why the examinee feel. The sentence must start with 'Why'. The number of words must be less than 10. The sentence must be easy to answer, without being too specific. (e.g., why you like it.)
-"""
+""".strip()
+
+        input = """
+Generate details of the Speaking Part 2 Cue Card into the five fields: instruction, q1, q2, q3, q4.
+Topic: {}.
+        """.strip().format(topic)
 
         class Response(BaseModel):
             instruction: str
@@ -936,32 +762,8 @@ Field Definitions:
             q3: str
             q4: str
 
-        prompt_input = """
-Generate details of the Speaking Part 2 Cue Card into the five fields: instruction, q1, q2, q3, q4.
-Topic: {}.
-        """.format(topic)
-
-        response = self.client.responses.parse(
-            model="gpt-5-nano",
-            # reasoning={"effort": "medium"},
-            reasoning={"effort": "low"},
-            # reasoning={"effort": "minimal"},
-            instructions=instructions,
-            input=prompt_input,
-            text_format=Response,
-        )
-
-        res = response.output_parsed
-
-        # debug
-        print(
-            """
-            instruction: {}
-            q1: {}
-            q2: {}
-            q3: {}
-            q4: {}
-            """.format(res.instruction, res.q1, res.q2, res.q3, res.q4)
+        res = self._fetch_response(
+            instructions=instructions, input=input, text_format=Response
         )
 
         return {
@@ -1011,9 +813,9 @@ Constraints on the output format:
 
 Constraints on the given topic:
 - The topic for the test is given as 'topic: <topic>.'.
-        """
+        """.strip()
 
-        class Message(BaseModel):
+        class Response(BaseModel):
             question: str
 
         initial = prompt_id is None
@@ -1021,44 +823,101 @@ Constraints on the given topic:
         prompt = {}
 
         if initial:
-            prompt_input = """
+            input = """
 Start mock test of IELTS Speaking Part 3.
 You are the examinar.
 Topic: {}.
-            """.format(topic)
+            """.strip().format(topic)
 
-            response = self.client.responses.parse(
-                model="gpt-5-nano",
-                # reasoning={"effort": "medium"},
-                reasoning={"effort": "low"},
-                # reasoning={"effort": "minimal"},
-                instructions=instructions,
-                text_format=Message,
-                input=prompt_input,
+            response, msg = self._fetch_response(
+                instructions=instructions, input=input, text_format=Response
             )
         else:
-            response = self.client.responses.parse(
-                model="gpt-5-nano",
-                # reasoning={"effort": "medium"},
-                reasoning={"effort": "low"},
-                # reasoning={"effort": "minimal"},
+            response, msg = self._fetch_response(
                 instructions=instructions,
-                text_format=Message,
                 input=reply,
+                text_format=Response,
                 previous_response_id=prompt_id,
             )
-
-        msg = response.output_parsed
-
-        # debug
-        print(
-            """
-        previous_response_id: {}
-        question: {}
-            """.format(prompt_id, msg.question)
-        )
 
         prompt["prompt_id"] = response.id
         prompt["question"] = msg.question
 
         return prompt
+
+    def _fetch_response(
+        self,
+        instructions: str,
+        input: str,
+        text_format: type[BaseModel],
+        previous_response_id: str | None = None,
+    ) -> any:
+        """Call ChatGPT response API.
+
+        Args:
+            instructions, input, text_format, previouse_response_id:
+                Arguments for OpenAI.responses.parse.
+
+        Returns:
+            Returns of OpenAI.responses.parse.
+        """
+        if previous_response_id is not None:
+            response = self.client.responses.parse(
+                model="gpt-5-nano",
+                reasoning={"effort": "medium"},
+                instructions=instructions,
+                input=input,
+                text_format=text_format,
+                previous_response_id=previous_response_id,
+                # Expanding the range of output expression
+                # nano does not support temperature
+                # temperature=0.6,
+                # top_p= 0.9,
+            )
+        else:
+            response = self.client.responses.parse(
+                model="gpt-5-nano",
+                reasoning={"effort": "medium"},
+                instructions=instructions,
+                input=input,
+                text_format=text_format,
+                # Expanding the range of output expression
+                # nano does not support temperature
+                # temperature=0.6,
+                # top_p= 0.9,
+            )
+
+        self._write_prompt_log(
+            instructions=instructions,
+            input=input,
+            response=response.output_parsed,
+        )
+
+        return response, response.output_parsed
+
+    def _write_prompt_log(self, instructions: str, input: str, response: any):
+        """Output debug log."""
+
+        resp = "No Response"
+        if response:
+            values = []
+            for k, v in response.model_dump().items():
+                values.append("- {}: {}".format(k, v))
+            resp = format("\n".join(values))
+
+        line = """
+========================================
+ChatGPT Instructions:
+{}
+
+------------------------------
+ChatGPT Prompt:
+{}
+
+------------------------------
+ChatGPT Response:
+{}
+========================================
+""".format(instructions.strip(), input.strip(), resp.strip())
+
+        self._logger.debug(line)
