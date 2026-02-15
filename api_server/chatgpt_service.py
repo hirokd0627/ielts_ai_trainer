@@ -1,6 +1,3 @@
-import base64
-import time
-
 from openai import OpenAI
 from pydantic import BaseModel
 
@@ -628,21 +625,35 @@ Evaluate the following script based on the instructions.
         # return base64.b64encode(img_bytes).decode("ascii")
 
         prompt = """
-        You are an test item writer for IELTS Writing Task 1. Generate a IELTS-style {} diagram based on a prompt.
-        {}
-        {}
-        """.format(
+You are an test item writer for IELTS Writing Task 1. Generate a IELTS-style {} diagram based on a prompt.
+
+{}
+
+{}
+""".strip().format(
             diagram_type,
             diagram_prompt["prompt"],
             diagram_prompt["diagram_description"],
         )
 
-        result = self.client.images.generate(
-            # model="gpt-image-1-mini",
-            model="gpt-image-1",
-            prompt=prompt,
-            quality="high",
+        try:
+            result = self.client.images.generate(
+                model="gpt-image-1",
+                prompt=prompt,
+                quality="high",
+                size="1536x1024",
+                n=1,
+                output_format="jpeg",
+                output_compression=100,
+            )
+        except Exception as e:
+            print(e)
+
+        # Log
+        log_resp = "Base64 encoded length: {}".format(
+            len(result.data[0].b64_json)
         )
+        self._write_image_prompt_log(input=prompt, resp=log_resp)
 
         return result.data[0].b64_json
 
@@ -929,5 +940,20 @@ ChatGPT Response:
 {}
 ========================================
 """.format(instructions.strip(), input.strip(), resp.strip())
+
+        self._logger.debug(line)
+
+    def _write_image_prompt_log(self, input: str, resp: str):
+        """Output debug log for image generating."""
+        line = """
+========================================
+ChatGPT Prompt (Image generating):
+{}
+
+------------------------------
+ChatGPT Response:
+{}
+========================================
+""".format(input.strip(), resp.strip())
 
         self._logger.debug(line)

@@ -192,7 +192,11 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
                   if (widget.testTask == TestTask.writingTask1) ...[
                     Text(widget.writingPrompt.taskContext),
                     if (_diagramPath.isNotEmpty)
-                      Center(child: Image.file(File(_diagramPath), width: 500)),
+                      Container(
+                        alignment: AlignmentGeometry.center,
+                        padding: EdgeInsets.only(top: 10, bottom: 10),
+                        child: Image.file(File(_diagramPath), width: 500),
+                      ),
                     Text(widget.writingPrompt.taskInstruction),
                   ],
                   if (widget.testTask == TestTask.writingTask2) ...[
