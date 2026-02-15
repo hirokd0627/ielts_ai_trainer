@@ -102,7 +102,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
         height: 160,
         width: 600,
         child: !_ctrl.isGraded
-            ? Center(child: LoadingIndicator('Evaluating...'))
+            ? Center(child: LoadingIndicator('Reviewing...'))
             : Row(
                 children: [
                   Expanded(
@@ -138,7 +138,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                         ),
                         _buildCriteriaRow(
                           'Lexical Resource',
-                          _ctrl.lexialScore,
+                          _ctrl.lexicalScore,
                         ),
                         _buildCriteriaRow(
                           'Grammatical Range & Accuracy',
@@ -161,7 +161,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
       ConstrainedBox(
         constraints: BoxConstraints(minHeight: 60),
         child: !_ctrl.isGraded
-            ? LoadingIndicator('Evaluating...')
+            ? LoadingIndicator('Reviewing...')
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -172,7 +172,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                   Text(_ctrl.coherenceFeedback),
                   SizedBox(height: 20),
                   HeadlineText('Lexical Resource', level: 2),
-                  Text(_ctrl.lexialFeedback),
+                  Text(_ctrl.lexicalFeedback),
                   SizedBox(height: 20),
                   HeadlineText('Grammatical Range & Accuracy', level: 2),
                   Text(_ctrl.grammaticalFeedback),

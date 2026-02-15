@@ -37,8 +37,8 @@ class SpeakingResultController extends ChangeNotifier {
   /// Whether a recording file exists for each index.
   final Map<int, bool> _recordingFileExists = {};
 
-  /// Whether the utterance at each index has been evaluated.
-  final Map<int, bool> _isUtteranceEvaluated = {};
+  /// Whether the utterance at each index has been graded.
+  final Map<int, bool> _isUtteranceGraded = {};
 
   SpeakingResultController({
     required SpeakingAnswerRepository repo,
@@ -139,7 +139,7 @@ class SpeakingResultController extends ChangeNotifier {
 
   bool get isPlaying => _playingState == 1;
 
-  bool isUtteranceGraded(int index) => _isUtteranceEvaluated[index] ?? false;
+  bool isUtteranceGraded(int index) => _isUtteranceGraded[index] ?? false;
 
   bool isPlayingAt(int index) => _currentPlayingIndex == index;
 
@@ -179,7 +179,7 @@ class SpeakingResultController extends ChangeNotifier {
               _speechAnswer!.answer.audioFileUuid!,
             )
           : false;
-      _isUtteranceEvaluated[1] = _speechAnswer!.answer.isGraded;
+      _isUtteranceGraded[1] = _speechAnswer!.answer.isGraded;
     } else {
       // Part 1 or 3
       _chatAnswer = await _repo.selectPart13AnswerById(id);
@@ -187,7 +187,7 @@ class SpeakingResultController extends ChangeNotifier {
         _recordingFileExists[i] = _getAudioFileUuid(i) != null
             ? await _recordingSrv.recordingFileExists(_getAudioFileUuid(i)!)
             : false;
-        _isUtteranceEvaluated[i] = _chatAnswer!.utterances[i].isGraded;
+        _isUtteranceGraded[i] = _chatAnswer!.utterances[i].isGraded;
       }
     }
 
@@ -249,7 +249,7 @@ class SpeakingResultController extends ChangeNotifier {
     // Evaluates script.
     final resp = await _apiSrv.evaluateChatAnswer(answer: _chatAnswer!);
 
-    // Evaluates pronanciation.
+    // Evaluates pronunciation.
     for (int i = 0; i < _chatAnswer!.utterances.length; i++) {
       // Updates each Utterance data in _evaluatePronunciation.
       _evaluatePronunciation(i, _chatAnswer!.id!, _chatAnswer!.utterances[i]);
@@ -257,7 +257,7 @@ class SpeakingResultController extends ChangeNotifier {
 
     // Updates results in answer
     if (!_chatAnswer!.isGraded) {
-      final evaluatedAnswer = _chatAnswer!.copyWith(
+      final gradedAnswer = _chatAnswer!.copyWith(
         coherenceScore: resp.coherenceScore,
         lexicalScore: resp.lexicalScore,
         grammaticalScore: resp.grammaticalScore,
@@ -268,8 +268,8 @@ class SpeakingResultController extends ChangeNotifier {
         bandScore: resp.bandScore,
       );
 
-      _repo.saveSpeakingChatAnswer(evaluatedAnswer);
-      _chatAnswer = evaluatedAnswer;
+      _repo.saveSpeakingChatAnswer(gradedAnswer);
+      _chatAnswer = gradedAnswer;
     }
 
     notifyListeners();
@@ -281,7 +281,7 @@ class SpeakingResultController extends ChangeNotifier {
 
     // Updates results in answer
     if (!_speechAnswer!.isGraded) {
-      final evaluatedAnswer = _speechAnswer!.copyWith(
+      final gradedAnswer = _speechAnswer!.copyWith(
         isGraded: true,
         coherenceScore: resp.coherenceScore,
         lexicalScore: resp.lexicalScore,
@@ -291,8 +291,8 @@ class SpeakingResultController extends ChangeNotifier {
         lexicalFeedback: resp.lexicalFeedback.join(" "),
         grammaticalFeedback: resp.grammaticalFeedback.join(" "),
       );
-      _repo.saveSpeakingSpeechAnswer(evaluatedAnswer);
-      _speechAnswer = evaluatedAnswer;
+      _repo.saveSpeakingSpeechAnswer(gradedAnswer);
+      _speechAnswer = gradedAnswer;
     }
 
     _evaluatePronunciation(1, _speechAnswer!.id!, _speechAnswer!.answer);
@@ -322,27 +322,27 @@ class SpeakingResultController extends ChangeNotifier {
     final audioFilePath = await _recordingSrv.getFilePath(
       utterance.audioFileUuid!,
     );
-    final resp = await _apiSrv.evaluatePronanciation(
+    final resp = await _apiSrv.evaluatePronunciation(
       audioFilePath: audioFilePath,
       script: utterance.text,
     );
 
     // Saves results in utterance
-    final evaluated = utterance.copyWith(fluency: resp.score, isGraded: true);
-    await _repo.saveUtterance(userAnswerId, evaluated);
+    final graded = utterance.copyWith(fluency: resp.score, isGraded: true);
+    await _repo.saveUtterance(userAnswerId, graded);
 
     // Updates screen.
     if (_testTask == TestTask.speakingPart2) {
-      _speechAnswer = _speechAnswer!.copyWith(answer: evaluated);
+      _speechAnswer = _speechAnswer!.copyWith(answer: graded);
     } else {
       final utterances = List<SpeakingUtteranceVO>.from(
         _chatAnswer!.utterances,
       );
-      utterances[index] = evaluated;
+      utterances[index] = graded;
       _chatAnswer = _chatAnswer!.copyWith(utterances: utterances);
     }
 
-    _isUtteranceEvaluated[index] = true;
+    _isUtteranceGraded[index] = true;
     notifyListeners();
   }
 }

@@ -125,14 +125,14 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     );
   }
 
-  /// Evaluates the pronanciation of speech audio data with script.
-  Future<PronanciationEvaluationResponse> evaluatePronanciation({
+  /// Evaluates the pronunciation of speech audio data with script.
+  Future<PronunciationEvaluationResponse> evaluatePronunciation({
     required String audioFilePath,
     required String script,
   }) async {
     final request = http.MultipartRequest(
       'POST',
-      getUrl('speaking/evaluate-pronanciation'),
+      getUrl('speaking/evaluate-pronunciation'),
     );
 
     // Sets auth header.
@@ -150,7 +150,7 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     final resp = await request.send();
     final respBody = await resp.stream.bytesToString();
 
-    return PronanciationEvaluationResponse._fromJson(
+    return PronunciationEvaluationResponse._fromJson(
       jsonDecode(respBody) as Map<String, dynamic>,
     );
   }
@@ -280,19 +280,19 @@ class SpeakingEvaluationResponse {
   }
 }
 
-/// Response of evaluate pronanciation.
-class PronanciationEvaluationResponse {
+/// Response of evaluate pronunciation.
+class PronunciationEvaluationResponse {
   final double score;
 
-  const PronanciationEvaluationResponse({required this.score});
+  const PronunciationEvaluationResponse({required this.score});
 
-  static PronanciationEvaluationResponse _fromJson(Map<String, dynamic> json) {
+  static PronunciationEvaluationResponse _fromJson(Map<String, dynamic> json) {
     for (var name in ['score']) {
       if (!json.containsKey(name)) {
         throw Exception('Missing required key: $name');
       }
     }
 
-    return PronanciationEvaluationResponse(score: json["score"]);
+    return PronunciationEvaluationResponse(score: json["score"]);
   }
 }

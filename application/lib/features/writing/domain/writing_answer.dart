@@ -24,12 +24,12 @@ abstract class WritingAnswer with _$WritingAnswer {
     required bool isGraded,
     double? taskScore,
     double? coherenceScore,
-    double? lexialScore,
+    double? lexicalScore,
     double? grammaticalScore,
     double? bandScore,
     String? taskFeedback,
     String? coherenceFeedback,
-    String? lexialFeedback,
+    String? lexicalFeedback,
     String? grammaticalFeedback,
   }) = _WritingAnswer;
 }

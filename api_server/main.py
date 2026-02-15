@@ -461,10 +461,10 @@ def speaking_part3_evaluate():
     return _speaking_answer_evaluate(3)
 
 
-@app.route("/speaking/evaluate-pronanciation", methods=["POST"])
+@app.route("/speaking/evaluate-pronunciation", methods=["POST"])
 @auth_required
-def speaking_evaluate_pronanciation():
-    """API for evaluating pronanciation with script.
+def speaking_evaluate_pronunciation():
+    """API for evaluating pronunciation with script.
 
     Args: multipart/form-data
         script (str): Script of speech.

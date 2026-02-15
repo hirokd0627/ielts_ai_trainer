@@ -42,13 +42,13 @@ class WritingResultController extends ChangeNotifier {
   String get grammaticalScore =>
       _writingAnswer?.grammaticalScore.toString() ?? '';
 
-  String get lexialScore => _writingAnswer?.lexialScore.toString() ?? '';
+  String get lexicalScore => _writingAnswer?.lexicalScore.toString() ?? '';
 
   String get taskFeedback => _writingAnswer?.taskFeedback ?? "";
 
   String get coherenceFeedback => _writingAnswer?.coherenceFeedback ?? "";
 
-  String get lexialFeedback => _writingAnswer?.lexialFeedback ?? "";
+  String get lexicalFeedback => _writingAnswer?.lexicalFeedback ?? "";
 
   String get grammaticalFeedback => _writingAnswer?.grammaticalFeedback ?? "";
 
@@ -110,11 +110,11 @@ class WritingResultController extends ChangeNotifier {
       bandScore: resp.bandScore,
       taskScore: resp.taskScore,
       coherenceScore: resp.coherenceScore,
-      lexialScore: resp.lexialScore,
+      lexicalScore: resp.lexicalScore,
       grammaticalScore: resp.grammaticalScore,
       taskFeedback: resp.taskFeedback.join(" "),
       coherenceFeedback: resp.coherenceFeedback.join(" "),
-      lexialFeedback: resp.lexicalFeedback.join(" "),
+      lexicalFeedback: resp.lexicalFeedback.join(" "),
       grammaticalFeedback: resp.grammaticalFeedback.join(" "),
       isGraded: true,
     );

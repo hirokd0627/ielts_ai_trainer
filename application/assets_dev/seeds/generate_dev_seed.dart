@@ -30,7 +30,7 @@ void main() {
       'coherenceScore': _roundScore(
         faker.randomGenerator.decimal(min: 0, scale: 9),
       ),
-      'lexialScore': _roundScore(
+      'lexicalScore': _roundScore(
         faker.randomGenerator.decimal(min: 0, scale: 9),
       ),
       'grammaticalScore': _roundScore(

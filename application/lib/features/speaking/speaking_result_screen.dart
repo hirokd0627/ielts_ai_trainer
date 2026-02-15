@@ -112,7 +112,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
         height: 200,
         width: 600,
         child: !_ctrl.isGraded
-            ? Center(child: LoadingIndicator('Evaluating...'))
+            ? Center(child: LoadingIndicator('Reviewing...'))
             : Row(
                 children: [
                   Expanded(
@@ -152,7 +152,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                           'Grammatical Range & Accuracy',
                           _ctrl.grammaticalScore,
                         ),
-                        _buildCriteriaRow('Pronanciation', _ctrl.fluencyScore),
+                        _buildCriteriaRow('Pronunciation', _ctrl.fluencyScore),
                       ],
                     ),
                   ),
@@ -170,7 +170,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
       ConstrainedBox(
         constraints: BoxConstraints(minHeight: 60),
         child: !_ctrl.isGraded
-            ? LoadingIndicator('Evaluating...')
+            ? LoadingIndicator('Reviewing...')
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -191,7 +191,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
   /// Builds a widget to show fluency score.
   Widget _buildFluencyScoreWidget(SpeakingUtteranceVO u) {
     if (!u.isGraded) {
-      return Text('Grading...');
+      return Text('Reviewing...');
     }
     return Text('Fluency: ${u.fluency}');
   }
@@ -284,7 +284,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                                   showPlayButton: true,
                                   playingButtonLabel: _ctrl
                                       .getPlayButtonLabelAt(i),
-                                  // TODO: fluency -> pronanciation
+                                  // TODO: fluency -> pronunciation
                                   scoreWidget: _ctrl.isRecorded(i)
                                       ? _buildFluencyScoreWidget(u)
                                       : null,

@@ -78,12 +78,12 @@ class WritingAnswerDetailsTable extends Table {
   RealColumn get bandScore => real().nullable()();
   RealColumn get taskScore => real().nullable()();
   RealColumn get coherenceScore => real().nullable()();
-  RealColumn get lexialScore => real().nullable()();
+  RealColumn get lexicalScore => real().nullable()();
   RealColumn get grammaticalScore => real().nullable()();
   BoolColumn get isGraded => boolean().withDefault(Constant(false))();
   TextColumn get taskFeedback => text().nullable()();
   TextColumn get coherencekFeedback => text().nullable()();
-  TextColumn get lexialFeedback => text().nullable()();
+  TextColumn get lexicalFeedback => text().nullable()();
   TextColumn get grammaticalFeedback => text().nullable()();
 }
 
@@ -111,7 +111,7 @@ class SpeakingAnswerDetailsTable extends Table {
   // score and feedback are nullable because they will be updated after evaluation.
   RealColumn get bandScore => real().nullable()();
   RealColumn get coherenceScore => real().nullable()();
-  RealColumn get lexialScore => real().nullable()();
+  RealColumn get lexicalScore => real().nullable()();
   RealColumn get grammaticalScore => real().nullable()();
   RealColumn get fluencyScore => real().nullable()();
   BoolColumn get isGraded => boolean()();

@@ -30,7 +30,7 @@ erDiagram
         REAL score
         REAL achievement_score
         REAL coherence_score
-        REAL lexial_score
+        REAL lexical_score
         REAL grammatical_score
         INTEGER is_graded
         TEXT feedback
@@ -43,7 +43,7 @@ erDiagram
         INTEGER duration
         REAL score
         REAL coherence_score
-        REAL lexial_score
+        REAL lexical_score
         REAL grammatical_score
         REAL fluency_score
         INTEGER isGraded
