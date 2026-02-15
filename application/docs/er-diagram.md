@@ -24,41 +24,47 @@ erDiagram
         INTEGER id PK
         INTEGER user_answer_id FK
         TEXT prompt_type
-        TEXT prompt_text
+        TEXT task_context
+        TEXT task_instruction
+        TEXT diagram_description
+        TEXT diagram_file_uuid
         TEXT answer_text
         INTEGER duration
-        REAL score
-        REAL achievement_score
+        REAL band_score
+        REAL task_score
         REAL coherence_score
         REAL lexical_score
         REAL grammatical_score
         INTEGER is_graded
-        TEXT feedback
-        TEXT updated_at
+        TEXT task_feedback
+        TEXT coherence_feedback
+        TEXT lexical_feedback
+        TEXT grammatical_feedback
     }
 
     speaking_answer_details {
         INTEGER id PK
         INTEGER user_answer_id FK
         INTEGER duration
-        REAL score
+        REAL band_score
         REAL coherence_score
         REAL lexical_score
         REAL grammatical_score
         REAL fluency_score
-        INTEGER isGraded
-        TEXT feedback
+        INTEGER is_graded
+        TEXT coherence_feedback
+        TEXT lexical_feedback
+        TEXT grammatical_feedback 
         TEXT note
-        TEXT updated_at
     }
 
     speaking_utterances {
         INTEGER user_answer_id PK,FK
         INTEGER order PK
         INTEGER is_user
+        INTEGER is_graded
         TEXT message
         TEXT audio_file_uuid
         REAL fluency_score
-        TEXT updated_at
     }
 ```
