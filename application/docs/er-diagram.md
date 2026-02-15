@@ -30,7 +30,6 @@ erDiagram
         TEXT diagram_file_uuid
         TEXT answer_text
         INTEGER duration
-        REAL band_score
         REAL task_score
         REAL coherence_score
         REAL lexical_score
@@ -46,7 +45,6 @@ erDiagram
         INTEGER id PK
         INTEGER user_answer_id FK
         INTEGER duration
-        REAL band_score
         REAL coherence_score
         REAL lexical_score
         REAL grammatical_score
