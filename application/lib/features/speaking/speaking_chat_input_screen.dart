@@ -134,17 +134,21 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
       return;
     }
 
-    if (!mounted) {
-      // If state has been destroyed, context cannot be used, so return
-      return;
-    }
-
     // Save the answer
     late int id;
     try {
       id = await _ctrl.saveUserAnswer();
     } catch (e, stackTrace) {
+      if (!mounted) {
+        // avoid context across async gaps.
+        return;
+      }
       showAlertDialog(context, e.toString(), stackTrace.toString());
+      return;
+    }
+
+    if (!mounted) {
+      // avoid context across async gaps.
       return;
     }
 
