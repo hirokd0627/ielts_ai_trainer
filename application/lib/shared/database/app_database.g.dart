@@ -460,12 +460,13 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _coherencekFeedbackMeta =
-      const VerificationMeta('coherencekFeedback');
+  static const VerificationMeta _coherenceFeedbackMeta = const VerificationMeta(
+    'coherenceFeedback',
+  );
   @override
-  late final GeneratedColumn<String> coherencekFeedback =
+  late final GeneratedColumn<String> coherenceFeedback =
       GeneratedColumn<String>(
-        'coherencek_feedback',
+        'coherence_feedback',
         aliasedName,
         true,
         type: DriftSqlType.string,
@@ -511,7 +512,7 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
     grammaticalScore,
     isGraded,
     taskFeedback,
-    coherencekFeedback,
+    coherenceFeedback,
     lexicalFeedback,
     grammaticalFeedback,
   ];
@@ -659,12 +660,12 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         ),
       );
     }
-    if (data.containsKey('coherencek_feedback')) {
+    if (data.containsKey('coherence_feedback')) {
       context.handle(
-        _coherencekFeedbackMeta,
-        coherencekFeedback.isAcceptableOrUnknown(
-          data['coherencek_feedback']!,
-          _coherencekFeedbackMeta,
+        _coherenceFeedbackMeta,
+        coherenceFeedback.isAcceptableOrUnknown(
+          data['coherence_feedback']!,
+          _coherenceFeedbackMeta,
         ),
       );
     }
@@ -762,9 +763,9 @@ class $WritingAnswerDetailsTableTable extends WritingAnswerDetailsTable
         DriftSqlType.string,
         data['${effectivePrefix}task_feedback'],
       ),
-      coherencekFeedback: attachedDatabase.typeMapping.read(
+      coherenceFeedback: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}coherencek_feedback'],
+        data['${effectivePrefix}coherence_feedback'],
       ),
       lexicalFeedback: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -801,7 +802,7 @@ class WritingAnswerDetailsTableData extends DataClass
   final double? grammaticalScore;
   final bool isGraded;
   final String? taskFeedback;
-  final String? coherencekFeedback;
+  final String? coherenceFeedback;
   final String? lexicalFeedback;
   final String? grammaticalFeedback;
   const WritingAnswerDetailsTableData({
@@ -821,7 +822,7 @@ class WritingAnswerDetailsTableData extends DataClass
     this.grammaticalScore,
     required this.isGraded,
     this.taskFeedback,
-    this.coherencekFeedback,
+    this.coherenceFeedback,
     this.lexicalFeedback,
     this.grammaticalFeedback,
   });
@@ -860,8 +861,8 @@ class WritingAnswerDetailsTableData extends DataClass
     if (!nullToAbsent || taskFeedback != null) {
       map['task_feedback'] = Variable<String>(taskFeedback);
     }
-    if (!nullToAbsent || coherencekFeedback != null) {
-      map['coherencek_feedback'] = Variable<String>(coherencekFeedback);
+    if (!nullToAbsent || coherenceFeedback != null) {
+      map['coherence_feedback'] = Variable<String>(coherenceFeedback);
     }
     if (!nullToAbsent || lexicalFeedback != null) {
       map['lexical_feedback'] = Variable<String>(lexicalFeedback);
@@ -906,9 +907,9 @@ class WritingAnswerDetailsTableData extends DataClass
       taskFeedback: taskFeedback == null && nullToAbsent
           ? const Value.absent()
           : Value(taskFeedback),
-      coherencekFeedback: coherencekFeedback == null && nullToAbsent
+      coherenceFeedback: coherenceFeedback == null && nullToAbsent
           ? const Value.absent()
-          : Value(coherencekFeedback),
+          : Value(coherenceFeedback),
       lexicalFeedback: lexicalFeedback == null && nullToAbsent
           ? const Value.absent()
           : Value(lexicalFeedback),
@@ -942,8 +943,8 @@ class WritingAnswerDetailsTableData extends DataClass
       grammaticalScore: serializer.fromJson<double?>(json['grammaticalScore']),
       isGraded: serializer.fromJson<bool>(json['isGraded']),
       taskFeedback: serializer.fromJson<String?>(json['taskFeedback']),
-      coherencekFeedback: serializer.fromJson<String?>(
-        json['coherencekFeedback'],
+      coherenceFeedback: serializer.fromJson<String?>(
+        json['coherenceFeedback'],
       ),
       lexicalFeedback: serializer.fromJson<String?>(json['lexicalFeedback']),
       grammaticalFeedback: serializer.fromJson<String?>(
@@ -971,7 +972,7 @@ class WritingAnswerDetailsTableData extends DataClass
       'grammaticalScore': serializer.toJson<double?>(grammaticalScore),
       'isGraded': serializer.toJson<bool>(isGraded),
       'taskFeedback': serializer.toJson<String?>(taskFeedback),
-      'coherencekFeedback': serializer.toJson<String?>(coherencekFeedback),
+      'coherenceFeedback': serializer.toJson<String?>(coherenceFeedback),
       'lexicalFeedback': serializer.toJson<String?>(lexicalFeedback),
       'grammaticalFeedback': serializer.toJson<String?>(grammaticalFeedback),
     };
@@ -994,7 +995,7 @@ class WritingAnswerDetailsTableData extends DataClass
     Value<double?> grammaticalScore = const Value.absent(),
     bool? isGraded,
     Value<String?> taskFeedback = const Value.absent(),
-    Value<String?> coherencekFeedback = const Value.absent(),
+    Value<String?> coherenceFeedback = const Value.absent(),
     Value<String?> lexicalFeedback = const Value.absent(),
     Value<String?> grammaticalFeedback = const Value.absent(),
   }) => WritingAnswerDetailsTableData(
@@ -1022,9 +1023,9 @@ class WritingAnswerDetailsTableData extends DataClass
         : this.grammaticalScore,
     isGraded: isGraded ?? this.isGraded,
     taskFeedback: taskFeedback.present ? taskFeedback.value : this.taskFeedback,
-    coherencekFeedback: coherencekFeedback.present
-        ? coherencekFeedback.value
-        : this.coherencekFeedback,
+    coherenceFeedback: coherenceFeedback.present
+        ? coherenceFeedback.value
+        : this.coherenceFeedback,
     lexicalFeedback: lexicalFeedback.present
         ? lexicalFeedback.value
         : this.lexicalFeedback,
@@ -1074,9 +1075,9 @@ class WritingAnswerDetailsTableData extends DataClass
       taskFeedback: data.taskFeedback.present
           ? data.taskFeedback.value
           : this.taskFeedback,
-      coherencekFeedback: data.coherencekFeedback.present
-          ? data.coherencekFeedback.value
-          : this.coherencekFeedback,
+      coherenceFeedback: data.coherenceFeedback.present
+          ? data.coherenceFeedback.value
+          : this.coherenceFeedback,
       lexicalFeedback: data.lexicalFeedback.present
           ? data.lexicalFeedback.value
           : this.lexicalFeedback,
@@ -1105,7 +1106,7 @@ class WritingAnswerDetailsTableData extends DataClass
           ..write('grammaticalScore: $grammaticalScore, ')
           ..write('isGraded: $isGraded, ')
           ..write('taskFeedback: $taskFeedback, ')
-          ..write('coherencekFeedback: $coherencekFeedback, ')
+          ..write('coherenceFeedback: $coherenceFeedback, ')
           ..write('lexicalFeedback: $lexicalFeedback, ')
           ..write('grammaticalFeedback: $grammaticalFeedback')
           ..write(')'))
@@ -1130,7 +1131,7 @@ class WritingAnswerDetailsTableData extends DataClass
     grammaticalScore,
     isGraded,
     taskFeedback,
-    coherencekFeedback,
+    coherenceFeedback,
     lexicalFeedback,
     grammaticalFeedback,
   );
@@ -1154,7 +1155,7 @@ class WritingAnswerDetailsTableData extends DataClass
           other.grammaticalScore == this.grammaticalScore &&
           other.isGraded == this.isGraded &&
           other.taskFeedback == this.taskFeedback &&
-          other.coherencekFeedback == this.coherencekFeedback &&
+          other.coherenceFeedback == this.coherenceFeedback &&
           other.lexicalFeedback == this.lexicalFeedback &&
           other.grammaticalFeedback == this.grammaticalFeedback);
 }
@@ -1177,7 +1178,7 @@ class WritingAnswerDetailsTableCompanion
   final Value<double?> grammaticalScore;
   final Value<bool> isGraded;
   final Value<String?> taskFeedback;
-  final Value<String?> coherencekFeedback;
+  final Value<String?> coherenceFeedback;
   final Value<String?> lexicalFeedback;
   final Value<String?> grammaticalFeedback;
   const WritingAnswerDetailsTableCompanion({
@@ -1197,7 +1198,7 @@ class WritingAnswerDetailsTableCompanion
     this.grammaticalScore = const Value.absent(),
     this.isGraded = const Value.absent(),
     this.taskFeedback = const Value.absent(),
-    this.coherencekFeedback = const Value.absent(),
+    this.coherenceFeedback = const Value.absent(),
     this.lexicalFeedback = const Value.absent(),
     this.grammaticalFeedback = const Value.absent(),
   });
@@ -1218,7 +1219,7 @@ class WritingAnswerDetailsTableCompanion
     this.grammaticalScore = const Value.absent(),
     this.isGraded = const Value.absent(),
     this.taskFeedback = const Value.absent(),
-    this.coherencekFeedback = const Value.absent(),
+    this.coherenceFeedback = const Value.absent(),
     this.lexicalFeedback = const Value.absent(),
     this.grammaticalFeedback = const Value.absent(),
   }) : userAnswerId = Value(userAnswerId),
@@ -1244,7 +1245,7 @@ class WritingAnswerDetailsTableCompanion
     Expression<double>? grammaticalScore,
     Expression<bool>? isGraded,
     Expression<String>? taskFeedback,
-    Expression<String>? coherencekFeedback,
+    Expression<String>? coherenceFeedback,
     Expression<String>? lexicalFeedback,
     Expression<String>? grammaticalFeedback,
   }) {
@@ -1265,7 +1266,7 @@ class WritingAnswerDetailsTableCompanion
       if (grammaticalScore != null) 'grammatical_score': grammaticalScore,
       if (isGraded != null) 'is_graded': isGraded,
       if (taskFeedback != null) 'task_feedback': taskFeedback,
-      if (coherencekFeedback != null) 'coherencek_feedback': coherencekFeedback,
+      if (coherenceFeedback != null) 'coherence_feedback': coherenceFeedback,
       if (lexicalFeedback != null) 'lexical_feedback': lexicalFeedback,
       if (grammaticalFeedback != null)
         'grammatical_feedback': grammaticalFeedback,
@@ -1289,7 +1290,7 @@ class WritingAnswerDetailsTableCompanion
     Value<double?>? grammaticalScore,
     Value<bool>? isGraded,
     Value<String?>? taskFeedback,
-    Value<String?>? coherencekFeedback,
+    Value<String?>? coherenceFeedback,
     Value<String?>? lexicalFeedback,
     Value<String?>? grammaticalFeedback,
   }) {
@@ -1310,7 +1311,7 @@ class WritingAnswerDetailsTableCompanion
       grammaticalScore: grammaticalScore ?? this.grammaticalScore,
       isGraded: isGraded ?? this.isGraded,
       taskFeedback: taskFeedback ?? this.taskFeedback,
-      coherencekFeedback: coherencekFeedback ?? this.coherencekFeedback,
+      coherenceFeedback: coherenceFeedback ?? this.coherenceFeedback,
       lexicalFeedback: lexicalFeedback ?? this.lexicalFeedback,
       grammaticalFeedback: grammaticalFeedback ?? this.grammaticalFeedback,
     );
@@ -1367,8 +1368,8 @@ class WritingAnswerDetailsTableCompanion
     if (taskFeedback.present) {
       map['task_feedback'] = Variable<String>(taskFeedback.value);
     }
-    if (coherencekFeedback.present) {
-      map['coherencek_feedback'] = Variable<String>(coherencekFeedback.value);
+    if (coherenceFeedback.present) {
+      map['coherence_feedback'] = Variable<String>(coherenceFeedback.value);
     }
     if (lexicalFeedback.present) {
       map['lexical_feedback'] = Variable<String>(lexicalFeedback.value);
@@ -1398,7 +1399,7 @@ class WritingAnswerDetailsTableCompanion
           ..write('grammaticalScore: $grammaticalScore, ')
           ..write('isGraded: $isGraded, ')
           ..write('taskFeedback: $taskFeedback, ')
-          ..write('coherencekFeedback: $coherencekFeedback, ')
+          ..write('coherenceFeedback: $coherenceFeedback, ')
           ..write('lexicalFeedback: $lexicalFeedback, ')
           ..write('grammaticalFeedback: $grammaticalFeedback')
           ..write(')'))
@@ -3662,7 +3663,7 @@ typedef $$WritingAnswerDetailsTableTableCreateCompanionBuilder =
       Value<double?> grammaticalScore,
       Value<bool> isGraded,
       Value<String?> taskFeedback,
-      Value<String?> coherencekFeedback,
+      Value<String?> coherenceFeedback,
       Value<String?> lexicalFeedback,
       Value<String?> grammaticalFeedback,
     });
@@ -3684,7 +3685,7 @@ typedef $$WritingAnswerDetailsTableTableUpdateCompanionBuilder =
       Value<double?> grammaticalScore,
       Value<bool> isGraded,
       Value<String?> taskFeedback,
-      Value<String?> coherencekFeedback,
+      Value<String?> coherenceFeedback,
       Value<String?> lexicalFeedback,
       Value<String?> grammaticalFeedback,
     });
@@ -3809,8 +3810,8 @@ class $$WritingAnswerDetailsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get coherencekFeedback => $composableBuilder(
-    column: $table.coherencekFeedback,
+  ColumnFilters<String> get coherenceFeedback => $composableBuilder(
+    column: $table.coherenceFeedback,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3932,8 +3933,8 @@ class $$WritingAnswerDetailsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get coherencekFeedback => $composableBuilder(
-    column: $table.coherencekFeedback,
+  ColumnOrderings<String> get coherenceFeedback => $composableBuilder(
+    column: $table.coherenceFeedback,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4045,8 +4046,8 @@ class $$WritingAnswerDetailsTableTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get coherencekFeedback => $composableBuilder(
-    column: $table.coherencekFeedback,
+  GeneratedColumn<String> get coherenceFeedback => $composableBuilder(
+    column: $table.coherenceFeedback,
     builder: (column) => column,
   );
 
@@ -4142,7 +4143,7 @@ class $$WritingAnswerDetailsTableTableTableManager
                 Value<double?> grammaticalScore = const Value.absent(),
                 Value<bool> isGraded = const Value.absent(),
                 Value<String?> taskFeedback = const Value.absent(),
-                Value<String?> coherencekFeedback = const Value.absent(),
+                Value<String?> coherenceFeedback = const Value.absent(),
                 Value<String?> lexicalFeedback = const Value.absent(),
                 Value<String?> grammaticalFeedback = const Value.absent(),
               }) => WritingAnswerDetailsTableCompanion(
@@ -4162,7 +4163,7 @@ class $$WritingAnswerDetailsTableTableTableManager
                 grammaticalScore: grammaticalScore,
                 isGraded: isGraded,
                 taskFeedback: taskFeedback,
-                coherencekFeedback: coherencekFeedback,
+                coherenceFeedback: coherenceFeedback,
                 lexicalFeedback: lexicalFeedback,
                 grammaticalFeedback: grammaticalFeedback,
               ),
@@ -4184,7 +4185,7 @@ class $$WritingAnswerDetailsTableTableTableManager
                 Value<double?> grammaticalScore = const Value.absent(),
                 Value<bool> isGraded = const Value.absent(),
                 Value<String?> taskFeedback = const Value.absent(),
-                Value<String?> coherencekFeedback = const Value.absent(),
+                Value<String?> coherenceFeedback = const Value.absent(),
                 Value<String?> lexicalFeedback = const Value.absent(),
                 Value<String?> grammaticalFeedback = const Value.absent(),
               }) => WritingAnswerDetailsTableCompanion.insert(
@@ -4204,7 +4205,7 @@ class $$WritingAnswerDetailsTableTableTableManager
                 grammaticalScore: grammaticalScore,
                 isGraded: isGraded,
                 taskFeedback: taskFeedback,
-                coherencekFeedback: coherencekFeedback,
+                coherenceFeedback: coherenceFeedback,
                 lexicalFeedback: lexicalFeedback,
                 grammaticalFeedback: grammaticalFeedback,
               ),

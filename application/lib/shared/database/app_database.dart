@@ -82,7 +82,7 @@ class WritingAnswerDetailsTable extends Table {
   RealColumn get grammaticalScore => real().nullable()();
   BoolColumn get isGraded => boolean().withDefault(Constant(false))();
   TextColumn get taskFeedback => text().nullable()();
-  TextColumn get coherencekFeedback => text().nullable()();
+  TextColumn get coherenceFeedback => text().nullable()();
   TextColumn get lexicalFeedback => text().nullable()();
   TextColumn get grammaticalFeedback => text().nullable()();
 }

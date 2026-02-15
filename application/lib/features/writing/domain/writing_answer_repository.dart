@@ -72,7 +72,7 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
       grammaticalScore: detail.grammaticalScore,
       bandScore: detail.bandScore,
       taskFeedback: detail.taskFeedback,
-      coherenceFeedback: detail.coherencekFeedback,
+      coherenceFeedback: detail.coherenceFeedback,
       lexicalFeedback: detail.lexicalFeedback,
       grammaticalFeedback: detail.grammaticalFeedback,
     );
@@ -141,7 +141,7 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
       grammaticalScore: Value(answer.grammaticalScore),
       isGraded: Value(answer.isGraded),
       taskFeedback: Value(answer.taskFeedback),
-      coherencekFeedback: Value(answer.coherenceFeedback),
+      coherenceFeedback: Value(answer.coherenceFeedback),
       lexicalFeedback: Value(answer.lexicalFeedback),
       grammaticalFeedback: Value(answer.grammaticalFeedback),
     );
