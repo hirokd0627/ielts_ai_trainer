@@ -221,7 +221,9 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                             children: [
                               Text(_ctrl.taskContext),
                               if (_ctrl.existsDiagramFile)
-                                Center(
+                                Container(
+                                  alignment: AlignmentGeometry.center,
+                                  padding: EdgeInsets.only(top: 10, bottom: 10),
                                   child: Image.file(
                                     File(_ctrl.diagramPath),
                                     width: 500,

@@ -1,6 +1,3 @@
-import base64
-import time
-
 from openai import OpenAI
 from pydantic import BaseModel
 
@@ -145,6 +142,7 @@ Instruction:
 - Do not combine multiple clauses using a semicolon.
 """.strip()
 
+        # TODO: currenty fixed topic.
         input = """
 Generate a prompt for IELTS Writing Task 2 practice.
 
@@ -621,28 +619,43 @@ Evaluate the following script based on the instructions.
             Base64 encoded string of diagram.
         """
         # TEST: use fixed data.
-        with open("./assets/test_w1.png", "rb") as f:
-            img_bytes = f.read()
-        time.sleep(5)
-        return base64.b64encode(img_bytes).decode("ascii")
+        # with open("./assets/test_w1.png", "rb") as f:
+        #     img_bytes = f.read()
+        # time.sleep(5)
+        # return base64.b64encode(img_bytes).decode("ascii")
 
-        # prompt = """
-        # You are an test item writer for IELTS Writing Task 1. Generate a IELTS-style {} diagram based on a prompt.
-        # {}
-        # {}
-        # """.format(
-        #     diagram_type,
-        #     diagram_prompt["prompt"],
-        #     diagram_prompt["diagram_description"],
-        # )
+        prompt = """
+You are an test item writer for IELTS Writing Task 1. Generate a IELTS-style {} diagram based on a prompt.
 
-        # result = self.client.images.generate(
-        #     model="gpt-image-1-mini",
-        #     prompt=prompt,
-        #     quality="high",
-        # )
+{}
 
-        # return result.data[0].b64_json
+{}
+""".strip().format(
+            diagram_type,
+            diagram_prompt["prompt"],
+            diagram_prompt["diagram_description"],
+        )
+
+        try:
+            result = self.client.images.generate(
+                model="gpt-image-1",
+                prompt=prompt,
+                quality="high",
+                size="1536x1024",
+                n=1,
+                output_format="jpeg",
+                output_compression=100,
+            )
+        except Exception as e:
+            print(e)
+
+        # Log
+        log_resp = "Base64 encoded length: {}".format(
+            len(result.data[0].b64_json)
+        )
+        self._write_image_prompt_log(input=prompt, resp=log_resp)
+
+        return result.data[0].b64_json
 
     def _generate_speaking_part1_question(
         self, topic: str = None, prompt_id: int = None, reply: str = None
@@ -762,7 +775,7 @@ Topic: {}.
             q3: str
             q4: str
 
-        res = self._fetch_response(
+        _, res = self._fetch_response(
             instructions=instructions, input=input, text_format=Response
         )
 
@@ -861,31 +874,39 @@ Topic: {}.
         Returns:
             Returns of OpenAI.responses.parse.
         """
+        # model="gpt-5-nano",
+        model = "gpt-4o"
+        # reasoning = {"effort": "medium"}
+        temperature = 0.6
+        top_p = 0.9
         if previous_response_id is not None:
             response = self.client.responses.parse(
-                model="gpt-5-nano",
-                reasoning={"effort": "medium"},
+                previous_response_id=previous_response_id,
+                model=model,
+                # reasoning=reasoning,
                 instructions=instructions,
                 input=input,
                 text_format=text_format,
-                previous_response_id=previous_response_id,
                 # Expanding the range of output expression
-                # nano does not support temperature
-                # temperature=0.6,
-                # top_p= 0.9,
+                #
+                temperature=temperature,
+                top_p=top_p,
             )
         else:
-            response = self.client.responses.parse(
-                model="gpt-5-nano",
-                reasoning={"effort": "medium"},
-                instructions=instructions,
-                input=input,
-                text_format=text_format,
-                # Expanding the range of output expression
-                # nano does not support temperature
-                # temperature=0.6,
-                # top_p= 0.9,
-            )
+            try:
+                response = self.client.responses.parse(
+                    model=model,
+                    # reasoning=reasoning,
+                    instructions=instructions,
+                    input=input,
+                    text_format=text_format,
+                    # Expanding the range of output expression
+                    # nano does not support temperature
+                    temperature=temperature,
+                    top_p=top_p,
+                )
+            except Exception as e:
+                print(e)
 
         self._write_prompt_log(
             instructions=instructions,
@@ -919,5 +940,20 @@ ChatGPT Response:
 {}
 ========================================
 """.format(instructions.strip(), input.strip(), resp.strip())
+
+        self._logger.debug(line)
+
+    def _write_image_prompt_log(self, input: str, resp: str):
+        """Output debug log for image generating."""
+        line = """
+========================================
+ChatGPT Prompt (Image generating):
+{}
+
+------------------------------
+ChatGPT Response:
+{}
+========================================
+""".format(input.strip(), resp.strip())
 
         self._logger.debug(line)

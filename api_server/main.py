@@ -1,9 +1,11 @@
 import logging
 from random import choice
+import random
 import time
 import tempfile
 import os
 import shutil
+from pathlib import Path
 
 from flask import Flask, request, jsonify
 from decorators import auth_required
@@ -130,7 +132,7 @@ def writing_task2_generate_prompt():
             "statement": prompt["statement"],
             "instruction": prompt["instruction"],
         }
-    except Exception as e:
+    except Exception:
         raise AppException("failed to generate prompt: {}".format(json))
 
     return jsonify(resp_json)
@@ -467,19 +469,17 @@ def speaking_evaluate_pronunciation():
 
     # Create temporary .m4a file.
     with tempfile.NamedTemporaryFile(delete=False, suffix=".m4a") as f:
-        tmp_name = f.name
-
-    print("tmp_name: {}".format(tmp_name))
+        tmp_path = f.name
 
     script_target = ValueTarget()
-    audio_file_target = FileTarget(tmp_name)
+    audio_file_target = FileTarget(tmp_path)
 
     parser = StreamingFormDataParser(headers=request.headers)
     parser.register("script", script_target)
     parser.register("audio_data", audio_file_target)
 
     # Read data through stream.
-    byte_len = 262144  # 256K bytes
+    byte_len = 4096  # 4096 bytes
     try:
         while True:
             chunk = request.stream.read(byte_len)
@@ -490,22 +490,34 @@ def speaking_evaluate_pronunciation():
         script = script_target.value.decode("utf-8")
         audio_file_target.on_finish()
 
-        print("script: {}".format(script))
-
         # TODO: Call Azure Speech Service
 
-        # TODO: test file check
-        target_dir = "/Users/hiro/oregon-work/gcs/cs406/repo_cs406_ielts_ai_trainer/api_server/_tests/audio"
-        shutil.copy2(tmp_name, target_dir)
+        # TEST
+        current_dir = Path(__file__).resolve().parent
+        target_dir = "{}/tmp".format(current_dir)
+        shutil.copy2(tmp_path, target_dir)
+        tmp_name = Path(tmp_path).name
+        file_size = os.path.getsize("{}/{}".format(target_dir, tmp_name))
+        log_line = """
+========================================
+Pronunciation Evaluation
+
+Received script and audio data.
+- script: {}
+- audio_data: size={} test_copy=./tmp/{}
+========================================
+""".format(script, file_size, tmp_name)
+        app.logger.debug(log_line)
 
     finally:
         # Delete temporary file.
-        if os.path.exists(tmp_name):
-            os.remove(tmp_name)
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
 
     return jsonify(
         {
-            "score": 3.5,
+            # TODO: currenty use random value
+            "score": random.choice([1.5, 3.0, 4.5, 6.5])
         }
     )
 
@@ -566,7 +578,7 @@ def _speaking_generate_question(part_no: int, json: any):
                 prompt_id=json["prompt_id"],
                 user_reply=json["reply"],
             )
-    except Exception as e:
+    except Exception:
         raise AppException("failed to generate prompt: {}".format(json))
 
     return jsonify(resp_json)

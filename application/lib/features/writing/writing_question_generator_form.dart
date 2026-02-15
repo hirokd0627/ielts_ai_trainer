@@ -363,7 +363,9 @@ class _WritingQuestionGeneratorFormState
                       _ctrl.writingPrompt != null) ...[
                     Text(_ctrl.writingPrompt!.taskContext),
                     if (_ctrl.diagramPath.isNotEmpty)
-                      Center(
+                      Container(
+                        alignment: AlignmentGeometry.center,
+                        padding: EdgeInsets.only(top: 10, bottom: 10),
                         child: Image.file(File(_ctrl.diagramPath), width: 500),
                       ),
                     Text(_ctrl.writingPrompt!.taskInstruction),
