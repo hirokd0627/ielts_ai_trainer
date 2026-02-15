@@ -554,7 +554,7 @@ def _speaking_generate_question(part_no: int, json: any):
         _validate_parameters(json, ["prompt_id", "reply"])
 
     try:
-        chatgpt = ChatGptService()
+        chatgpt = ChatGptService(app.logger)
 
         if initial_generation:
             resp_json = chatgpt.generate_speaking_initial_question(

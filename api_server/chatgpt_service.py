@@ -145,6 +145,7 @@ Instruction:
 - Do not combine multiple clauses using a semicolon.
 """.strip()
 
+        # TODO: currenty fixed topic.
         input = """
 Generate a prompt for IELTS Writing Task 2 practice.
 
@@ -621,28 +622,29 @@ Evaluate the following script based on the instructions.
             Base64 encoded string of diagram.
         """
         # TEST: use fixed data.
-        with open("./assets/test_w1.png", "rb") as f:
-            img_bytes = f.read()
-        time.sleep(5)
-        return base64.b64encode(img_bytes).decode("ascii")
+        # with open("./assets/test_w1.png", "rb") as f:
+        #     img_bytes = f.read()
+        # time.sleep(5)
+        # return base64.b64encode(img_bytes).decode("ascii")
 
-        # prompt = """
-        # You are an test item writer for IELTS Writing Task 1. Generate a IELTS-style {} diagram based on a prompt.
-        # {}
-        # {}
-        # """.format(
-        #     diagram_type,
-        #     diagram_prompt["prompt"],
-        #     diagram_prompt["diagram_description"],
-        # )
+        prompt = """
+        You are an test item writer for IELTS Writing Task 1. Generate a IELTS-style {} diagram based on a prompt.
+        {}
+        {}
+        """.format(
+            diagram_type,
+            diagram_prompt["prompt"],
+            diagram_prompt["diagram_description"],
+        )
 
-        # result = self.client.images.generate(
-        #     model="gpt-image-1-mini",
-        #     prompt=prompt,
-        #     quality="high",
-        # )
+        result = self.client.images.generate(
+            # model="gpt-image-1-mini",
+            model="gpt-image-1",
+            prompt=prompt,
+            quality="high",
+        )
 
-        # return result.data[0].b64_json
+        return result.data[0].b64_json
 
     def _generate_speaking_part1_question(
         self, topic: str = None, prompt_id: int = None, reply: str = None
@@ -861,31 +863,39 @@ Topic: {}.
         Returns:
             Returns of OpenAI.responses.parse.
         """
+        # model="gpt-5-nano",
+        model = "gpt-4o"
+        # reasoning = {"effort": "medium"}
+        temperature = 0.6
+        top_p = 0.9
         if previous_response_id is not None:
             response = self.client.responses.parse(
-                model="gpt-5-nano",
-                reasoning={"effort": "medium"},
+                previous_response_id=previous_response_id,
+                model=model,
+                # reasoning=reasoning,
                 instructions=instructions,
                 input=input,
                 text_format=text_format,
-                previous_response_id=previous_response_id,
                 # Expanding the range of output expression
-                # nano does not support temperature
-                # temperature=0.6,
-                # top_p= 0.9,
+                #
+                temperature=temperature,
+                top_p=top_p,
             )
         else:
-            response = self.client.responses.parse(
-                model="gpt-5-nano",
-                reasoning={"effort": "medium"},
-                instructions=instructions,
-                input=input,
-                text_format=text_format,
-                # Expanding the range of output expression
-                # nano does not support temperature
-                # temperature=0.6,
-                # top_p= 0.9,
-            )
+            try:
+                response = self.client.responses.parse(
+                    model=model,
+                    # reasoning=reasoning,
+                    instructions=instructions,
+                    input=input,
+                    text_format=text_format,
+                    # Expanding the range of output expression
+                    # nano does not support temperature
+                    temperature=temperature,
+                    top_p=top_p,
+                )
+            except Exception as e:
+                print(e)
 
         self._write_prompt_log(
             instructions=instructions,
