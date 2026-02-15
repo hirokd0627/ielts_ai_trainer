@@ -39,18 +39,18 @@ def generate_topics():
     """API for generating topics for Writing and Speaking.
 
     Args: application/json
-        count: See `ChatGptService.generate_topics`.
+        count, exclude_topics: See `ChatGptService.generate_topics`.
 
     Returns: application/json
         topics: See `ChatGptService.generate_topics`.
     """
 
     json = request.get_json()
-    _validate_parameters(json, "count")
+    _validate_parameters(json, ["count", "exclude_topics"])
 
     try:
         chatgpt = ChatGptService()
-        topics = chatgpt.generate_topics(json["count"])
+        topics = chatgpt.generate_topics(json["count"], json["exclude_topics"])
         resp_json = {
             "topics": topics,
         }

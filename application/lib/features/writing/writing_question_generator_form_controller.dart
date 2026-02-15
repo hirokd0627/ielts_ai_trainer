@@ -119,7 +119,7 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
     // Generate a topic if not entered.
     final targetTopics = topics.isEmpty
-        ? [...topics, ...(await _apiSrv.generateTopics(1))]
+        ? [...(await _apiSrv.generateTopics(1))]
         : [...topics];
 
     // Generate prompt.

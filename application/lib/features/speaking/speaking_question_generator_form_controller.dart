@@ -141,7 +141,13 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
       addTopicCount = 1;
     }
     final targetTopics = addTopicCount > 0
-        ? [...topics, ...(await _apiSrv.generateTopics(addTopicCount))]
+        ? [
+            ...topics,
+            ...(await _apiSrv.generateTopics(
+              addTopicCount,
+              excludeTopics: topics,
+            )),
+          ]
         : [...topics];
 
     // Generate question.
