@@ -762,7 +762,7 @@ Topic: {}.
             q3: str
             q4: str
 
-        res = self._fetch_response(
+        _, res = self._fetch_response(
             instructions=instructions, input=input, text_format=Response
         )
 

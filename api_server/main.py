@@ -4,6 +4,7 @@ import time
 import tempfile
 import os
 import shutil
+from pathlib import Path
 
 from flask import Flask, request, jsonify
 from decorators import auth_required
@@ -130,7 +131,7 @@ def writing_task2_generate_prompt():
             "statement": prompt["statement"],
             "instruction": prompt["instruction"],
         }
-    except Exception as e:
+    except Exception:
         raise AppException("failed to generate prompt: {}".format(json))
 
     return jsonify(resp_json)
@@ -469,8 +470,6 @@ def speaking_evaluate_pronunciation():
     with tempfile.NamedTemporaryFile(delete=False, suffix=".m4a") as f:
         tmp_name = f.name
 
-    print("tmp_name: {}".format(tmp_name))
-
     script_target = ValueTarget()
     audio_file_target = FileTarget(tmp_name)
 
@@ -479,7 +478,7 @@ def speaking_evaluate_pronunciation():
     parser.register("audio_data", audio_file_target)
 
     # Read data through stream.
-    byte_len = 262144  # 256K bytes
+    byte_len = 4096  # 4096 bytes
     try:
         while True:
             chunk = request.stream.read(byte_len)
@@ -490,12 +489,13 @@ def speaking_evaluate_pronunciation():
         script = script_target.value.decode("utf-8")
         audio_file_target.on_finish()
 
-        print("script: {}".format(script))
-
         # TODO: Call Azure Speech Service
 
-        # TODO: test file check
-        target_dir = "/Users/hiro/oregon-work/gcs/cs406/repo_cs406_ielts_ai_trainer/api_server/_tests/audio"
+        # TEST: script
+        app.logger.debug("script: {}".format(script))
+        # TEST: save audio file
+        current_dir = Path(__file__).resolve().parent
+        target_dir = "{}/tmp".format(current_dir)
         shutil.copy2(tmp_name, target_dir)
 
     finally:
@@ -554,7 +554,7 @@ def _speaking_generate_question(part_no: int, json: any):
         _validate_parameters(json, ["prompt_id", "reply"])
 
     try:
-        chatgpt = ChatGptService(app.logger)
+        chatgpt = ChatGptService()
 
         if initial_generation:
             resp_json = chatgpt.generate_speaking_initial_question(
@@ -566,7 +566,7 @@ def _speaking_generate_question(part_no: int, json: any):
                 prompt_id=json["prompt_id"],
                 user_reply=json["reply"],
             )
-    except Exception as e:
+    except Exception:
         raise AppException("failed to generate prompt: {}".format(json))
 
     return jsonify(resp_json)

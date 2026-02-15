@@ -217,10 +217,7 @@ class SpeakingCuecardResponse {
   /// Generated prompt.
   final String prompt;
 
-  /// Topic to generate a prompt.
-  final String topic;
-
-  const SpeakingCuecardResponse({required this.prompt, required this.topic});
+  const SpeakingCuecardResponse({required this.prompt});
 
   factory SpeakingCuecardResponse.fromJson(Map<String, dynamic> json) {
     final prompt =
@@ -233,7 +230,7 @@ ${json['instruction']}
 and explain ${json['q4']}
 ''';
 
-    return SpeakingCuecardResponse(prompt: prompt, topic: json['topic']);
+    return SpeakingCuecardResponse(prompt: prompt);
   }
 }
 
