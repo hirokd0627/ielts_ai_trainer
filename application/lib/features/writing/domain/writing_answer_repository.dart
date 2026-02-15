@@ -55,7 +55,6 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
       detailId: detail.id,
       testTask: userAnswer.testTask,
       createdAt: userAnswer.createdAt,
-      updatedAt: detail.updatedAt,
       promptType: WritingPromptType.fromString(detail.promptType),
       writingPrompt: WritingPromptVo(
         taskContext: detail.taskContext,
@@ -69,12 +68,11 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
       isGraded: detail.isGraded,
       taskScore: detail.taskScore,
       coherenceScore: detail.coherenceScore,
-      lexialScore: detail.lexialScore,
+      lexicalScore: detail.lexicalScore,
       grammaticalScore: detail.grammaticalScore,
-      bandScore: detail.bandScore,
       taskFeedback: detail.taskFeedback,
-      coherenceFeedback: detail.coherencekFeedback,
-      lexialFeedback: detail.lexialFeedback,
+      coherenceFeedback: detail.coherenceFeedback,
+      lexicalFeedback: detail.lexicalFeedback,
       grammaticalFeedback: detail.grammaticalFeedback,
     );
   }
@@ -135,17 +133,15 @@ class WritingAnswerRepository extends DatabaseAccessor<AppDatabase>
       promptType: Value(answer.promptType.name),
       answerText: Value(answer.answerText),
       duration: Value(answer.duration),
-      bandScore: Value(answer.bandScore),
       taskScore: Value(answer.taskScore),
       coherenceScore: Value(answer.coherenceScore),
-      lexialScore: Value(answer.lexialScore),
+      lexicalScore: Value(answer.lexicalScore),
       grammaticalScore: Value(answer.grammaticalScore),
       isGraded: Value(answer.isGraded),
       taskFeedback: Value(answer.taskFeedback),
-      coherencekFeedback: Value(answer.coherenceFeedback),
-      lexialFeedback: Value(answer.lexialFeedback),
+      coherenceFeedback: Value(answer.coherenceFeedback),
+      lexicalFeedback: Value(answer.lexicalFeedback),
       grammaticalFeedback: Value(answer.grammaticalFeedback),
-      updatedAt: Value(answer.updatedAt.toUtc()),
     );
   }
 

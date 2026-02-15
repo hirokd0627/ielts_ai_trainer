@@ -115,12 +115,16 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
     try {
       id = await _ctrl.saveUserAnswer();
     } catch (e, stackTrace) {
+      if (!mounted) {
+        // avoid context across async gaps.
+        return;
+      }
       showAlertDialog(context, e.toString(), stackTrace.toString());
       return;
     }
 
     if (!mounted) {
-      // If state has been destroyed, context cannot be used, so return
+      // avoid context across async gaps.
       return;
     }
 
@@ -187,7 +191,8 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
                   // Prompt
                   if (widget.testTask == TestTask.writingTask1) ...[
                     Text(widget.writingPrompt.taskContext),
-                    if (_diagramPath.isNotEmpty) Image.file(File(_diagramPath)),
+                    if (_diagramPath.isNotEmpty)
+                      Center(child: Image.file(File(_diagramPath), width: 500)),
                     Text(widget.writingPrompt.taskInstruction),
                   ],
                   if (widget.testTask == TestTask.writingTask2) ...[

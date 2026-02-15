@@ -7,12 +7,13 @@ part 'speaking_speech_answer.freezed.dart';
 /// User's answer entity for the Speaking Part 2.
 @freezed
 abstract class SpeakingSpeechAnswer with _$SpeakingSpeechAnswer {
+  const SpeakingSpeechAnswer._();
+
   const factory SpeakingSpeechAnswer({
     int? id,
     int? detailId,
     int? utteranceId,
     required DateTime createdAt,
-    required DateTime updatedAt,
     required SpeakingUtteranceVO prompt,
     required List<PromptTopic> topics,
     required SpeakingUtteranceVO answer,
@@ -22,11 +23,18 @@ abstract class SpeakingSpeechAnswer with _$SpeakingSpeechAnswer {
     double? coherenceScore,
     double? lexicalScore,
     double? grammaticalScore,
-    double? fluencyScore,
-    double? bandScore,
     String? coherenceFeedback,
     String? lexicalFeedback,
     String? grammaticalFeedback,
-    String? fluencyFeedback,
   }) = _SpeakingSpeechAnswer;
+
+  /// Whether the pronunciation score can be calculated.
+  bool get hasPronunciationScore {
+    return answer.isGraded;
+  }
+
+  /// Returns the pronunciation score.
+  double get pronunciationScore {
+    return answer.pronunciationScore ?? 0.0;
+  }
 }

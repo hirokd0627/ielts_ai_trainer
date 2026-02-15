@@ -182,17 +182,22 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
 
     final answer = SpeakingSpeechAnswer(
       createdAt: now,
-      prompt: SpeakingUtteranceVO(order: 1, isUser: false, text: _promptText),
+      prompt: SpeakingUtteranceVO(
+        order: 1,
+        isUser: false,
+        text: _promptText,
+        isGraded: false,
+      ),
       answer: SpeakingUtteranceVO(
         order: 2,
         isUser: true,
+        isGraded: false,
         text: _answerText,
         audioFileUuid: _recordingFileUuid,
       ),
       isGraded: false,
       duration: _elapsedDuration.inSeconds,
       topics: topics,
-      updatedAt: now,
       note: _noteText,
     );
 

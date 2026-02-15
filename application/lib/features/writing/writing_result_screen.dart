@@ -9,6 +9,7 @@ import 'package:ielts_ai_trainer/features/writing/writing_result_controller.dart
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
+import 'package:ielts_ai_trainer/shared/views/loading_indicator.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 import 'package:provider/provider.dart';
 
@@ -80,12 +81,12 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
           children: [
             Text(
               "$label:",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
             ),
             SizedBox(width: 5),
             Text(
               score,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -98,10 +99,10 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
   Widget _buildScore() {
     return Center(
       child: SizedBox(
-        height: 200,
+        height: 160,
         width: 600,
         child: !_ctrl.isGraded
-            ? Center(child: const Text('grading...'))
+            ? Center(child: LoadingIndicator('Reviewing...'))
             : Row(
                 children: [
                   Expanded(
@@ -115,7 +116,6 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        const SizedBox(height: 8),
                         Text(
                           _ctrl.bandScore,
                           style: TextStyle(
@@ -123,7 +123,6 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
@@ -139,7 +138,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                         ),
                         _buildCriteriaRow(
                           'Lexical Resource',
-                          _ctrl.lexialScore,
+                          _ctrl.lexicalScore,
                         ),
                         _buildCriteriaRow(
                           'Grammatical Range & Accuracy',
@@ -162,7 +161,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
       ConstrainedBox(
         constraints: BoxConstraints(minHeight: 60),
         child: !_ctrl.isGraded
-            ? Text('grading...')
+            ? LoadingIndicator('Reviewing...')
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -173,7 +172,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                   Text(_ctrl.coherenceFeedback),
                   SizedBox(height: 20),
                   HeadlineText('Lexical Resource', level: 2),
-                  Text(_ctrl.lexialFeedback),
+                  Text(_ctrl.lexicalFeedback),
                   SizedBox(height: 20),
                   HeadlineText('Grammatical Range & Accuracy', level: 2),
                   Text(_ctrl.grammaticalFeedback),
@@ -203,9 +202,10 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                     _screenTitle,
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
+                  SizedBox(height: 20),
                   // Score
                   _buildScore(),
-                  SizedBox(height: 40),
+                  SizedBox(height: 20),
                   // Question, Answer, Feedback
                   SizedBox(
                     width: double.infinity,
@@ -214,37 +214,32 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                       children: [
                         // Question
                         HeadlineText("Question"),
-                        SizedBox(height: 4),
+                        SizedBox(height: 20),
                         if (widget.testTask == TestTask.writingTask1) ...[
-                          ConstrainedBox(
-                            constraints: BoxConstraints(minHeight: 60),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(_ctrl.taskContext),
-                                if (_ctrl.existsDiagramFile)
-                                  Image.file(File(_ctrl.diagramPath)),
-                                Text(_ctrl.taskInstruction),
-                              ],
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(_ctrl.taskContext),
+                              if (_ctrl.existsDiagramFile)
+                                Center(
+                                  child: Image.file(
+                                    File(_ctrl.diagramPath),
+                                    width: 500,
+                                  ),
+                                ),
+                              Text(_ctrl.taskInstruction),
+                            ],
                           ),
-                          SizedBox(height: 20),
                         ],
                         if (widget.testTask == TestTask.writingTask2) ...[
-                          ConstrainedBox(
-                            constraints: BoxConstraints(minHeight: 60),
-                            child: Text(_ctrl.task2PromptText),
-                          ),
-                          SizedBox(height: 20),
+                          Text(_ctrl.task2PromptText),
                         ],
+                        SizedBox(height: 40),
                         // Answer
                         HeadlineText("Answer"),
-                        SizedBox(height: 4),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(minHeight: 60),
-                          child: Text(_ctrl.answerText),
-                        ),
                         SizedBox(height: 20),
+                        Text(_ctrl.answerText),
+                        SizedBox(height: 40),
                         // Feedback
                         ..._buildFeedback(),
 

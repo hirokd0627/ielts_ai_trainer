@@ -12,18 +12,64 @@ class ChatGptService:
     def __init__(self):
         self.client = OpenAI()
 
-    def generate_topics(self, count: int) -> list[str]:
+    def generate_topics(
+        self, count: int, exclude_topics: list[str]
+    ) -> list[str]:
         """Generate topics for prompt generation.
 
         Args:
             count: Number of topics to generate.
+            exclude_topics: Topics to exclude.
 
         Returns:
             List of generated topics.
         """
-        # TODO: use fixed data currently.
-        dummy = ["oil", "home", "food"]
-        return dummy[0:count]
+
+        instructions = """
+You are an test item writer for IELTS.
+Output three distinct topics that must be in different domian and must not overlap in the same subject.
+
+Constraints on the topics:
+- Output a topic as one noun word.
+- Output topics that are enabled to use IELTS Writing tasks and Speaking parts.
+- Each topic must be as different as possible in domains.
+
+Constraints on the output format:
+- Put the topic 1 into the 'topic1' field.
+- Put the topic 2 into the 'topic2' field.
+- Put the topic 3 into the 'topic3' field.
+
+Constraints on the input exclude topics:
+Exclude: <topic 1>,<topic 2>,...
+"""
+
+        input = """
+Output three topics based on the instructions.
+
+Exclude: {}
+""".format(",".join(exclude_topics))
+
+        class Response(BaseModel):
+            topic1: str
+            topic2: str
+            topic3: str
+
+        response = self.client.responses.parse(
+            model="gpt-5-nano",
+            reasoning={"effort": "medium"},
+            instructions=instructions,
+            input=input,
+            text_format=Response,
+            # Expanding the range of output expression
+            # nano does not support temperature
+            # temperature=0.6,
+            # top_p= 0.9,
+        )
+        response = response.output_parsed
+
+        topics = [response.topic1, response.topic2, response.topic3]
+        topics = [s.lower() for s in topics]
+        return topics[0:count]
 
     def generate_writing_task1_prompt(
         self, diagram_type: str, topics: list[str]

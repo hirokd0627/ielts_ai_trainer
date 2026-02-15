@@ -46,10 +46,10 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
        _promptType = promptType,
        _testTask = testTask {
     _writingPrompt = writingPrompt;
-    _promptTextState =
-        (_writingPrompt != null) && _writingPrompt!.promptText.isNotEmpty
-        ? 2
-        : 0;
+    if (writingPrompt != null) {
+      _promptTextState = writingPrompt.promptText.isNotEmpty ? 2 : 0;
+    }
+    _loadDiagram();
   }
 
   WritingPromptType? get promptType => _promptType;
@@ -63,9 +63,7 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
   String get diagramPath => _diagramPath;
 
   /// Whether the generate button is enabled.
-  bool get isGenerateButtonEnabled {
-    return _promptType != null;
-  }
+  bool get isGenerateButtonEnabled => _promptType != null;
 
   /// Whether the start button is enabled;
   bool get isStartButtonEnabled {
@@ -76,19 +74,13 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
   }
 
   /// Whether the prompt text has not been generated yet.
-  bool get isPromptTextNotGenerated {
-    return _promptTextState == 0;
-  }
+  bool get isPromptTextNotGenerated => _promptTextState == 0;
 
   /// Whether the prompt text is being generated.
-  bool get isPromptTextGenerating {
-    return _promptTextState == 1;
-  }
+  bool get isPromptTextGenerating => _promptTextState == 1;
 
   /// Whether the prompt text has been generated.
-  bool get isPromptTextGenerated {
-    return _promptTextState == 2;
-  }
+  bool get isPromptTextGenerated => _promptTextState == 2;
 
   /// Sets the selected prompt type.
   set promptType(WritingPromptType value) {
@@ -127,7 +119,7 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
     // Generate a topic if not entered.
     final targetTopics = topics.isEmpty
-        ? [...topics, ...(await _apiSrv.generateTopics(1))]
+        ? [...(await _apiSrv.generateTopics(1))]
         : [...topics];
 
     // Generate prompt.
@@ -169,6 +161,20 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
     // Update screen.
     _promptTextState = 2;
+    notifyListeners();
+  }
+
+  /// Loads and shows the diagram image.
+  Future<void> _loadDiagram() async {
+    if (_writingPrompt == null) {
+      return;
+    }
+    if (_testTask == TestTask.writingTask1 &&
+        _writingPrompt!.diagramUuid != null) {
+      _diagramPath = await _diagramSrv.getTempFilePath(
+        _writingPrompt!.diagramUuid!,
+      );
+    }
     notifyListeners();
   }
 }

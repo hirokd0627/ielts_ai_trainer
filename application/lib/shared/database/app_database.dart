@@ -21,7 +21,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 7;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
@@ -75,18 +75,15 @@ class WritingAnswerDetailsTable extends Table {
   TextColumn get answerText => text().withLength(min: 1)();
   IntColumn get duration => integer()();
   // score and feedback are nullable because they will be updated after evaluation.
-  RealColumn get bandScore => real().nullable()();
   RealColumn get taskScore => real().nullable()();
   RealColumn get coherenceScore => real().nullable()();
-  RealColumn get lexialScore => real().nullable()();
+  RealColumn get lexicalScore => real().nullable()();
   RealColumn get grammaticalScore => real().nullable()();
   BoolColumn get isGraded => boolean().withDefault(Constant(false))();
   TextColumn get taskFeedback => text().nullable()();
-  TextColumn get coherencekFeedback => text().nullable()();
-  TextColumn get lexialFeedback => text().nullable()();
+  TextColumn get coherenceFeedback => text().nullable()();
+  TextColumn get lexicalFeedback => text().nullable()();
   TextColumn get grammaticalFeedback => text().nullable()();
-  // creation date is the same as the parent UserAnswer
-  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 /// prompt_topics
@@ -111,19 +108,14 @@ class SpeakingAnswerDetailsTable extends Table {
   IntColumn get userAnswerId => integer().references(UserAnswersTable, #id)();
   IntColumn get duration => integer()();
   // score and feedback are nullable because they will be updated after evaluation.
-  RealColumn get bandScore => real().nullable()();
   RealColumn get coherenceScore => real().nullable()();
-  RealColumn get lexialScore => real().nullable()();
+  RealColumn get lexicalScore => real().nullable()();
   RealColumn get grammaticalScore => real().nullable()();
-  RealColumn get fluencyScore => real().nullable()();
   BoolColumn get isGraded => boolean()();
   TextColumn get coherenceFeedback => text().nullable()();
   TextColumn get lexicalFeedback => text().nullable()();
   TextColumn get grammaticalFeedback => text().nullable()();
-  TextColumn get fluencyFeedback => text().nullable()();
   TextColumn get note => text().nullable()(); // used by only Part2
-  // creation date is the same as the parent UserAnswer
-  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 /// speaking_utterances
@@ -134,12 +126,11 @@ class SpeakingUtterancesTable extends Table {
   IntColumn get userAnswerId => integer().references(UserAnswersTable, #id)();
   IntColumn get order => integer()();
   BoolColumn get isUser => boolean()();
+  BoolColumn get isGraded => boolean().withDefault(Constant(false))();
   TextColumn get message => text()();
   TextColumn get audioFileUuid => text().nullable()();
   // score is nullable because it will be updated after evaluation.
-  RealColumn get fluencyScore => real().nullable()();
-  // creation date is the same as the parent UserAnswer
-  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  RealColumn get pronunciationScore => real().nullable()();
 
   @override
   Set<Column> get primaryKey => {userAnswerId, order};

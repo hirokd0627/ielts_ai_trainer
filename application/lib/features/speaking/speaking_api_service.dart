@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:faker/faker.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_chat_answer.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_speech_answer.dart';
 import 'package:ielts_ai_trainer/shared/api/common_api_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/http/api_requester.dart';
+import 'package:http/http.dart' as http;
 
 /// API service for the Speaking screens, generating prompts and evaluating answers.
 class SpeakingApiService with ApiRequester, TopicApiService {
@@ -125,6 +125,36 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     );
   }
 
+  /// Evaluates the pronunciation of speech audio data with script.
+  Future<PronunciationEvaluationResponse> evaluatePronunciation({
+    required String audioFilePath,
+    required String script,
+  }) async {
+    final request = http.MultipartRequest(
+      'POST',
+      getUrl('speaking/evaluate-pronunciation'),
+    );
+
+    // Sets auth header.
+    request.headers['X-API-KEY'] = ApiRequester.apiKey;
+
+    // Sets script and audio file.
+    request.fields['script'] = script;
+    final audioFile = await http.MultipartFile.fromPath(
+      'audio_data',
+      audioFilePath,
+    );
+    request.files.add(audioFile);
+
+    // Sends request through stream.
+    final resp = await request.send();
+    final respBody = await resp.stream.bytesToString();
+
+    return PronunciationEvaluationResponse._fromJson(
+      jsonDecode(respBody) as Map<String, dynamic>,
+    );
+  }
+
   /// Evaluates the given speaking answer.
   Future<SpeakingEvaluationResponse> _evaluateAnswer({
     required int partNo,
@@ -209,7 +239,7 @@ and explain ${json['q4']}
 
 /// Response of evaluate speaking answer.
 class SpeakingEvaluationResponse {
-  final double coherenceScore, lexicalScore, grammaticalScore, bandScore;
+  final double coherenceScore, lexicalScore, grammaticalScore;
 
   final List<String> coherenceFeedback, lexicalFeedback, grammaticalFeedback;
 
@@ -217,7 +247,6 @@ class SpeakingEvaluationResponse {
     required this.coherenceScore,
     required this.lexicalScore,
     required this.grammaticalScore,
-    required this.bandScore,
     required this.coherenceFeedback,
     required this.lexicalFeedback,
     required this.grammaticalFeedback,
@@ -228,7 +257,6 @@ class SpeakingEvaluationResponse {
       'coherence_score',
       'lexical_score',
       'grammatical_score',
-      'band_score',
       'coherence_feedback',
       'lexical_feedback',
       'grammatical_feedback',
@@ -242,10 +270,26 @@ class SpeakingEvaluationResponse {
       coherenceScore: json["coherence_score"],
       grammaticalScore: json["grammatical_score"],
       lexicalScore: json["lexical_score"],
-      bandScore: json["band_score"],
       coherenceFeedback: List<String>.from(json["coherence_feedback"]),
       grammaticalFeedback: List<String>.from(json["grammatical_feedback"]),
       lexicalFeedback: List<String>.from(json["lexical_feedback"]),
     );
+  }
+}
+
+/// Response of evaluate pronunciation.
+class PronunciationEvaluationResponse {
+  final double score;
+
+  const PronunciationEvaluationResponse({required this.score});
+
+  static PronunciationEvaluationResponse _fromJson(Map<String, dynamic> json) {
+    for (var name in ['score']) {
+      if (!json.containsKey(name)) {
+        throw Exception('Missing required key: $name');
+      }
+    }
+
+    return PronunciationEvaluationResponse(score: json["score"]);
   }
 }

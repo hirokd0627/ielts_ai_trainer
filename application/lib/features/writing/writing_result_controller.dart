@@ -4,6 +4,7 @@ import 'package:ielts_ai_trainer/features/writing/domain/writing_answer.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_answer_repository.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_diagram_service.dart';
+import 'package:ielts_ai_trainer/shared/domain/score_calculation_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 
 /// Controller for WritingResultScreen.
@@ -33,7 +34,22 @@ class WritingResultController extends ChangeNotifier {
 
   String get diagramPath => _diagramPath;
 
-  String get bandScore => _writingAnswer?.bandScore.toString() ?? "";
+  String get bandScore {
+    if (_writingAnswer == null ||
+        !_writingAnswer!.isGraded ||
+        (_writingAnswer!.coherenceScore == null &&
+            _writingAnswer!.lexicalScore == null &&
+            _writingAnswer!.grammaticalScore == null &&
+            _writingAnswer!.taskScore == null)) {
+      return '-';
+    }
+    return ScoreCalculationService.calculateScore([
+      _writingAnswer!.coherenceScore!,
+      _writingAnswer!.lexicalScore!,
+      _writingAnswer!.grammaticalScore!,
+      _writingAnswer!.taskScore!,
+    ]).toString();
+  }
 
   String get taskScore => _writingAnswer?.taskScore.toString() ?? '';
 
@@ -42,13 +58,13 @@ class WritingResultController extends ChangeNotifier {
   String get grammaticalScore =>
       _writingAnswer?.grammaticalScore.toString() ?? '';
 
-  String get lexialScore => _writingAnswer?.lexialScore.toString() ?? '';
+  String get lexicalScore => _writingAnswer?.lexicalScore.toString() ?? '';
 
   String get taskFeedback => _writingAnswer?.taskFeedback ?? "";
 
   String get coherenceFeedback => _writingAnswer?.coherenceFeedback ?? "";
 
-  String get lexialFeedback => _writingAnswer?.lexialFeedback ?? "";
+  String get lexicalFeedback => _writingAnswer?.lexicalFeedback ?? "";
 
   String get grammaticalFeedback => _writingAnswer?.grammaticalFeedback ?? "";
 
@@ -107,17 +123,15 @@ class WritingResultController extends ChangeNotifier {
     }
 
     final gradedAnswer = _writingAnswer!.copyWith(
-      bandScore: resp.bandScore,
       taskScore: resp.taskScore,
       coherenceScore: resp.coherenceScore,
-      lexialScore: resp.lexialScore,
+      lexicalScore: resp.lexicalScore,
       grammaticalScore: resp.grammaticalScore,
       taskFeedback: resp.taskFeedback.join(" "),
       coherenceFeedback: resp.coherenceFeedback.join(" "),
-      lexialFeedback: resp.lexicalFeedback.join(" "),
+      lexicalFeedback: resp.lexicalFeedback.join(" "),
       grammaticalFeedback: resp.grammaticalFeedback.join(" "),
       isGraded: true,
-      updatedAt: DateTime.now(),
     );
 
     try {

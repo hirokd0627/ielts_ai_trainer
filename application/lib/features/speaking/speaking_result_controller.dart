@@ -6,6 +6,7 @@ import 'package:ielts_ai_trainer/features/speaking/domain/speaking_speech_answer
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_vo.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/utterance_recording_service.dart';
+import 'package:ielts_ai_trainer/shared/domain/score_calculation_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 
 /// Controller for SpeakingResultScreen.
@@ -37,6 +38,9 @@ class SpeakingResultController extends ChangeNotifier {
   /// Whether a recording file exists for each index.
   final Map<int, bool> _recordingFileExists = {};
 
+  /// Whether the utterance at each index has been graded.
+  final Map<int, bool> _isUtteranceGraded = {};
+
   SpeakingResultController({
     required SpeakingAnswerRepository repo,
     required SpeakingApiService apiSrv,
@@ -50,20 +54,53 @@ class SpeakingResultController extends ChangeNotifier {
   }
 
   String get bandScore {
-    return _chatAnswer != null
-        ? _chatAnswer!.bandScore.toString()
-        : _speechAnswer?.bandScore.toString() ?? '';
+    if (_chatAnswer != null) {
+      if (!_chatAnswer!.isGraded ||
+          _chatAnswer!.coherenceScore == null ||
+          _chatAnswer!.lexicalScore == null ||
+          _chatAnswer!.grammaticalScore == null) {
+        return '-';
+      }
+      final scores = [
+        _chatAnswer!.coherenceScore!,
+        _chatAnswer!.lexicalScore!,
+        _chatAnswer!.grammaticalScore!,
+      ];
+      if (_chatAnswer!.hasPronunciationScore) {
+        scores.add(_chatAnswer!.pronunciationScore);
+      }
+      return ScoreCalculationService.calculateScore(scores).toString();
+    }
+
+    if (_speechAnswer != null) {
+      if (!_speechAnswer!.isGraded ||
+          _speechAnswer!.coherenceScore == null ||
+          _speechAnswer!.lexicalScore == null ||
+          _speechAnswer!.grammaticalScore == null) {
+        return '-';
+      }
+      final scores = [
+        _speechAnswer!.coherenceScore!,
+        _speechAnswer!.lexicalScore!,
+        _speechAnswer!.grammaticalScore!,
+      ];
+      if (_speechAnswer!.hasPronunciationScore) {
+        scores.add(_speechAnswer!.pronunciationScore);
+      }
+      return ScoreCalculationService.calculateScore(scores).toString();
+    }
+
+    return '-';
   }
 
-  String get fluencyScore {
-    if (_chatAnswer != null) {
-      return _chatAnswer!.fluencyScore != null
-          ? _chatAnswer!.fluencyScore.toString()
-          : '-';
+  String get pronunciationScore {
+    if (_chatAnswer != null && _chatAnswer!.hasPronunciationScore) {
+      return _chatAnswer!.pronunciationScore.toString();
     }
-    return _speechAnswer!.fluencyScore != null
-        ? _speechAnswer!.fluencyScore.toString()
-        : '-';
+    if (_speechAnswer != null && _speechAnswer!.hasPronunciationScore) {
+      return _speechAnswer!.pronunciationScore.toString();
+    }
+    return '-';
   }
 
   String get coherenceScore {
@@ -108,17 +145,6 @@ class SpeakingResultController extends ChangeNotifier {
         : _speechAnswer?.grammaticalFeedback.toString() ?? '-';
   }
 
-  String get fluencyFeedback {
-    if (_chatAnswer != null) {
-      return _chatAnswer!.fluencyFeedback != null
-          ? _chatAnswer!.fluencyFeedback.toString()
-          : '';
-    }
-    return _speechAnswer!.fluencyFeedback != null
-        ? _speechAnswer!.fluencyFeedback.toString()
-        : '-';
-  }
-
   String get promptText {
     return _speechAnswer?.prompt.text ?? "";
   }
@@ -138,15 +164,20 @@ class SpeakingResultController extends ChangeNotifier {
   }
 
   List<SpeakingUtteranceVO> get utterances {
-    return _chatAnswer?.utterances ?? [];
+    if (_chatAnswer != null) {
+      return _chatAnswer!.utterances;
+    }
+    if (_speechAnswer != null) {
+      return [_speechAnswer!.prompt, _speechAnswer!.answer];
+    }
+    return [];
   }
+
+  SpeakingUtteranceVO get speechUtterance => _speechAnswer!.answer;
 
   bool get isPlaying => _playingState == 1;
 
-  /// Returns an audio file UUID for the given index.
-  String? _getAudioFileUuid(int index) {
-    return utterances[index].audioFileUuid;
-  }
+  bool isUtteranceGraded(int index) => _isUtteranceGraded[index] ?? false;
 
   bool isPlayingAt(int index) => _currentPlayingIndex == index;
 
@@ -186,6 +217,7 @@ class SpeakingResultController extends ChangeNotifier {
               _speechAnswer!.answer.audioFileUuid!,
             )
           : false;
+      _isUtteranceGraded[1] = _speechAnswer!.answer.isGraded;
     } else {
       // Part 1 or 3
       _chatAnswer = await _repo.selectPart13AnswerById(id);
@@ -193,6 +225,7 @@ class SpeakingResultController extends ChangeNotifier {
         _recordingFileExists[i] = _getAudioFileUuid(i) != null
             ? await _recordingSrv.recordingFileExists(_getAudioFileUuid(i)!)
             : false;
+        _isUtteranceGraded[i] = _chatAnswer!.utterances[i].isGraded;
       }
     }
 
@@ -236,6 +269,11 @@ class SpeakingResultController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Returns an audio file UUID for the given index.
+  String? _getAudioFileUuid(int index) {
+    return utterances[index].audioFileUuid;
+  }
+
   /// Called when the play stops.
   void _onPlayerComplete() {
     _playingState = 0;
@@ -246,24 +284,30 @@ class SpeakingResultController extends ChangeNotifier {
 
   /// Evaluates the current answer for Part 1 or Part 3 and updates the answer in the repository,
   Future<void> _evaluateChatAnswer() async {
+    // Evaluates script.
     final resp = await _apiSrv.evaluateChatAnswer(answer: _chatAnswer!);
 
-    // Updates results in answer
-    final gradedAnswer = _chatAnswer!.copyWith(
-      coherenceScore: resp.coherenceScore,
-      lexicalScore: resp.lexicalScore,
-      grammaticalScore: resp.grammaticalScore,
-      coherenceFeedback: resp.coherenceFeedback.join(" "),
-      lexicalFeedback: resp.lexicalFeedback.join(" "),
-      grammaticalFeedback: resp.grammaticalFeedback.join(" "),
-      isGraded: true,
-      updatedAt: DateTime.now(),
-      utterances: utterances,
-      bandScore: resp.bandScore,
-    );
+    // Evaluates pronunciation.
+    for (int i = 0; i < _chatAnswer!.utterances.length; i++) {
+      // Updates each Utterance data in _evaluatePronunciation.
+      _evaluatePronunciation(i, _chatAnswer!.id!, _chatAnswer!.utterances[i]);
+    }
 
-    _repo.saveSpeakingChatAnswer(gradedAnswer);
-    _chatAnswer = gradedAnswer;
+    // Updates results in answer
+    if (!_chatAnswer!.isGraded) {
+      final gradedAnswer = _chatAnswer!.copyWith(
+        coherenceScore: resp.coherenceScore,
+        lexicalScore: resp.lexicalScore,
+        grammaticalScore: resp.grammaticalScore,
+        coherenceFeedback: resp.coherenceFeedback.join(" "),
+        lexicalFeedback: resp.lexicalFeedback.join(" "),
+        grammaticalFeedback: resp.grammaticalFeedback.join(" "),
+        isGraded: true,
+      );
+
+      _repo.saveSpeakingChatAnswer(gradedAnswer);
+      _chatAnswer = gradedAnswer;
+    }
 
     notifyListeners();
   }
@@ -273,21 +317,71 @@ class SpeakingResultController extends ChangeNotifier {
     final resp = await _apiSrv.evaluateSpeechAnswer(answer: _speechAnswer!);
 
     // Updates results in answer
-    final gradedAnswer = _speechAnswer!.copyWith(
-      updatedAt: DateTime.now(),
-      isGraded: true,
-      coherenceScore: resp.coherenceScore,
-      lexicalScore: resp.lexicalScore,
-      grammaticalScore: resp.grammaticalScore,
-      bandScore: resp.bandScore,
-      coherenceFeedback: resp.coherenceFeedback.join(" "),
-      lexicalFeedback: resp.lexicalFeedback.join(" "),
-      grammaticalFeedback: resp.grammaticalFeedback.join(" "),
+    if (!_speechAnswer!.isGraded) {
+      final gradedAnswer = _speechAnswer!.copyWith(
+        isGraded: true,
+        coherenceScore: resp.coherenceScore,
+        lexicalScore: resp.lexicalScore,
+        grammaticalScore: resp.grammaticalScore,
+        coherenceFeedback: resp.coherenceFeedback.join(" "),
+        lexicalFeedback: resp.lexicalFeedback.join(" "),
+        grammaticalFeedback: resp.grammaticalFeedback.join(" "),
+      );
+      _repo.saveSpeakingSpeechAnswer(gradedAnswer);
+      _speechAnswer = gradedAnswer;
+    }
+
+    _evaluatePronunciation(1, _speechAnswer!.id!, _speechAnswer!.answer);
+
+    notifyListeners();
+  }
+
+  /// Evaluates pronunciation of utterance.
+  Future<void> _evaluatePronunciation(
+    int index,
+    int userAnswerId,
+    SpeakingUtteranceVO utterance,
+  ) async {
+    if (!utterance.isUser ||
+        utterance.audioFileUuid == null ||
+        utterance.isGraded) {
+      return;
+    }
+
+    final exists = await _recordingSrv.recordingFileExists(
+      utterance.audioFileUuid!,
     );
-    _repo.saveSpeakingSpeechAnswer(gradedAnswer);
+    if (!exists) {
+      return;
+    }
 
-    _speechAnswer = gradedAnswer;
+    final audioFilePath = await _recordingSrv.getFilePath(
+      utterance.audioFileUuid!,
+    );
+    final resp = await _apiSrv.evaluatePronunciation(
+      audioFilePath: audioFilePath,
+      script: utterance.text,
+    );
 
+    // Saves results in utterance
+    final graded = utterance.copyWith(
+      pronunciationScore: resp.score,
+      isGraded: true,
+    );
+    await _repo.saveUtterance(userAnswerId, graded);
+
+    // Updates screen.
+    if (_testTask == TestTask.speakingPart2) {
+      _speechAnswer = _speechAnswer!.copyWith(answer: graded);
+    } else {
+      final utterances = List<SpeakingUtteranceVO>.from(
+        _chatAnswer!.utterances,
+      );
+      utterances[index] = graded;
+      _chatAnswer = _chatAnswer!.copyWith(utterances: utterances);
+    }
+
+    _isUtteranceGraded[index] = true;
     notifyListeners();
   }
 }

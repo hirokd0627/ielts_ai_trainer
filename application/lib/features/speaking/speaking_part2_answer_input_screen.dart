@@ -87,7 +87,16 @@ class _SpeakingPart2AnswerInputScreenState
     try {
       id = await _ctrl.saveUserAnswer();
     } catch (e, stackTrace) {
+      if (!mounted) {
+        // avoid context across async gaps.
+        return;
+      }
       showAlertDialog(context, e.toString(), stackTrace.toString());
+      return;
+    }
+
+    if (!mounted) {
+      // avoid context across async gaps.
       return;
     }
 
