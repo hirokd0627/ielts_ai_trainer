@@ -1,5 +1,6 @@
 import logging
 from random import choice
+import random
 import time
 import tempfile
 import os
@@ -468,10 +469,10 @@ def speaking_evaluate_pronunciation():
 
     # Create temporary .m4a file.
     with tempfile.NamedTemporaryFile(delete=False, suffix=".m4a") as f:
-        tmp_name = f.name
+        tmp_path = f.name
 
     script_target = ValueTarget()
-    audio_file_target = FileTarget(tmp_name)
+    audio_file_target = FileTarget(tmp_path)
 
     parser = StreamingFormDataParser(headers=request.headers)
     parser.register("script", script_target)
@@ -491,21 +492,32 @@ def speaking_evaluate_pronunciation():
 
         # TODO: Call Azure Speech Service
 
-        # TEST: script
-        app.logger.debug("script: {}".format(script))
-        # TEST: save audio file
+        # TEST
         current_dir = Path(__file__).resolve().parent
         target_dir = "{}/tmp".format(current_dir)
-        shutil.copy2(tmp_name, target_dir)
+        shutil.copy2(tmp_path, target_dir)
+        tmp_name = Path(tmp_path).name
+        file_size = os.path.getsize("{}/{}".format(target_dir, tmp_name))
+        log_line = """
+========================================
+Pronunciation Evaluation
+
+Received script and audio data.
+- script: {}
+- audio_data: size={} test_copy=./tmp/{}
+========================================
+""".format(script, file_size, tmp_name)
+        app.logger.debug(log_line)
 
     finally:
         # Delete temporary file.
-        if os.path.exists(tmp_name):
-            os.remove(tmp_name)
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
 
     return jsonify(
         {
-            "score": 3.5,
+            # TODO: currenty use random value
+            "score": random.choice([1.5, 3.0, 4.5, 6.5])
         }
     )
 

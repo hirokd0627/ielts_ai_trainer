@@ -63,14 +63,18 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
     String answerText = '';
     bool isAnswerGraded = false;
     String? answerAudioUuid;
+    double? promptScore;
+    double? answerScore;
     for (final row in utteranceRows) {
       if (row.isUser) {
         answerText = row.message;
         answerAudioUuid = row.audioFileUuid;
         isAnswerGraded = row.isGraded;
+        answerScore = row.pronunciationScore;
       } else {
         promptText = row.message;
         isPromptGraded = row.isGraded;
+        promptScore = row.pronunciationScore;
       }
     }
 
@@ -95,6 +99,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
         isUser: false,
         text: promptText,
         isGraded: isPromptGraded,
+        pronunciationScore: promptScore,
       ),
       answer: SpeakingUtteranceVO(
         order: 2,
@@ -102,6 +107,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
         isGraded: isAnswerGraded,
         text: answerText,
         audioFileUuid: answerAudioUuid,
+        pronunciationScore: answerScore,
       ),
       note: detail.note,
     );
@@ -221,6 +227,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
             audioFileUuid: answer.utterances[i].audioFileUuid != null
                 ? Value(answer.utterances[i].audioFileUuid!)
                 : Value.absent(),
+            pronunciationScore: Value(answer.utterances[i].pronunciationScore),
           ),
         );
         utteranceIds.add(
@@ -291,8 +298,10 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
             userAnswerId: Value(upId),
             order: Value(1),
             isUser: Value(false),
+            isGraded: Value(answer.prompt.isGraded),
             message: Value(answer.prompt.text),
             audioFileUuid: Value.absent(),
+            pronunciationScore: Value(answer.prompt.pronunciationScore),
           ),
           mode: InsertMode.insertOrReplace,
         );
@@ -302,10 +311,12 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
             userAnswerId: Value(upId),
             order: Value(2),
             isUser: Value(true),
+            isGraded: Value(answer.answer.isGraded),
             message: Value(answer.answer.text),
             audioFileUuid: answer.answer.audioFileUuid != null
                 ? Value(answer.answer.audioFileUuid!)
                 : Value.absent(),
+            pronunciationScore: Value(answer.answer.pronunciationScore),
           ),
           mode: InsertMode.insertOrReplace,
         );
