@@ -2,18 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:ielts_ai_trainer/features/writing/domain/writing_prompt_vo.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_diagram_service.dart';
-import 'package:ielts_ai_trainer/shared/api/writing_prompt_type_api_extension.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
+import 'package:ielts_ai_trainer/shared/setting/app_settings.dart';
 
 /// Controller for WritingQuestionGeneratorForm.
 class WritingQuestionGeneratorFormController extends ChangeNotifier {
-  /// Entered topics.
-  final List<String> _topics;
-
-  /// Topics used when generating the prompt text.
-  final List<String> _usedTopics;
-
   /// API service to generate prompt text
   final WritingApiService _apiSrv = WritingApiService();
 
@@ -21,6 +15,9 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
   /// The task type.
   final TestTask _testTask;
+
+  /// Entered topic.
+  String _topic;
 
   /// Selected prompt type.
   WritingPromptType? _promptType;
@@ -39,10 +36,9 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
     required WritingApiService apiSrv,
     required TestTask testTask,
     WritingPromptVo? writingPrompt,
-    List<String>? topics,
+    String? topic,
     WritingPromptType? promptType,
-  }) : _topics = topics != null ? List.from(topics) : [],
-       _usedTopics = topics != null ? List.from(topics) : [],
+  }) : _topic = topic ?? '',
        _promptType = promptType,
        _testTask = testTask {
     _writingPrompt = writingPrompt;
@@ -54,9 +50,7 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
   WritingPromptType? get promptType => _promptType;
 
-  List<String> get topics => _topics;
-
-  List<String> get usedTopics => _usedTopics;
+  String get topic => _topic;
 
   WritingPromptVo? get writingPrompt => _writingPrompt;
 
@@ -88,27 +82,10 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Adds a new topic to the entered topic list.
-  void addTopic(String topic) {
-    _topics.add(topic);
+  /// Sets the topic.
+  set topic(String value) {
+    _topic = value;
     notifyListeners();
-  }
-
-  /// Removes the given topic from the entered topic list.
-  void removeTopic(String topic) {
-    _topics.remove(topic);
-    notifyListeners();
-  }
-
-  /// Validates a new topic and returns an error message if invalid.
-  String validateTopics(String newTopic) {
-    if (_topics.contains(newTopic)) {
-      return 'The entered topic has already been added.';
-    }
-    if (_topics.length >= 3) {
-      return 'You can set up to three topics.';
-    }
-    return '';
   }
 
   /// Generates prompt text using the entered topics.
@@ -118,9 +95,9 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
     notifyListeners();
 
     // Generate a topic if not entered.
-    final targetTopics = topics.isEmpty
-        ? [...(await _apiSrv.generateTopics(1))]
-        : [...topics];
+    final targetTopic = topic.isEmpty
+        ? (await _apiSrv.generateTopics(1, AppSettings.instance.aiAgent))[0]
+        : topic;
 
     // Generate prompt.
     if (_testTask == TestTask.writingTask1) {
@@ -130,7 +107,8 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
       final prompt = await _apiSrv.generateTask1Prompt(
         _promptType!.diagramType,
-        targetTopics,
+        targetTopic,
+        AppSettings.instance.aiAgent,
       );
       final uuid = await _diagramSrv.writeTempImage(prompt.diagramData);
       _writingPrompt = WritingPromptVo(
@@ -143,7 +121,8 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
     } else {
       final prompt = await _apiSrv.generateTask2Prompt(
         _promptType!.essayType,
-        targetTopics,
+        targetTopic,
+        AppSettings.instance.aiAgent,
       );
       _writingPrompt = WritingPromptVo(
         taskContext: prompt.statement,
@@ -152,12 +131,7 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
     }
 
     // Store topics to show on screen.
-    _topics.clear();
-    _topics.addAll(targetTopics);
-
-    // Store topics used in generating
-    _usedTopics.clear();
-    _usedTopics.addAll(targetTopics);
+    _topic = targetTopic;
 
     // Update screen.
     _promptTextState = 2;

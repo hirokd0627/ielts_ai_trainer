@@ -1,0 +1,6 @@
+A prompt text for ChatGPT Image API to generate an image for the diagram of IELTS writing task 1 practice.
+The type of diagram is {diagram_type}.
+The topics for the image is {topic}.
+Output only the prompt for ChatGPT Image API.
+For the introduction, output an explanation of the diagram in <here> so that it is in the format of a single sentence: "The diagram below <here>."
+In the dialog_description, output the row and column value, the value, and what that value is for each number used in the dialog. This dialog_description is compared with the answer entered by the user to evaluate the score.

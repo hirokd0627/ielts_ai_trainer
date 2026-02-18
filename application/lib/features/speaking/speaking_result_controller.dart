@@ -8,6 +8,7 @@ import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/utterance_recording_service.dart';
 import 'package:ielts_ai_trainer/shared/domain/score_calculation_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
+import 'package:ielts_ai_trainer/shared/setting/app_settings.dart';
 
 /// Controller for SpeakingResultScreen.
 class SpeakingResultController extends ChangeNotifier {
@@ -285,7 +286,10 @@ class SpeakingResultController extends ChangeNotifier {
   /// Evaluates the current answer for Part 1 or Part 3 and updates the answer in the repository,
   Future<void> _evaluateChatAnswer() async {
     // Evaluates script.
-    final resp = await _apiSrv.evaluateChatAnswer(answer: _chatAnswer!);
+    final resp = await _apiSrv.evaluateChatAnswer(
+      answer: _chatAnswer!,
+      aiName: AppSettings.instance.aiAgent,
+    );
 
     // Evaluates pronunciation.
     for (int i = 0; i < _chatAnswer!.utterances.length; i++) {
@@ -314,7 +318,10 @@ class SpeakingResultController extends ChangeNotifier {
 
   /// Evaluates the current answer for Part 2 and updates the answer in the repository,
   Future<void> _evaluateSpeechAnswer() async {
-    final resp = await _apiSrv.evaluateSpeechAnswer(answer: _speechAnswer!);
+    final resp = await _apiSrv.evaluateSpeechAnswer(
+      answer: _speechAnswer!,
+      aiName: AppSettings.instance.aiAgent,
+    );
 
     // Updates results in answer
     if (!_speechAnswer!.isGraded) {

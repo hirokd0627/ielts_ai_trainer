@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
+import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 
 /// A TextField that highlights its border when hovered.
 class HoverHighlightTextField extends StatefulWidget {
@@ -47,6 +48,7 @@ class _HoverHighlightTextFieldState extends State<HoverHighlightTextField> {
         });
       },
       child: TextField(
+        style: AppStyles.textFieldStyle(context),
         controller: widget.controller,
         enabled: widget.enabled,
         minLines: widget.minLines,
@@ -56,15 +58,18 @@ class _HoverHighlightTextFieldState extends State<HoverHighlightTextField> {
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: AppColors.focusColor, width: 1),
+            borderRadius: BorderRadius.circular(8),
           ),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
               color: _isHovered ? AppColors.focusColor : AppColors.borderColor,
               width: 1,
             ),
+            borderRadius: BorderRadius.circular(8),
           ),
           disabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: AppColors.borderColor, width: 1),
+            borderRadius: BorderRadius.circular(8),
           ),
           hintText: widget.hintText,
           hintStyle: TextStyle(

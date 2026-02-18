@@ -4,6 +4,7 @@ import 'package:ielts_ai_trainer/app/router_extra.dart';
 import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 import 'package:ielts_ai_trainer/features/development/development_route.dart';
 import 'package:ielts_ai_trainer/features/home/home_route.dart';
+import 'package:ielts_ai_trainer/features/setting/setting_route.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_routes.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 
@@ -183,7 +184,9 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
       /// Setting
       MenuItemButton(
         style: menuButtonStyle,
-        onPressed: () {},
+        onPressed: () {
+          context.go(settingScreenRoutPath);
+        },
         child: SizedBox(
           width: menuWidth,
           child: const Text('Setting', textAlign: TextAlign.center),

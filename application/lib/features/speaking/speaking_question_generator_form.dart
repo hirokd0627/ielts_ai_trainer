@@ -5,6 +5,7 @@ import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_question_generator_form_controller.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
+import 'package:ielts_ai_trainer/shared/views/hover_highlight_text_field.dart';
 import 'package:ielts_ai_trainer/shared/views/loading_indicator.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 
@@ -63,6 +64,12 @@ class _SpeakingQuestionGeneratorFormState
   void initState() {
     super.initState();
 
+    // Part 2 use only one topic.
+    if (widget.testTask == TestTask.speakingPart2 && widget.topics != null) {
+      widget.topics!.isNotEmpty ? widget.topics![0] : '';
+      _topicTextEditCtrl.text = _ctrl.topic; // Set topic as initial display.
+    }
+
     _ctrl = SpeakingQuestionGeneratorFormController(
       testTask: widget.testTask,
       apiSrv: SpeakingApiService(),
@@ -106,6 +113,11 @@ class _SpeakingQuestionGeneratorFormState
     _topicTextEditCtrl.clear();
   }
 
+  /// Called when the topic is changed.
+  void _onChangedTopic(String value) {
+    _ctrl.topic = value;
+  }
+
   /// Called when the topic is deleted.
   void _onDeleteChip(String topic) {
     setState(() {
@@ -120,6 +132,9 @@ class _SpeakingQuestionGeneratorFormState
       _topicInputErrorText = '';
     });
     await _ctrl.generateInitialQuestion();
+    if (widget.testTask == TestTask.speakingPart2) {
+      _topicTextEditCtrl.text = _ctrl.topic;
+    }
   }
 
   /// Called when the Start button is tapped.
@@ -135,11 +150,17 @@ class _SpeakingQuestionGeneratorFormState
       return;
     }
 
-    widget.onTappedStart(
-      _ctrl.promptText,
-      _ctrl.usedTopics,
-      _ctrl.interactionId,
-    );
+    if (widget.testTask == TestTask.speakingPart2) {
+      widget.onTappedStart(_ctrl.promptText, [
+        _ctrl.topic,
+      ], _ctrl.interactionId);
+    } else {
+      widget.onTappedStart(
+        _ctrl.promptText,
+        _ctrl.usedTopics,
+        _ctrl.interactionId,
+      );
+    }
   }
 
   /// Validates the entered topics, optionally including a new value.
@@ -214,67 +235,79 @@ class _SpeakingQuestionGeneratorFormState
                 style: AppStyles.helperTextStyle,
               ),
             ),
-            MouseRegion(
-              onEnter: (_) => setState(() => _hoveringOnTopics = true),
-              onExit: (_) => setState(() => _hoveringOnTopics = false),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                decoration: BoxDecoration(
-                  border: (_topicInputErrorText.isEmpty)
-                      ? ((_hoveringOnTopics)
-                            ? Border.all(color: AppColors.focusColor)
-                            : Border.all(color: AppColors.borderColor))
-                      : Border.all(color: AppColors.errorRed),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    SizedBox(
-                      width: screenWidth,
-                      child: TextField(
-                        enabled: !_ctrl.isPromptTextGenerating,
-                        controller: _topicTextEditCtrl,
-                        focusNode: _focusNode,
-                        style: AppStyles.textFieldStyle(context),
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Type a topic and press Enter',
-                          hintStyle: AppStyles.placeHolderText,
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: 11,
-                            horizontal: 2,
+            if (widget.testTask == TestTask.speakingPart1 ||
+                widget.testTask == TestTask.speakingPart3)
+              MouseRegion(
+                onEnter: (_) => setState(() => _hoveringOnTopics = true),
+                onExit: (_) => setState(() => _hoveringOnTopics = false),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    border: (_topicInputErrorText.isEmpty)
+                        ? ((_hoveringOnTopics)
+                              ? Border.all(color: AppColors.focusColor)
+                              : Border.all(color: AppColors.borderColor))
+                        : Border.all(color: AppColors.errorRed),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      SizedBox(
+                        width: screenWidth,
+                        child: TextField(
+                          enabled: !_ctrl.isPromptTextGenerating,
+                          controller: _topicTextEditCtrl,
+                          focusNode: _focusNode,
+                          style: AppStyles.textFieldStyle(context),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Type a topic and press Enter',
+                            hintStyle: AppStyles.placeHolderText,
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 11,
+                              horizontal: 2,
+                            ),
                           ),
+                          onSubmitted: _onSubmittedTopicsText,
                         ),
-                        onSubmitted: _onSubmittedTopicsText,
                       ),
-                    ),
-                    for (var topic in _ctrl.topics)
-                      Chip(
-                        label: Text(
-                          topic,
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: AppColors.textColor,
+                      for (var topic in _ctrl.topics)
+                        Chip(
+                          label: Text(
+                            topic,
+                            style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: AppColors.textColor,
+                            ),
                           ),
+                          backgroundColor: AppColors.chipBackground,
+                          onDeleted: _ctrl.isPromptTextGenerating
+                              ? null
+                              : () => _onDeleteChip(topic),
+                          side: BorderSide.none,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          deleteIcon: Icon(Icons.close),
+                          deleteButtonTooltipMessage: 'Remove',
                         ),
-                        backgroundColor: AppColors.chipBackground,
-                        onDeleted: _ctrl.isPromptTextGenerating
-                            ? null
-                            : () => _onDeleteChip(topic),
-                        side: BorderSide.none,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        deleteIcon: Icon(Icons.close),
-                        deleteButtonTooltipMessage: 'Remove',
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
+              )
+            else
+              HoverHighlightTextField(
+                keyboardType: TextInputType.multiline,
+                hintText: 'Type topic here...',
+                onChanged: _onChangedTopic,
+                controller: _topicTextEditCtrl,
               ),
-            ),
             if (_topicInputErrorText.isNotEmpty)
               InputErrorText(_topicInputErrorText),
             SizedBox(height: 20),

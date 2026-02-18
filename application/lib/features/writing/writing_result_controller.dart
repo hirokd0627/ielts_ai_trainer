@@ -6,6 +6,7 @@ import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_diagram_service.dart';
 import 'package:ielts_ai_trainer/shared/domain/score_calculation_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
+import 'package:ielts_ai_trainer/shared/setting/app_settings.dart';
 
 /// Controller for WritingResultScreen.
 class WritingResultController extends ChangeNotifier {
@@ -114,11 +115,13 @@ class WritingResultController extends ChangeNotifier {
         promptType: _writingAnswer!.promptType,
         diagramDescription: _writingAnswer!.writingPrompt.diagramDescription!,
         answerText: _writingAnswer!.answerText,
+        aiName: AppSettings.instance.aiAgent,
       );
     } else {
       resp = await _apiSrv.evaluateTask2Answer(
         promptText: _writingAnswer!.writingPrompt.promptText,
         answerText: _writingAnswer!.answerText,
+        aiName: AppSettings.instance.aiAgent,
       );
     }
 

@@ -23,4 +23,15 @@ mixin ApiRequester {
       body: json,
     );
   }
+
+  /// Send a Get request to the backend API.
+  Future<http.Response> sendGetRequest(String endpoint) {
+    return http.get(
+      getUrl(endpoint),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'X-API-KEY': apiKey,
+      },
+    );
+  }
 }

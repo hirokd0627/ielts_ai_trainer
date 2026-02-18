@@ -12,6 +12,7 @@ import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
+import 'package:ielts_ai_trainer/shared/views/hover_highlight_text_field.dart';
 import 'package:ielts_ai_trainer/shared/views/loading_indicator.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 
@@ -26,14 +27,14 @@ class WritingQuestionGeneratorForm extends StatefulWidget {
   /// The prompt components to display initially, if set.
   final WritingPromptVo? writingPrompt;
 
-  /// The topics to display initially, if set.
-  final List<String>? topics;
+  /// The topic to display initially, if set.
+  final String? topic;
 
   const WritingQuestionGeneratorForm({
     super.key,
     required this.testTask,
     this.writingPrompt,
-    this.topics,
+    this.topic,
     this.promptType,
   });
 
@@ -51,18 +52,8 @@ class _WritingQuestionGeneratorFormState
   /// Controller for topic text field.
   final TextEditingController _topicTextEditCtrl = TextEditingController();
 
-  /// Focus node for the topic text field.
-  /// Keeps focus on the field after pressing Enter.
-  final _focusNode = FocusNode();
-
-  /// Input error text for topics.
-  String _topicInputErrorText = '';
-
   /// Whether the mouse is on the prompt type area.
   bool _hoveringOnPromptType = false;
-
-  /// Whether the mouse is on the topics area.
-  bool _hoveringOnTopics = false;
 
   /// Returns the label for the prompt type based on the test task.
   String get _promptTypeLabel {
@@ -143,9 +134,11 @@ class _WritingQuestionGeneratorFormState
       testTask: widget.testTask,
       apiSrv: WritingApiService(),
       writingPrompt: widget.writingPrompt,
-      topics: widget.topics,
+      topic: widget.topic,
       promptType: widget.promptType,
     );
+
+    _topicTextEditCtrl.text = widget.topic ?? '';
   }
 
   @override
@@ -163,43 +156,15 @@ class _WritingQuestionGeneratorFormState
     }
   }
 
-  /// Called when the topic is entered.
-  void _onSubmittedTopicsText(String value) {
-    _focusNode.requestFocus(); // keep focus on text field
-
-    if (value.isEmpty) {
-      return;
-    }
-    final error = _ctrl.validateTopics(value);
-    if (error.isNotEmpty) {
-      setState(() {
-        _topicInputErrorText = error;
-      });
-      return;
-    }
-    setState(() {
-      _topicInputErrorText = '';
-    });
-
-    _ctrl.addTopic(value);
-    _topicTextEditCtrl.clear();
-    // _focusNode.requestFocus(); // keep focus on text field
-  }
-
-  /// Called when the topic is deleted.
-  void _onDeleteChip(String topic) {
-    setState(() {
-      _topicInputErrorText = '';
-    });
-    _ctrl.removeTopic(topic);
+  /// Called when the topic changes.
+  void _onChangedTopic(String value) {
+    _ctrl.topic = value;
   }
 
   /// Called when the generate button is tapped.
   void _onPressedGenerate() async {
-    setState(() {
-      _topicInputErrorText = '';
-    });
     await _ctrl.generatePromptText();
+    _topicTextEditCtrl.text = _ctrl.topic;
   }
 
   /// Called when the start button is tapped.
@@ -215,7 +180,6 @@ class _WritingQuestionGeneratorFormState
       return;
     }
 
-    // widget.onTappedStart(_ctrl.propmtText, _ctrl.usedTopics, _ctrl.promptType!);
     final loc = widget.testTask == TestTask.writingTask1
         ? writingTask1AnswerInputScreenRoutePath
         : writingTask2AnswerInputScreenRoutePath;
@@ -223,7 +187,7 @@ class _WritingQuestionGeneratorFormState
       loc,
       extra: RouterExtra({
         'writingPrompt': _ctrl.writingPrompt,
-        'topics': _ctrl.usedTopics,
+        'topic': _ctrl.topic,
         'promptType': _ctrl.promptType!,
       }),
     );
@@ -231,7 +195,6 @@ class _WritingQuestionGeneratorFormState
 
   /// Builds widgets in input area.
   List<Widget> _buildInputArea() {
-    final screenWidth = MediaQuery.of(context).size.width;
     return [
       // Question type
       Container(
@@ -277,65 +240,12 @@ class _WritingQuestionGeneratorFormState
           style: AppStyles.helperTextStyle,
         ),
       ),
-      MouseRegion(
-        onEnter: (_) => setState(() => _hoveringOnTopics = true),
-        onExit: (_) => setState(() => _hoveringOnTopics = false),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          decoration: BoxDecoration(
-            border: (_topicInputErrorText.isEmpty)
-                ? ((_hoveringOnTopics)
-                      ? Border.all(color: AppColors.focusColor)
-                      : Border.all(color: AppColors.borderColor))
-                : Border.all(color: AppColors.errorRed),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              SizedBox(
-                width: screenWidth,
-                child: TextField(
-                  controller: _topicTextEditCtrl,
-                  focusNode: _focusNode,
-                  style: AppStyles.textFieldStyle(context),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Type a topic and press Enter',
-                    hintStyle: AppStyles.placeHolderText,
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 11,
-                      horizontal: 2,
-                    ),
-                  ),
-                  onSubmitted: _onSubmittedTopicsText,
-                ),
-              ),
-              for (var topic in _ctrl.topics)
-                Chip(
-                  label: Text(
-                    topic,
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  backgroundColor: AppColors.chipBackground,
-                  onDeleted: () => _onDeleteChip(topic),
-                  side: BorderSide.none,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  deleteIcon: Icon(Icons.close),
-                  deleteButtonTooltipMessage: 'Remove',
-                ),
-            ],
-          ),
-        ),
+      HoverHighlightTextField(
+        keyboardType: TextInputType.multiline,
+        hintText: 'Type topic here...',
+        onChanged: _onChangedTopic,
+        controller: _topicTextEditCtrl,
       ),
-      if (_topicInputErrorText.isNotEmpty) InputErrorText(_topicInputErrorText),
       SizedBox(height: 20),
       FilledButton(
         onPressed: _ctrl.isGenerateButtonEnabled ? _onPressedGenerate : null,

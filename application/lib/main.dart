@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/app/router.dart';
 import 'package:ielts_ai_trainer/app/theme/theme.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
+import 'package:ielts_ai_trainer/shared/setting/app_settings.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -15,6 +16,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   _initiaizeWindow();
+
+  // Init SharedPreferencesWithCache, need only once when app launched.
+  AppSettings.init();
 
   runApp(
     Provider<AppDatabase>(

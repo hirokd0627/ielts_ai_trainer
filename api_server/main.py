@@ -8,12 +8,14 @@ import shutil
 from pathlib import Path
 
 from flask import Flask, request, jsonify
+from chat_gpt_api import ChatGptApi
 from decorators import auth_required
 from dotenv import load_dotenv
 from exceptions import AppException
-from chatgpt_service import ChatGptService
 from streaming_form_data import StreamingFormDataParser
 from streaming_form_data.targets import FileTarget, ValueTarget
+from gemini_api import GeminiApi
+from generative_ai_service import GenerativeAiService
 
 # Load environment variables from .env file.
 load_dotenv()
@@ -45,24 +47,20 @@ def generate_topics():
     """API for generating topics for Writing and Speaking.
 
     Args: application/json
-        count, exclude_topics: See `ChatGptService.generate_topics`.
+        ai_name: AI name to use ('chat_gpt' or 'gemini').
+        count, exclude_topics: See `GenerativeAiService.generate_topics`.
 
     Returns: application/json
-        topics: See `ChatGptService.generate_topics`.
+        topics: See `GenerativeAiService.generate_topics`.
     """
-
     json = request.get_json()
-    _validate_parameters(json, ["count", "exclude_topics"])
+    _validate_parameters(json, ["ai_name", "count", "exclude_topics"])
 
-    try:
-        chatgpt = ChatGptService(app.logger)
-        topics = chatgpt.generate_topics(json["count"], json["exclude_topics"])
-        resp_json = {
-            "topics": topics,
-        }
-
-    except Exception:
-        raise AppException("failed to generate topics: {}".format(json))
+    ai_srv = _create_generative_ai_service(json["ai_name"])
+    topics = ai_srv.generate_topics(json["count"], json["exclude_topics"])
+    resp_json = {
+        "topics": topics,
+    }
 
     return jsonify(resp_json)
 
@@ -73,36 +71,32 @@ def writing_task1_generate_prompt():
     """API for generating prompt for Writing Task 1.
 
     Args: application/json
-        diagram_type, topics:
-            See `ChatGptService.generate_writing_task1_prompt`.
+        ai_name: AI name to use ('chat_gpt' or 'gemini').
+        diagram_type, topic:
+            See `GenerativeAiService.generate_writing_task1_prompt`.
 
     Returns: application/json
-        topics, introduction, diagram_description, diagram_data:
-            See `ChatGptService.generate_writing_task1_prompt`.
+        introduction, diagram_description, diagram_data:
+            See `GenerativeAiService.generate_writing_task1_prompt`.
         instruction (str): Instruction sentence put after intruduction sentence.
     """
 
     json = request.get_json()
-    _validate_parameters(json, ["topics", "diagram_type"])
+    _validate_parameters(json, ["ai_name", "topic", "diagram_type"])
 
-    try:
-        chatgpt = ChatGptService(app.logger)
-        prompt = chatgpt.generate_writing_task1_prompt(
-            json["diagram_type"], json["topics"]
-        )
-        resp_json = {
-            "topics": prompt["topics"],
-            "introduction": prompt["introduction"],
-            "diagram_description": prompt["diagram_description"],
-            "diagram_data": prompt["diagram_data"],
-            # Task 1 instruction is fixed.
-            "instruction": "Summarise the information by selecting and "
-            "reporting the main features, and make comparisons where "
-            "relevant.",
-        }
-
-    except Exception:
-        raise AppException("failed to generate prompt: {}".format(json))
+    ai_srv = _create_generative_ai_service(json["ai_name"])
+    prompt = ai_srv.generate_writing_task1_prompt(
+        json["diagram_type"], json["topic"]
+    )
+    resp_json = {
+        "introduction": prompt["introduction"],
+        "diagram_description": prompt["diagram_description"],
+        "diagram_data": prompt["diagram_data"],
+        # Task 1 instruction is fixed.
+        "instruction": "Summarise the information by selecting and "
+        "reporting the main features, and make comparisons where "
+        "relevant.",
+    }
 
     return jsonify(resp_json)
 
@@ -113,27 +107,24 @@ def writing_task2_generate_prompt():
     """API for generating prompt for Writing Task 2.
 
     Args: application/json
-        essay_type, topics: See `ChatGptService.generate_writing_task2_prompt`.
+        ai_name: AI name to use ('chat_gpt' or 'gemini').
+        essay_type, topic: See `GenerativeAiService.generate_writing_task2_prompt`.
 
     Returns: application/json
-        See `ChatGptService.generate_writing_task2_prompt`.
+        See `GenerativeAiService.generate_writing_task2_prompt`.
     """
 
     json = request.get_json()
-    _validate_parameters(json, ["topics", "essay_type"])
+    _validate_parameters(json, ["ai_name", "topic", "essay_type"])
 
-    try:
-        chatgpt = ChatGptService(app.logger)
-        prompt = chatgpt.generate_writing_task2_prompt(
-            json["essay_type"], json["topics"]
-        )
-        resp_json = {
-            "topics": prompt["topics"],
-            "statement": prompt["statement"],
-            "instruction": prompt["instruction"],
-        }
-    except Exception:
-        raise AppException("failed to generate prompt: {}".format(json))
+    ai_srv = _create_generative_ai_service(json["ai_name"])
+    prompt = ai_srv.generate_writing_task2_prompt(
+        json["essay_type"], json["topic"]
+    )
+    resp_json = {
+        "statement": prompt["statement"],
+        "instruction": prompt["instruction"],
+    }
 
     return jsonify(resp_json)
 
@@ -158,22 +149,18 @@ def speaking_part2_generate_cuecard():
     """API for generating cur card content for Speaking Part 2.
 
     Args: application/json
-        topic: See `ChatGptService.generate_speaking_part2_cuecard`.
+        ai_name: AI name to use ('chat_gpt' or 'gemini').
+        topic: See `GenerativeAiService.generate_speaking_part2_cuecard`.
 
     Returns: application/json
-        See `ChatGptService.generate_speaking_part2_cuecard`.
+        See `GenerativeAiService.generate_speaking_part2_cuecard`.
     """
 
     json = request.get_json()
-    _validate_parameters(json, "topic")
+    _validate_parameters(json, ["ai_name", "topic"])
 
-    try:
-        chatgpt = ChatGptService(app.logger)
-        resp_json = chatgpt.generate_speaking_part2_cuecard(
-            topic=json["topic"]
-        )
-    except Exception:
-        raise AppException("failed to generate prompt: {}".format(json))
+    ai_srv = _create_generative_ai_service(json["ai_name"])
+    resp_json = ai_srv.generate_speaking_part2_cuecard(topic=json["topic"])
 
     return jsonify(resp_json)
 
@@ -189,7 +176,6 @@ def speaking_part3_generate_question():
     Returns: application/json
         See `_speaking_generate_question`.
     """
-
     return _speaking_generate_question(3, request.get_json())
 
 
@@ -271,12 +257,13 @@ def writing_task1_evaluate():
     """API for evaluating the answer for Writing Task 1.
 
     Args: application/json
+        ai_name: AI name to use ('chat_gpt' or 'gemini').
         prompt, diagram_type, diagram_description, answer:
-            See `ChatGptService.evaluate_writing_task1_answer`.
+            See `GenerativeAiService.evaluate_writing_task1_answer`.
 
     Returns: application/json
         achievement_score, coherence_score, grammatical_score, lexical_score:
-            See `ChatGptService.evaluate_writing_task1_answer`.
+            See `GenerativeAiService.evaluate_writing_task1_answer`.
         achievement_feedback (str):
             Feedback for Task Achievement, including positive and negative ones.
         coherence_feedback (str):
@@ -289,19 +276,17 @@ def writing_task1_evaluate():
 
     json = request.get_json()
     _validate_parameters(
-        json, ["prompt", "diagram_type", "diagram_description", "answer"]
+        json,
+        ["ai_name", "prompt", "diagram_type", "diagram_description", "answer"],
     )
 
-    try:
-        chatgpt = ChatGptService(app.logger)
-        evaluation = chatgpt.evaluate_writing_task1_answer(
-            prompt=json["prompt"],
-            diagram_type=json["diagram_type"],
-            diagram_description=json["diagram_description"],
-            answer=json["answer"],
-        )
-    except Exception:
-        raise AppException("failed to evaluate answer: {}".format(json))
+    ai_srv = _create_generative_ai_service(json["ai_name"])
+    evaluation = ai_srv.evaluate_writing_task1_answer(
+        prompt=json["prompt"],
+        diagram_type=json["diagram_type"],
+        diagram_description=json["diagram_description"],
+        answer=json["answer"],
+    )
 
     resp_json = {
         "achievement_score": evaluation.achievement_score,
@@ -335,12 +320,13 @@ def writing_task2_evaluate():
     """API for evaluating the answer for Writing Task 2.
 
     Args: application/json
+        ai_name: AI name to use ('chat_gpt' or 'gemini').
         prompt, answer:
-            See `ChatGptService.evaluate_writing_task2_answer`.
+            See `GenerativeAiService.evaluate_writing_task2_answer`.
 
     Returns: application/json
         response_score, coherence_score, grammatical_score, lexical_score:
-            See `ChatGptService.evaluate_writing_task2_answer`.
+            See `GenerativeAiService.evaluate_writing_task2_answer`.
         response_feedback (str):
             Feedback for Task Response, including positive and negative ones.
         coherence_feedback (str):
@@ -352,16 +338,13 @@ def writing_task2_evaluate():
     """
 
     json = request.get_json()
-    _validate_parameters(json, ["prompt", "answer"])
+    _validate_parameters(json, ["ai_name", "prompt", "answer"])
 
-    try:
-        chatgpt = ChatGptService(app.logger)
-        evaluation = chatgpt.evaluate_writing_task2_answer(
-            prompt=json["prompt"],
-            answer=json["answer"],
-        )
-    except Exception:
-        raise AppException("failed to evaluate answer: {}".format(json))
+    ai_srv = _create_generative_ai_service(json["ai_name"])
+    evaluation = ai_srv.evaluate_writing_task2_answer(
+        prompt=json["prompt"],
+        answer=json["answer"],
+    )
 
     resp_json = {
         "response_score": evaluation.response_score,
@@ -409,11 +392,12 @@ def speaking_part2_evaluate():
     """API for evaluating the answer for Speaking Part 2.
 
     Args: application/json
-        prompt, speech: See `ChatGptService.evaluate_speaking_part2_answer`.
+        ai_name: AI name to use ('chat_gpt' or 'gemini').
+        prompt, speech: See `GenerativeAiService.evaluate_speaking_part2_answer`.
 
     Returns: application/json
         coherence_score, lexical_score, grammatical_score:
-            See `ChatGptService.evaluate_speaking_part2_answer`.
+            See `GenerativeAiService.evaluate_speaking_part2_answer`.
         coherence_feedback (str):
             Feedback for Coherence and Cohesion, including positive and negative ones.
         lexical_feedback (str):
@@ -423,16 +407,13 @@ def speaking_part2_evaluate():
     """
 
     json = request.get_json()
-    _validate_parameters(json, ["prompt", "speech"])
+    _validate_parameters(json, ["ai_name", "prompt", "speech"])
 
-    try:
-        chatgpt = ChatGptService(app.logger)
-        evaluation = chatgpt.evaluate_speaking_part2_answer(
-            prompt=json["prompt"],
-            speech=json["speech"],
-        )
-    except Exception:
-        raise AppException("failed to evaluate answer: {}".format(json))
+    ai_srv = _create_generative_ai_service(json["ai_name"])
+    evaluation = ai_srv.evaluate_speaking_part2_answer(
+        prompt=json["prompt"],
+        speech=json["speech"],
+    )
 
     return _build_speaking_answer_evaluate_reponse(evaluation=evaluation)
 
@@ -448,7 +429,6 @@ def speaking_part3_evaluate():
     Returns: application/json
         See `_speaking_answer_evaluate`.
     """
-
     return _speaking_answer_evaluate(3)
 
 
@@ -464,7 +444,6 @@ def speaking_evaluate_pronunciation():
     Returns: application/json
         score (float): Pronunciation score.
     """
-
     # Ref. https://github.com/siddhantgoel/streaming-form-data
 
     # Create temporary .m4a file.
@@ -509,6 +488,9 @@ Received script and audio data.
 """.format(script, file_size, tmp_name)
         app.logger.debug(log_line)
 
+    except Exception as e:
+        raise e
+
     finally:
         # Delete temporary file.
         if os.path.exists(tmp_path):
@@ -522,10 +504,40 @@ Received script and audio data.
     )
 
 
+@app.route("/setting/api-status", methods=["GET"])
+@auth_required
+def setting_api_status():
+    """API for checking API status.
+
+    Returns: application/json
+        chat_gpt_status (str): String to represent ChatGPT API availability.
+        gemini_status (str): String to represent Gemini API availability.
+    """
+    statuses = {}
+    for name in ["chat_gpt", "gemini"]:
+        srv = _create_generative_ai_service(name)
+        status = srv.get_status()
+        statuses[f"{name}_status"] = status["status"]
+
+    return jsonify(statuses)
+
+
+@app.errorhandler(AppException)
+def handle_app_exception(e: AppException):
+    """AppException handler to return error information in JSON format."""
+    app.logger.debug(e.description, exc_info=e)
+    return jsonify({"error": e.description}), e.code
+
+
 @app.errorhandler(Exception)
-def handle_exception(e):
+def handle_exception(e: Exception):
     """Exception handler to return error information in JSON format."""
-    return jsonify({"error": str(e)})
+    app.logger.debug(str(e), exc_info=e)
+    return jsonify({"error": str(e)}), 500
+
+
+# -----------------------------------------------------------------------------
+# privates
 
 
 def _validate_parameters(json: dict, names: str | list[str]):
@@ -549,37 +561,35 @@ def _speaking_generate_question(part_no: int, json: any):
     """API for generating question for Speaking Part 1 and Part 3.
 
     Args:
+        ai_name: AI name to use ('chat_gpt' or 'gemini').
         part_no: Speaking Part number, 1 or 3.
         json: POST parameters.
 
     Returns:
         Generated question components:
-            - prompt_id (str): ChatGPT prompt ID to continue interaction.
+            - prompt_id (str): Prompt ID to continue interaction.
             - question (str): Generated question sentence.
     """
 
     initial_generation = "prompt_id" not in json
 
     if initial_generation:
-        _validate_parameters(json, "topic")
+        _validate_parameters(json, ["ai_name", "topic"])
     else:
-        _validate_parameters(json, ["prompt_id", "reply"])
+        _validate_parameters(json, ["ai_name", "prompt_id", "reply"])
 
-    try:
-        chatgpt = ChatGptService(app.logger)
+    ai_srv = _create_generative_ai_service(json["ai_name"])
 
-        if initial_generation:
-            resp_json = chatgpt.generate_speaking_initial_question(
-                part_no=part_no, topic=json["topic"]
-            )
-        else:
-            resp_json = chatgpt.generate_speaking_subsequent_question(
-                part_no=part_no,
-                prompt_id=json["prompt_id"],
-                user_reply=json["reply"],
-            )
-    except Exception:
-        raise AppException("failed to generate prompt: {}".format(json))
+    if initial_generation:
+        resp_json = ai_srv.generate_speaking_initial_question(
+            part_no=part_no, topic=json["topic"]
+        )
+    else:
+        resp_json = ai_srv.generate_speaking_subsequent_question(
+            part_no=part_no,
+            prompt_id=json["prompt_id"],
+            user_reply=json["reply"],
+        )
 
     return jsonify(resp_json)
 
@@ -588,26 +598,24 @@ def _speaking_answer_evaluate(part_no: int):
     """Evaluate the answer for Speaking Part 1 and 3.
 
     Args:
+        ai_name: AI name to use ('chat_gpt' or 'gemini').
         part_no: Speaking Part number.
 
     Returns:
         see _build_speaking_answer_evaluate_reponse.
     """
     json = request.get_json()
-    _validate_parameters(json, ["script"])
+    _validate_parameters(json, ["ai_name", "script"])
 
-    try:
-        chatgpt = ChatGptService(app.logger)
-        if part_no == 1:
-            evaluation = chatgpt.evaluate_speaking_part1_answer(
-                script=json["script"],
-            )
-        elif part_no == 3:
-            evaluation = chatgpt.evaluate_speaking_part3_answer(
-                script=json["script"],
-            )
-    except Exception:
-        raise AppException("failed to evaluate answer: {}".format(json))
+    ai_srv = _create_generative_ai_service(json["ai_name"])
+    if part_no == 1:
+        evaluation = ai_srv.evaluate_speaking_part1_answer(
+            script=json["script"],
+        )
+    elif part_no == 3:
+        evaluation = ai_srv.evaluate_speaking_part3_answer(
+            script=json["script"],
+        )
 
     return _build_speaking_answer_evaluate_reponse(evaluation=evaluation)
 
@@ -633,3 +641,25 @@ def _build_speaking_answer_evaluate_reponse(evaluation: dict) -> str:
     }
 
     return jsonify(resp_json)
+
+
+def _create_generative_ai_service(name: str) -> GenerativeAiService:
+    """Create an instance of GenerativeAiService.
+
+    Args:
+        name: service name to create, 'chat_gpt' or 'gemini'.
+
+    Returns:
+        Implementation of GenerativeAiService.
+    """
+    if name not in ["chat_gpt", "gemini"]:
+        raise AppException("{} is not supported".format(name))
+
+    if name == "chat_gpt":
+        api = ChatGptApi(app)
+    elif name == "gemini":
+        api = GeminiApi(app)
+
+    app.logger.info("Use {} as AI".format(name))
+
+    return GenerativeAiService(app, api)

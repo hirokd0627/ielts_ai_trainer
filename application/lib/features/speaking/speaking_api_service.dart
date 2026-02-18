@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_chat_answer.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_speech_answer.dart';
 import 'package:ielts_ai_trainer/shared/api/common_api_service.dart';
+import 'package:ielts_ai_trainer/shared/enums/ai_name.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/http/api_requester.dart';
 import 'package:http/http.dart' as http;
@@ -13,8 +14,9 @@ class SpeakingApiService with ApiRequester, TopicApiService {
   Future<SpeakingQuestionResponse> generateInitialQuestion(
     int partNo,
     String topic,
+    AiName aiName,
   ) async {
-    return await _generateQuestion(partNo, topic: topic);
+    return await _generateQuestion(partNo, topic: topic, aiName: aiName);
   }
 
   /// Generates subsequent question of Part 1 and Part 3 following the initial question.
@@ -22,19 +24,22 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     int partNo,
     String interactionId,
     String reply,
+    AiName aiName,
   ) async {
     return await _generateQuestion(
       partNo,
       interactionId: interactionId,
       reply: reply,
+      aiName: aiName,
     );
   }
 
   /// Generates Part2 cue card content.
   Future<SpeakingCuecardResponse> generatePart2CuecardContent(
     String topic,
+    AiName aiName,
   ) async {
-    final data = {'topic': topic};
+    final data = {'topic': topic, 'ai_name': aiName.aiNameArgmentValue};
     final dataJson = jsonEncode(data);
     final resp = await sendPostRequest(
       'speaking/part2/generate-cuecard',
@@ -51,15 +56,20 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     String? topic,
     String? reply,
     String? interactionId,
+    required AiName aiName,
   }) async {
     if (partNo != 1 && partNo != 3) {
       throw ArgumentError('part must be between 1 or 3');
     }
 
+    final data = {'ai_name': aiName.aiNameArgmentValue};
     final initial = topic != null;
-    final data = initial
-        ? {'topic': topic}
-        : {'prompt_id': interactionId, 'reply': reply};
+    if (initial) {
+      data['topic'] = topic;
+    } else {
+      data['prompt_id'] = interactionId!;
+      data['reply'] = reply!;
+    }
 
     final dataJson = jsonEncode(data);
     final resp = await sendPostRequest(
@@ -100,6 +110,7 @@ class SpeakingApiService with ApiRequester, TopicApiService {
   /// Evaluates the given speaking chat answer.
   Future<SpeakingEvaluationResponse> evaluateChatAnswer({
     required SpeakingChatAnswer answer,
+    required AiName aiName,
   }) async {
     // Creates arguments.
     final List<Map<String, String>> script = [];
@@ -110,14 +121,20 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     return await _evaluateAnswer(
       partNo: answer.testTask.number,
       script: script,
+      aiName: aiName,
     );
   }
 
   /// Evaluates the given speaking speech answer.
   Future<SpeakingEvaluationResponse> evaluateSpeechAnswer({
     required SpeakingSpeechAnswer answer,
+    required AiName aiName,
   }) async {
-    final data = {'prompt': answer.prompt.text, 'speech': answer.answer.text};
+    final data = {
+      'prompt': answer.prompt.text,
+      'speech': answer.answer.text,
+      'ai_name': aiName.aiNameArgmentValue,
+    };
     final dataJson = jsonEncode(data);
     final resp = await sendPostRequest('speaking/part2/evaluate', dataJson);
     return SpeakingEvaluationResponse._fromJson(
@@ -159,8 +176,9 @@ class SpeakingApiService with ApiRequester, TopicApiService {
   Future<SpeakingEvaluationResponse> _evaluateAnswer({
     required int partNo,
     required List<Map<String, String>> script,
+    required AiName aiName,
   }) async {
-    final data = {'script': script};
+    final data = {'script': script, 'ai_name': aiName.aiNameArgmentValue};
     final dataJson = jsonEncode(data);
     final resp = await sendPostRequest(
       'speaking/part$partNo/evaluate',
@@ -193,7 +211,7 @@ class TopicResponse {
 
 /// Response of generateInitialQuestion and generateSubsequentQuestion.
 class SpeakingQuestionResponse {
-  /// Last ID to identify the current conversation.
+  /// Last ID object to identify the current conversation.
   final String interactionId;
 
   /// Generated question sentence.
