@@ -17,14 +17,14 @@ class WritingQuestionGeneratorScreen extends StatefulWidget {
   /// The prompt components to display initially, if set.
   final WritingPromptVo? writingPrompt;
 
-  /// The topics to display initially, if set.
-  final List<String>? topics;
+  /// The topic to display initially, if set.
+  final String? topic;
 
   const WritingQuestionGeneratorScreen({
     super.key,
     required this.testTask,
     this.writingPrompt,
-    this.topics,
+    this.topic,
     this.promptType,
   });
 
@@ -64,7 +64,7 @@ class _WritingQuestionGeneratorScreenState
                 WritingQuestionGeneratorForm(
                   testTask: widget.testTask,
                   writingPrompt: widget.writingPrompt,
-                  topics: widget.topics,
+                  topic: widget.topic,
                   promptType: widget.promptType,
                 ),
               ],

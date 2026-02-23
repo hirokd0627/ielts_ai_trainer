@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
+import 'package:ielts_ai_trainer/shared/setting/app_settings.dart';
 
 /// Controller for SpeakingQuestionGeneratorForm.
 class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
@@ -45,6 +46,8 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
 
   List<String> get topics => _topics;
 
+  String get topic => _topics[0];
+
   List<String> get usedTopics => _usedTopics;
 
   String get promptText => _promptText;
@@ -83,6 +86,15 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
   }
 
   String get interactionId => _interactionId;
+
+  /// Sets topic.
+  set topic(String value) {
+    if (_topics.isEmpty) {
+      _topics.add('');
+    }
+    _topics[0] = value;
+    notifyListeners();
+  }
 
   /// Sets the number of topics.
   set topicCount(int value) {
@@ -133,46 +145,57 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
 
     // Generate topics if not entered.
     // Part 1 and Part 3 specifies the number of topics, Part 2 uses only one topic.
-    int addTopicCount = 0;
-    if (_testTask == TestTask.speakingPart1 ||
-        _testTask == TestTask.speakingPart3) {
-      addTopicCount = _topicCount - _topics.length;
-    } else if (_testTask == TestTask.speakingPart2) {
-      addTopicCount = 1;
-    }
-    final targetTopics = addTopicCount > 0
-        ? [
-            ...topics,
-            ...(await _apiSrv.generateTopics(
-              addTopicCount,
-              excludeTopics: topics,
-            )),
-          ]
-        : [...topics];
+    if (_testTask == TestTask.speakingPart2) {
+      if (topic.isEmpty) {
+        final topics = await _apiSrv.generateTopics(
+          1,
+          AppSettings.instance.aiAgent,
+        );
+        _topics[0] = topics[0];
+      }
+      notifyListeners();
 
-    // Generate question.
-    if (_testTask == TestTask.speakingPart1 ||
-        _testTask == TestTask.speakingPart3) {
+      // Generate question.
+      final resp = await _apiSrv.generatePart2CuecardContent(
+        _topics[0],
+        AppSettings.instance.aiAgent,
+      );
+      _promptText = resp.prompt;
+    } else {
+      int addTopicCount = 0;
+      if (_testTask == TestTask.speakingPart1 ||
+          _testTask == TestTask.speakingPart3) {
+        addTopicCount = _topicCount - _topics.length;
+      }
+      final targetTopics = addTopicCount > 0
+          ? [
+              ...topics,
+              ...(await _apiSrv.generateTopics(
+                addTopicCount,
+                AppSettings.instance.aiAgent,
+                excludeTopics: topics,
+              )),
+            ]
+          : [...topics];
+      notifyListeners();
+
+      // Generate question.
       final resp = await _apiSrv.generateInitialQuestion(
         _testTask.number,
         targetTopics[0],
+        AppSettings.instance.aiAgent,
       );
       _promptText = resp.question;
       _interactionId = resp.interactionId;
-    } else if (_testTask == TestTask.speakingPart2) {
-      final resp = await _apiSrv.generatePart2CuecardContent(
-        targetTopics.isNotEmpty ? targetTopics.first : '',
-      );
-      _promptText = resp.prompt;
+
+      // Store topics to show on screen.
+      _topics.clear();
+      _topics.addAll(targetTopics);
+
+      // Store topics used in generating
+      _usedTopics.clear();
+      _usedTopics.addAll(targetTopics);
     }
-
-    // Store topics to show on screen.
-    _topics.clear();
-    _topics.addAll(targetTopics);
-
-    // Store topics used in generating
-    _usedTopics.clear();
-    _usedTopics.addAll(targetTopics);
 
     // Update screen.
     _promptTextState = 2;

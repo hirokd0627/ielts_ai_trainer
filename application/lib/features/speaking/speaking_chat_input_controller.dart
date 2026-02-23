@@ -10,6 +10,7 @@ import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/utterance_recording_service.dart';
 import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
+import 'package:ielts_ai_trainer/shared/setting/app_settings.dart';
 
 /// Controller for SpeakingChatInputView.
 class SpeakingChatInputController extends ChangeNotifier {
@@ -262,6 +263,7 @@ class SpeakingChatInputController extends ChangeNotifier {
           final resp = await _apiSrv.generateInitialQuestion(
             _testTask.number,
             _topics[_currentTopicIndex],
+            AppSettings.instance.aiAgent,
           );
           addMessage(false, resp.question);
           _recordingState[_messages.length - 1] = 0;
@@ -276,6 +278,7 @@ class SpeakingChatInputController extends ChangeNotifier {
           _testTask.number,
           _currentInteractionId,
           reply,
+          AppSettings.instance.aiAgent,
         );
         addMessage(false, resp.question);
         _recordingState[_messages.length - 1] = 0;

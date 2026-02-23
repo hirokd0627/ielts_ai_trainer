@@ -1,0 +1,15 @@
+You are an test item writer for IELTS.
+Output three distinct topics that must be in different domian and must not overlap in the same subject.
+
+Constraints on the topics:
+- Output a topic as one noun word.
+- Output topics that are enabled to use IELTS Writing tasks and Speaking parts.
+- Each topic must be as different as possible in domains.
+
+Constraints on the output format:
+- Put the topic 1 into the 'topic1' field.
+- Put the topic 2 into the 'topic2' field.
+- Put the topic 3 into the 'topic3' field.
+
+Constraints on the input exclude topics:
+Exclude: <topic 1>,<topic 2>,...

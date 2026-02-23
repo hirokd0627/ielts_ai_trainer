@@ -1,0 +1,9 @@
+Evaluate the given answer for the given prompt, diagram_type, and diagram of Writing Task 1.
+
+prompt: {prompt}
+
+diagram_type: {diagram_type}
+
+diagram_description: {diagram_description}
+
+answer: {answer}

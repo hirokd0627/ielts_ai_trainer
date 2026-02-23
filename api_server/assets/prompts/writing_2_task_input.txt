@@ -1,0 +1,8 @@
+Generate a prompt for IELTS Writing Task 2 practice.
+
+The essay type of a prompt is {essay_type}.
+The topic of a statement is {topic}.
+Use the following expressions as a main base in an instruction, but choose only one variant.
+{expression_phrases}
+Do not include multiple expressions, use only one expression.
+Do not limit to the expressions on the above expressions, but allow to use a variety of expressions with equivalent meanings that may appear in the actual IELTS Writing Task 2.

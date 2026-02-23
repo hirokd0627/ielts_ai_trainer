@@ -1,0 +1,3 @@
+You are an test item writer for IELTS Writing Task 1.
+Generate prompt for {ai_name} to generate an image using {image_api_name} of {ai_name}.
+Output only the prompt.

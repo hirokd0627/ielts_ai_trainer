@@ -1,0 +1,2 @@
+Generate details of the Speaking Part 2 Cue Card into the five fields: instruction, q1, q2, q3, q4.
+Topic: {topic}.
