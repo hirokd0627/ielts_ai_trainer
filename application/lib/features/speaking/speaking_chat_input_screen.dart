@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ielts_ai_trainer/app/router_extra.dart';
+import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 import 'package:ielts_ai_trainer/features/speaking/chat_row.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_answer_repository.dart';
@@ -194,6 +195,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
     final extra = RouterExtra({
       'promptText': widget.initialPromptText,
       'topics': widget.topics,
+      'interactionId': widget.initialInteractionId,
     });
     if (widget.testTask == TestTask.speakingPart1) {
       context.go(speakingPart1QuestionGeneratorScreenRoutePath, extra: extra);
@@ -290,6 +292,7 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
                             onChanged: _onChangedText,
                             controller: _textCtrl,
                             hintText: 'Type your reply here...',
+                            style: TextStyle(color: AppColors.textColor),
                           ),
                         ),
                         SizedBox(width: 8),

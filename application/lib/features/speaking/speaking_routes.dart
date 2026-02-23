@@ -51,6 +51,7 @@ final speakingRoutes = [
       return SpeakingPart1QuestionGeneratorScreen(
         topics: extra?.getValue('topics'),
         promptText: extra?.getValue('promptText'),
+        initialInteractionId: extra?.getValue('interactionId'),
       );
     },
   ),
@@ -114,6 +115,7 @@ final speakingRoutes = [
       return SpeakingPart3QuestionGeneratorScreen(
         topics: extra?.getValue('topics'),
         promptText: extra?.getValue('promptText'),
+        initialInteractionId: extra?.getValue('interactionId'),
       );
     },
   ),

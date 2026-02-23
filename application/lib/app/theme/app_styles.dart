@@ -5,10 +5,14 @@ import 'package:ielts_ai_trainer/app/theme/app_colors.dart';
 class AppStyles {
   /// TextField text style.
   /// Text filed height = 48
-  static TextStyle? textFieldStyle(BuildContext context) {
-    return Theme.of(
-      context,
-    ).textTheme.bodyMedium?.copyWith(color: AppColors.textColor);
+  static TextStyle? textFieldStyle(
+    BuildContext context, {
+    bool enabled = true,
+  }) {
+    final color = enabled
+        ? AppColors.textColor
+        : AppColors.placeholderTextColor;
+    return Theme.of(context).textTheme.bodyMedium?.copyWith(color: color);
   }
 
   /// Placeholder text style.

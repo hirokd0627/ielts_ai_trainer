@@ -23,17 +23,19 @@ class GeminiApi(AiApiProxy):
         self._statusCheckModel = "gemini-2.5-flash-lite"
         if os.getenv("APP_ENV") == "production":
             # production
-            self._textGenModel = "gemini-2.5-flash"
+            # self._textGenModel = "gemini-2.5-flash"
+            self._textGenModel = "gemini-3-pro-preview"
             self._imgGenModel = "gemini-3-pro-image-preview"
             self._textGenDefaultConfig = {
                 "response_mime_type": "application/json",
-                # TODO: adjust
-                # not supported
-                # "thinking_config": types.ThinkingConfig(thinking_level="low"),
+                "thinking_config": types.ThinkingConfig(
+                    include_thoughts=False, thinking_level="high"
+                ),
             }
             self._imgGenConfig = types.ImageConfig(
                 aspect_ratio="16:9",
                 image_size="2K",
+                output_mime_type="image/jpeg",
             )
         else:
             # develop
@@ -43,7 +45,7 @@ class GeminiApi(AiApiProxy):
                 "response_mime_type": "application/json",
             }
             self._imgGenConfig = types.ImageConfig(
-                aspect_ratio="16:9",
+                aspect_ratio="16:9", output_mime_type="image/jpeg"
             )
 
     @override
@@ -64,12 +66,6 @@ class GeminiApi(AiApiProxy):
 
     @override
     def generate_diagram(self, diagram_type: str, diagram_prompt: dict) -> str:
-        # TEST: use fixed data.
-        # with open("./assets/test_w1.png", "rb") as f:
-        #     img_bytes = f.read()
-        # time.sleep(5)
-        # return base64.b64encode(img_bytes).decode("ascii")
-
         prompt = self._promptProvider.get_writing_task1_generate_diagram_input(
             diagram_type,
             diagram_prompt["prompt"],

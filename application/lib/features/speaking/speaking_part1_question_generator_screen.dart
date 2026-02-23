@@ -14,10 +14,14 @@ class SpeakingPart1QuestionGeneratorScreen extends StatefulWidget {
   /// The topics to display initially.
   final List<String>? topics;
 
+  /// ID issued when the initial prompt was generated.
+  final String? initialInteractionId;
+
   const SpeakingPart1QuestionGeneratorScreen({
     super.key,
     this.promptText,
     this.topics,
+    this.initialInteractionId,
   });
 
   @override
@@ -52,6 +56,7 @@ class _SpeakingPart1QuestionGeneratorScreenState
         testTask: TestTask.speakingPart1,
         promptText: widget.promptText,
         topics: widget.topics,
+        initialInteractionId: widget.initialInteractionId,
       ),
     );
   }

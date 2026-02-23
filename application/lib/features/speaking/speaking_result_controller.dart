@@ -326,13 +326,13 @@ class SpeakingResultController extends ChangeNotifier {
     // Updates results in answer
     if (!_speechAnswer!.isGraded) {
       final gradedAnswer = _speechAnswer!.copyWith(
-        isGraded: true,
         coherenceScore: resp.coherenceScore,
         lexicalScore: resp.lexicalScore,
         grammaticalScore: resp.grammaticalScore,
         coherenceFeedback: resp.coherenceFeedback.join(" "),
         lexicalFeedback: resp.lexicalFeedback.join(" "),
         grammaticalFeedback: resp.grammaticalFeedback.join(" "),
+        isGraded: true,
       );
       _repo.saveSpeakingSpeechAnswer(gradedAnswer);
       _speechAnswer = gradedAnswer;

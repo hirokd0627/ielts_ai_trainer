@@ -233,6 +233,7 @@ class _SpeakingPart2AnswerInputScreenState
                     keyboardType: TextInputType.multiline,
                     hintText: 'Type your note...',
                     onChanged: _onChangedNoteText,
+                    style: TextStyle(color: AppColors.textColor),
                   ),
                   SizedBox(height: 20),
                   // Answer
@@ -248,6 +249,7 @@ class _SpeakingPart2AnswerInputScreenState
                         keyboardType: TextInputType.multiline,
                         hintText: 'Type your answer...',
                         onChanged: _onChangedAnswerText,
+                        style: TextStyle(color: AppColors.textColor),
                       ),
                       // Recording button and Play button
                       Positioned(

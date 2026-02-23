@@ -22,17 +22,33 @@ class ChatGptApi(AiApiProxy):
         self._statusCheckModel = "gpt-5-nano"
         if os.getenv("APP_ENV") == "production":
             # production
-            self._textGenModel = "gpt-4o"
-            self._imgGenModel = "gpt-image-1"
             self._textGenArgs = {
+                "model": "gpt-5",
+                # "model": "gpt-4o",
                 "temperature": 0.6,
                 "top_p": 0.9,
             }
+            self._imgGenArgs = {
+                "model": "gpt-image-1.5",
+                "quality": "high",
+                "size": "1536x1024",
+                "n": 1,
+                "output_format": "jpeg",
+                "output_compression": 100,
+            }
         else:
             # develop
-            self._textGenModel = "gpt-5-nano"
-            self._imgGenModel = "gpt-image-1-mini"
-            self._textGenArgs = {}
+            self._textGenArgs = {
+                "model": "gpt-5-nano",
+            }
+            self._imgGenArgs = {
+                "model": "gpt-image-1-mini",
+                "quality": "high",
+                "size": "1536x1024",
+                "n": 1,
+                "output_format": "jpeg",
+                "output_compression": 100,
+            }
 
     @override
     def get_status(self) -> str:
@@ -52,27 +68,18 @@ class ChatGptApi(AiApiProxy):
 
     @override
     def generate_diagram(self, diagram_type: str, diagram_prompt: dict) -> str:
-        # TEST: use fixed data.
-        # with open("./assets/test_w1.png", "rb") as f:
-        #     img_bytes = f.read()
-        # time.sleep(5)
-        # return base64.b64encode(img_bytes).decode("ascii")
-
+        # Generate prompt to generate image
         prompt = self._promptProvider.get_writing_task1_generate_diagram_input(
             diagram_type,
             diagram_prompt["prompt"],
             diagram_prompt["diagram_description"],
         )
 
-        result = self.client.images.generate(
-            model=self._imgGenModel,
-            prompt=prompt,
-            quality="high",
-            size="1536x1024",
-            n=1,
-            output_format="jpeg",
-            output_compression=100,
-        )
+        # Generate image
+        args = self._imgGenArgs | {
+            "prompt": prompt,
+        }
+        result = self.client.images.generate(**args)
 
         # Log
         log_resp = "Base64 encoded length: {}".format(
@@ -91,7 +98,6 @@ class ChatGptApi(AiApiProxy):
         previous_prompt_id: str | None = None,
     ) -> tuple[str, str]:
         args = self._textGenArgs | {
-            "model": self._textGenModel,
             # reasoning: {"effort": "medium"}
             "instructions": instructions,
             "input": input,

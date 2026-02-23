@@ -15,6 +15,7 @@ import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
+import 'package:ielts_ai_trainer/shared/views/hover_highlight_text_field.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 import 'package:provider/provider.dart';
 
@@ -204,31 +205,13 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
                   ],
                   SizedBox(height: 20),
                   // Answer Input field
-                  TextField(
+                  HoverHighlightTextField(
                     minLines: 5, // always show at least 5 lines
                     maxLines: null, // expands automatically
                     keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: AppColors.focusColor,
-                          width: 1,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: AppColors.borderColor,
-                          width: 1,
-                        ),
-                      ),
-                      hintText: 'Type your answer...',
-                      hintStyle: TextStyle(
-                        color: AppColors.placeholderTextColor,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    style: TextStyle(color: AppColors.textColor),
+                    hintText: 'Type your answer...',
                     onChanged: _onChangedAnswerText,
+                    style: TextStyle(color: AppColors.textColor),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -28,12 +28,16 @@ class SpeakingQuestionGeneratorForm extends StatefulWidget {
   /// The topics to display initially, if set.
   final List<String>? topics;
 
+  /// ID issued when initial prompt was generated.
+  final String? initialInteractionId;
+
   const SpeakingQuestionGeneratorForm({
     super.key,
     required this.onTappedStart,
     required this.testTask,
     this.promptText,
     this.topics,
+    this.initialInteractionId,
   });
 
   @override
@@ -64,18 +68,19 @@ class _SpeakingQuestionGeneratorFormState
   void initState() {
     super.initState();
 
-    // Part 2 use only one topic.
-    if (widget.testTask == TestTask.speakingPart2 && widget.topics != null) {
-      widget.topics!.isNotEmpty ? widget.topics![0] : '';
-      _topicTextEditCtrl.text = _ctrl.topic; // Set topic as initial display.
-    }
-
     _ctrl = SpeakingQuestionGeneratorFormController(
       testTask: widget.testTask,
       apiSrv: SpeakingApiService(),
       promptText: widget.promptText,
       topics: widget.topics,
+      interactionId: widget.initialInteractionId,
     );
+
+    // Part 2 use only one topic.
+    if (widget.testTask == TestTask.speakingPart2 && widget.topics != null) {
+      widget.topics!.isNotEmpty ? widget.topics![0] : '';
+      _topicTextEditCtrl.text = _ctrl.topic; // Set topic as initial display.
+    }
   }
 
   @override
@@ -155,11 +160,7 @@ class _SpeakingQuestionGeneratorFormState
         _ctrl.topic,
       ], _ctrl.interactionId);
     } else {
-      widget.onTappedStart(
-        _ctrl.promptText,
-        _ctrl.usedTopics,
-        _ctrl.interactionId,
-      );
+      widget.onTappedStart(_ctrl.promptText, _ctrl.topics, _ctrl.interactionId);
     }
   }
 
@@ -235,8 +236,16 @@ class _SpeakingQuestionGeneratorFormState
                 style: AppStyles.helperTextStyle,
               ),
             ),
-            if (widget.testTask == TestTask.speakingPart1 ||
-                widget.testTask == TestTask.speakingPart3)
+            if (widget.testTask == TestTask.speakingPart2)
+              HoverHighlightTextField(
+                keyboardType: TextInputType.multiline,
+                hintText: 'Type topic here...',
+                onChanged: _onChangedTopic,
+                controller: _topicTextEditCtrl,
+                enabled: !_ctrl.isPromptTextGenerating,
+                maxLines: 1,
+              )
+            else
               MouseRegion(
                 onEnter: (_) => setState(() => _hoveringOnTopics = true),
                 onExit: (_) => setState(() => _hoveringOnTopics = false),
@@ -247,7 +256,7 @@ class _SpeakingQuestionGeneratorFormState
                   ),
                   decoration: BoxDecoration(
                     border: (_topicInputErrorText.isEmpty)
-                        ? ((_hoveringOnTopics)
+                        ? ((_hoveringOnTopics && !_ctrl.isPromptTextGenerating)
                               ? Border.all(color: AppColors.focusColor)
                               : Border.all(color: AppColors.borderColor))
                         : Border.all(color: AppColors.errorRed),
@@ -263,7 +272,10 @@ class _SpeakingQuestionGeneratorFormState
                           enabled: !_ctrl.isPromptTextGenerating,
                           controller: _topicTextEditCtrl,
                           focusNode: _focusNode,
-                          style: AppStyles.textFieldStyle(context),
+                          style: AppStyles.textFieldStyle(
+                            context,
+                            enabled: !_ctrl.isPromptTextGenerating,
+                          ),
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: 'Type a topic and press Enter',
@@ -300,13 +312,6 @@ class _SpeakingQuestionGeneratorFormState
                     ],
                   ),
                 ),
-              )
-            else
-              HoverHighlightTextField(
-                keyboardType: TextInputType.multiline,
-                hintText: 'Type topic here...',
-                onChanged: _onChangedTopic,
-                controller: _topicTextEditCtrl,
               ),
             if (_topicInputErrorText.isNotEmpty)
               InputErrorText(_topicInputErrorText),
