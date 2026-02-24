@@ -127,7 +127,7 @@ class GenerativeAiService:
             )
             phrases.append("What ... and Why ...?")
 
-        elif essay_type == "advantage_and_disadvantags":
+        elif essay_type == "advantage_and_disadvantage":
             essay_type_label = "Advantages and Disadvantages"
             phrases.append("Is this a positive or negative development?")
             phrases.append("Discuss the advantages and disadvantages.")
@@ -250,7 +250,10 @@ class GenerativeAiService:
             self._promptProvider.get_writing_task1_evaluation_instructions()
         )
         input = self._promptProvider.get_writing_task1_evaluation_input(
-            prompt, diagram_type.capitalize(), diagram_description, answer
+            prompt=prompt,
+            diagram_type=diagram_type.capitalize(),
+            diagram_description=diagram_description,
+            answer=answer,
         )
 
         class Response(BaseModel):
@@ -303,7 +306,7 @@ class GenerativeAiService:
             self._promptProvider.get_writing_task2_evaluation_instructions()
         )
         input = self._promptProvider.get_writing_task2_evaluation_input(
-            prompt, answer
+            prompt=prompt, answer=answer
         )
 
         class Response(BaseModel):
@@ -333,7 +336,6 @@ class GenerativeAiService:
         """Evaluate Speaking Part 1 answer.
 
         Args:
-            part_no: Speaking Part number to evaluate.
             script: List of turns in conversation.
                 Each dict contains:
                     - examiner (str): Question asked.
@@ -464,7 +466,6 @@ class GenerativeAiService:
                 - lexical_feedback1 (str): Positive feedback for Lexical Resource.
                 - lexical_feedback2 (str): Areas for improvement for Lexical Resource.
         """
-
         instructions = (
             self._promptProvider.get_speaking_chat_evaluation_instructions(
                 part_no
@@ -521,6 +522,8 @@ class GenerativeAiService:
         input = self._promptProvider.get_writing_task1_generate_diagram_prompt_input(
             diagram_type=diagram_type.capitalize(),
             topic=topic.capitalize(),
+            ai_name=self._aiApi.get_ai_name(),
+            image_api_name=self._aiApi.get_image_api_name(),
         )
 
         class Response(BaseModel):
@@ -555,7 +558,6 @@ class GenerativeAiService:
                 - prompt_id (str): Prompt ID to continue interaction.
                 - question (str): Generated question sentence.
         """
-
         instructions = (
             self._promptProvider.get_speaking_part1_task_instructions()
         )
@@ -563,31 +565,25 @@ class GenerativeAiService:
         class Response(BaseModel):
             question: str
 
-        initial = prompt_id is None
-        if initial:
-            input = self._promptProvider.get_speaking_part1_task_input(
+        args = {
+            "instructions": instructions,
+            "response_schema": Response,
+        }
+
+        if prompt_id is None:  # initial
+            args["input"] = self._promptProvider.get_speaking_part1_task_input(
                 topic.capitalize()
             )
-
-            msg, prompt_id = self._aiApi.generate_text(
-                instructions=instructions,
-                input=input,
-                response_schema=Response,
-            )
         else:
-            msg, prompt_id = self._aiApi.generate_text(
-                instructions=instructions,
-                input=reply,
-                response_schema=Response,
-                previous_prompt_id=prompt_id,
-            )
+            args["input"] = reply
+            args["previous_prompt_id"] = prompt_id
 
-        prompt = {
+        msg, prompt_id = self._aiApi.generate_text(**args)
+
+        return {
             "prompt_id": prompt_id,
             "question": msg.question,
         }
-
-        return prompt
 
     def generate_speaking_part2_cuecard(self, topic: str) -> dict:
         """Generate Cue card content for Speaking Part 2.
@@ -607,7 +603,7 @@ class GenerativeAiService:
             self._promptProvider.get_speaking_part2_task_instructions()
         )
         input = self._promptProvider.get_speaking_part2_task_input(
-            topic.capitalize()
+            topic=topic.capitalize()
         )
 
         class Response(BaseModel):
@@ -654,29 +650,22 @@ class GenerativeAiService:
         class Response(BaseModel):
             question: str
 
-        initial = prompt_id is None
+        args = {
+            "instructions": instructions,
+            "response_schema": Response,
+        }
 
-        prompt = {}
-
-        if initial:
-            input = self._promptProvider.get_speaking_part3_task_input(
+        if prompt_id is None:  # initial
+            args["input"] = self._promptProvider.get_speaking_part3_task_input(
                 topic.capitalize()
             )
-
-            msg, prompt_id = self._aiApi.generate_text(
-                instructions=instructions,
-                input=input,
-                response_schema=Response,
-            )
         else:
-            msg, prompt_id = self._aiApi.generate_text(
-                instructions=instructions,
-                input=reply,
-                response_schema=Response,
-                previous_prompt_id=prompt_id,
-            )
+            args["input"] = reply
+            args["previous_prompt_id"] = prompt_id
 
-        prompt["prompt_id"] = prompt_id
-        prompt["question"] = msg.question
+        msg, prompt_id = self._aiApi.generate_text(**args)
 
-        return prompt
+        return {
+            "prompt_id": prompt_id,
+            "question": msg.question,
+        }

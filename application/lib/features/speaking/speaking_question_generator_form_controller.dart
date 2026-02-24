@@ -11,9 +11,6 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
   /// Entered topics.
   final List<String> _topics;
 
-  /// Topics used when generating the prompt text.
-  final List<String> _usedTopics;
-
   /// The task type.
   final TestTask _testTask;
 
@@ -21,34 +18,33 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
   int _topicCount;
 
   /// Generated prompt text.
-  String _promptText = '';
+  String _promptText;
 
   /// Processing state of prompt text generation.
   /// 0: not generated, 1: generating, 2: generated
-  int _promptTextState = 0;
+  int _promptTextState;
 
   /// ID to identify conversation.
-  String _interactionId = '';
+  String _interactionId;
 
   SpeakingQuestionGeneratorFormController({
     required SpeakingApiService apiSrv,
     required TestTask testTask,
     String? promptText,
     List<String>? topics,
+    String? interactionId,
   }) : _topics = topics != null ? List.from(topics) : [],
-       _usedTopics = topics != null ? List.from(topics) : [],
        _topicCount = topics?.length ?? 0,
        _promptText = promptText ?? '',
        _promptTextState = (promptText != null) && promptText.isNotEmpty ? 2 : 0,
-       _testTask = testTask;
+       _testTask = testTask,
+       _interactionId = interactionId ?? '';
 
   int get topicCount => _topicCount;
 
   List<String> get topics => _topics;
 
-  String get topic => _topics[0];
-
-  List<String> get usedTopics => _usedTopics;
+  String get topic => _topics.isNotEmpty ? _topics[0] : '';
 
   String get promptText => _promptText;
 
@@ -151,9 +147,10 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
           1,
           AppSettings.instance.aiAgent,
         );
-        _topics[0] = topics[0];
+        _topics.add(topics[0]);
+        // Update screen beforehand.
+        notifyListeners();
       }
-      notifyListeners();
 
       // Generate question.
       final resp = await _apiSrv.generatePart2CuecardContent(
@@ -167,34 +164,25 @@ class SpeakingQuestionGeneratorFormController extends ChangeNotifier {
           _testTask == TestTask.speakingPart3) {
         addTopicCount = _topicCount - _topics.length;
       }
-      final targetTopics = addTopicCount > 0
-          ? [
-              ...topics,
-              ...(await _apiSrv.generateTopics(
-                addTopicCount,
-                AppSettings.instance.aiAgent,
-                excludeTopics: topics,
-              )),
-            ]
-          : [...topics];
-      notifyListeners();
+      if (addTopicCount > 0) {
+        final additionalTopics = await _apiSrv.generateTopics(
+          addTopicCount,
+          AppSettings.instance.aiAgent,
+          excludeTopics: topics,
+        );
+        _topics.addAll(additionalTopics);
+        // Update screen beforehand.
+        notifyListeners();
+      }
 
       // Generate question.
       final resp = await _apiSrv.generateInitialQuestion(
         _testTask.number,
-        targetTopics[0],
+        topics[0],
         AppSettings.instance.aiAgent,
       );
       _promptText = resp.question;
       _interactionId = resp.interactionId;
-
-      // Store topics to show on screen.
-      _topics.clear();
-      _topics.addAll(targetTopics);
-
-      // Store topics used in generating
-      _usedTopics.clear();
-      _usedTopics.addAll(targetTopics);
     }
 
     // Update screen.

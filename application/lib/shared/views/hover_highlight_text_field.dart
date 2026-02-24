@@ -11,6 +11,7 @@ class HoverHighlightTextField extends StatefulWidget {
   final String? hintText;
   final ValueChanged<String>? onChanged;
   final TextEditingController? controller;
+  final TextStyle? style;
 
   const HoverHighlightTextField({
     super.key,
@@ -21,6 +22,7 @@ class HoverHighlightTextField extends StatefulWidget {
     this.hintText,
     this.onChanged,
     this.controller,
+    this.style,
   });
 
   @override
@@ -32,6 +34,15 @@ class HoverHighlightTextField extends StatefulWidget {
 class _HoverHighlightTextFieldState extends State<HoverHighlightTextField> {
   /// Whether the mouse cursor is on the TextField.
   bool _isHovered = false;
+
+  /// Whether TextField is enabled.
+  bool get enabled {
+    if (widget.enabled == null) {
+      // default true
+      return true;
+    }
+    return widget.enabled!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +59,8 @@ class _HoverHighlightTextFieldState extends State<HoverHighlightTextField> {
         });
       },
       child: TextField(
-        style: AppStyles.textFieldStyle(context),
+        style:
+            widget.style ?? AppStyles.textFieldStyle(context, enabled: enabled),
         controller: widget.controller,
         enabled: widget.enabled,
         minLines: widget.minLines,

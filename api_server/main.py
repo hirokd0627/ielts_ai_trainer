@@ -80,7 +80,6 @@ def writing_task1_generate_prompt():
             See `GenerativeAiService.generate_writing_task1_prompt`.
         instruction (str): Instruction sentence put after intruduction sentence.
     """
-
     json = request.get_json()
     _validate_parameters(json, ["ai_name", "topic", "diagram_type"])
 
@@ -113,7 +112,6 @@ def writing_task2_generate_prompt():
     Returns: application/json
         See `GenerativeAiService.generate_writing_task2_prompt`.
     """
-
     json = request.get_json()
     _validate_parameters(json, ["ai_name", "topic", "essay_type"])
 
@@ -140,7 +138,7 @@ def speaking_part1_generate_question():
     Returns: application/json
         See `_speaking_generate_question`.
     """
-    return _speaking_generate_question(1, request.get_json())
+    return _speaking_generate_question(1)
 
 
 @app.route("/speaking/part2/generate-cuecard", methods=["POST"])
@@ -155,7 +153,6 @@ def speaking_part2_generate_cuecard():
     Returns: application/json
         See `GenerativeAiService.generate_speaking_part2_cuecard`.
     """
-
     json = request.get_json()
     _validate_parameters(json, ["ai_name", "topic"])
 
@@ -176,7 +173,7 @@ def speaking_part3_generate_question():
     Returns: application/json
         See `_speaking_generate_question`.
     """
-    return _speaking_generate_question(3, request.get_json())
+    return _speaking_generate_question(3)
 
 
 @app.route("/speaking/generate-transition-message", methods=["POST"])
@@ -190,7 +187,6 @@ def speaking_transition_message():
     Returns: application/json
         message (str): Generated transition message.
     """
-
     json = request.get_json()
     _validate_parameters(json, "topic")
 
@@ -226,7 +222,6 @@ def speaking_closing_message():
     Returns: application/json
         message (str): Generated transition message.
     """
-
     json = request.get_json()
     _validate_parameters(json, "part")
 
@@ -273,7 +268,6 @@ def writing_task1_evaluate():
         lexical_feedback (str):
             Feedback for Lexical Resource, including positive and negative ones.
     """
-
     json = request.get_json()
     _validate_parameters(
         json,
@@ -336,7 +330,6 @@ def writing_task2_evaluate():
         lexical_feedback (str):
             Feedback for Lexical Resource, including positive and negative ones.
     """
-
     json = request.get_json()
     _validate_parameters(json, ["ai_name", "prompt", "answer"])
 
@@ -405,7 +398,6 @@ def speaking_part2_evaluate():
         grammatical_feedback (str):
             Feedback for Grammatical Range and Accuracy, including positive and negative ones.
     """
-
     json = request.get_json()
     _validate_parameters(json, ["ai_name", "prompt", "speech"])
 
@@ -557,20 +549,18 @@ def _validate_parameters(json: dict, names: str | list[str]):
             raise AppException("Missing parameter: {}".format(name))
 
 
-def _speaking_generate_question(part_no: int, json: any):
+def _speaking_generate_question(part_no: int):
     """API for generating question for Speaking Part 1 and Part 3.
 
     Args:
-        ai_name: AI name to use ('chat_gpt' or 'gemini').
         part_no: Speaking Part number, 1 or 3.
-        json: POST parameters.
 
     Returns:
         Generated question components:
             - prompt_id (str): Prompt ID to continue interaction.
             - question (str): Generated question sentence.
     """
-
+    json = request.get_json()
     initial_generation = "prompt_id" not in json
 
     if initial_generation:
@@ -598,7 +588,6 @@ def _speaking_answer_evaluate(part_no: int):
     """Evaluate the answer for Speaking Part 1 and 3.
 
     Args:
-        ai_name: AI name to use ('chat_gpt' or 'gemini').
         part_no: Speaking Part number.
 
     Returns:

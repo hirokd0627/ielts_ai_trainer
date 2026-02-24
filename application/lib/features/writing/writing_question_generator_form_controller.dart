@@ -98,6 +98,8 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
     final targetTopic = topic.isEmpty
         ? (await _apiSrv.generateTopics(1, AppSettings.instance.aiAgent))[0]
         : topic;
+    // Store topics to show on screen.
+    _topic = targetTopic;
 
     // Generate prompt.
     if (_testTask == TestTask.writingTask1) {
@@ -107,7 +109,7 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
       final prompt = await _apiSrv.generateTask1Prompt(
         _promptType!.diagramType,
-        targetTopic,
+        _topic,
         AppSettings.instance.aiAgent,
       );
       final uuid = await _diagramSrv.writeTempImage(prompt.diagramData);
@@ -121,7 +123,7 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
     } else {
       final prompt = await _apiSrv.generateTask2Prompt(
         _promptType!.essayType,
-        targetTopic,
+        _topic,
         AppSettings.instance.aiAgent,
       );
       _writingPrompt = WritingPromptVo(
@@ -129,9 +131,6 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
         taskInstruction: prompt.instruction,
       );
     }
-
-    // Store topics to show on screen.
-    _topic = targetTopic;
 
     // Update screen.
     _promptTextState = 2;

@@ -26,13 +26,15 @@ class PromptProvider:
         )
 
     def get_writing_task1_generate_diagram_prompt_input(
-        self, diagram_type: str, topic: str
+        self, diagram_type: str, topic: str, ai_name: str, image_api_name: str
     ) -> str:
         """Return input used to generate diagram prompt for Writing Task 1."""
         return self._load_file(
             "writing_1_diagram_input",
             diagram_type=diagram_type,
             topic=topic,
+            ai_name=ai_name,
+            image_api_name=image_api_name,
         )
 
     def get_writing_task1_generate_diagram_input(

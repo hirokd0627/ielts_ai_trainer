@@ -194,7 +194,7 @@ class _WritingQuestionGeneratorFormState
   }
 
   /// Builds widgets in input area.
-  List<Widget> _buildInputArea() {
+  List<Widget> _buildInputArea(TestTask testTask) {
     return [
       // Question type
       Container(
@@ -205,6 +205,7 @@ class _WritingQuestionGeneratorFormState
         onEnter: (_) => setState(() => _hoveringOnPromptType = true),
         onExit: (_) => setState(() => _hoveringOnPromptType = false),
         child: DropdownMenu<WritingPromptType>(
+          enabled: !_ctrl.isPromptTextGenerating,
           textStyle: AppStyles.textFieldStyle(context),
           inputDecorationTheme: InputDecorationTheme(
             hintStyle: AppStyles.placeHolderText,
@@ -212,14 +213,22 @@ class _WritingQuestionGeneratorFormState
             isDense: true,
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
-                color: _hoveringOnPromptType
+                color: _hoveringOnPromptType && !_ctrl.isPromptTextGenerating
+                    ? AppColors.focusColor
+                    : AppColors.borderColor,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: _hoveringOnPromptType && !_ctrl.isPromptTextGenerating
                     ? AppColors.focusColor
                     : AppColors.borderColor,
               ),
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          width: 250,
+          width: testTask.number == 1 ? 230 : 300,
           requestFocusOnTap: false,
           hintText: _promptTypeHintText,
           initialSelection: _ctrl.promptType,
@@ -242,13 +251,18 @@ class _WritingQuestionGeneratorFormState
       ),
       HoverHighlightTextField(
         keyboardType: TextInputType.multiline,
-        hintText: 'Type topic here...',
+        hintText: 'Enter topic here...',
         onChanged: _onChangedTopic,
         controller: _topicTextEditCtrl,
+        enabled: !_ctrl.isPromptTextGenerating,
+        maxLines: 1,
       ),
       SizedBox(height: 20),
       FilledButton(
-        onPressed: _ctrl.isGenerateButtonEnabled ? _onPressedGenerate : null,
+        onPressed:
+            _ctrl.isGenerateButtonEnabled && !_ctrl.isPromptTextGenerating
+            ? _onPressedGenerate
+            : null,
         child: const Text('Generate'),
       ),
     ];
@@ -301,7 +315,7 @@ class _WritingQuestionGeneratorFormState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Input area
-            ..._buildInputArea(),
+            ..._buildInputArea(widget.testTask),
             SizedBox(height: 40),
             // Generated prompt
             ..._buildPromptArea(),

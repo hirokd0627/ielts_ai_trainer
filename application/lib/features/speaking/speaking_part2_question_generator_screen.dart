@@ -29,11 +29,7 @@ class SpeakingPart2QuestionGeneratorScreen extends StatefulWidget {
 class _SpeakingPart2QuestionGeneratorScreenState
     extends State<SpeakingPart2QuestionGeneratorScreen> {
   /// Called when the Start button is pressed.
-  void _onTappedStart(
-    String promptText,
-    List<String> topics,
-    String interactionId,
-  ) {
+  void _onTappedStart(String promptText, List<String> topics, String _) {
     context.go(
       speakingPart2AnswerInputScreenRoutePath,
       extra: RouterExtra({'promptText': promptText, 'topics': topics}),
