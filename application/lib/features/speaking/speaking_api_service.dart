@@ -2,14 +2,17 @@ import 'dart:convert';
 
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_chat_answer.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_speech_answer.dart';
+import 'package:ielts_ai_trainer/shared/api/api_response_validator.dart';
 import 'package:ielts_ai_trainer/shared/api/common_api_service.dart';
+import 'package:ielts_ai_trainer/shared/domain/score_calculation_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/ai_name.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/http/api_requester.dart';
 import 'package:http/http.dart' as http;
 
 /// API service for the Speaking screens, generating prompts and evaluating answers.
-class SpeakingApiService with ApiRequester, TopicApiService {
+class SpeakingApiService
+    with ApiRequester, ApiResponseValidator, CommonApiService {
   /// Generates initial question of Part 1 and Part 3.
   Future<SpeakingQuestionResponse> generateInitialQuestion(
     int partNo,
@@ -40,14 +43,11 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     AiName aiName,
   ) async {
     final data = {'topic': topic, 'ai_name': aiName.aiNameArgmentValue};
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest(
+    final respJson = await sendJsonPostRequest(
       'speaking/part2/generate-cuecard',
-      dataJson,
+      data,
     );
-    return SpeakingCuecardResponse.fromJson(
-      jsonDecode(resp.body) as Map<String, dynamic>,
-    );
+    return SpeakingCuecardResponse.fromJson(respJson);
   }
 
   /// Generates question of Part 1 and Part 3.
@@ -70,41 +70,31 @@ class SpeakingApiService with ApiRequester, TopicApiService {
       data['prompt_id'] = interactionId!;
       data['reply'] = reply!;
     }
-
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest(
+    final respJson = await sendJsonPostRequest(
       'speaking/part$partNo/generate-question',
-      dataJson,
+      data,
     );
-    return SpeakingQuestionResponse.fromJson(
-      jsonDecode(resp.body) as Map<String, dynamic>,
-    );
+    return SpeakingQuestionResponse.fromJson(respJson);
   }
 
   /// Generates topic transition message for Part 1 and Part 3.
   Future<String> generateTopicTransitionMessage(String topic) async {
     final data = {'topic': topic};
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest(
+    final respJson = await sendJsonPostRequest(
       'speaking/generate-transition-message',
-      dataJson,
+      data,
     );
-
-    final json = jsonDecode(resp.body);
-    return json['message'];
+    return respJson['message'];
   }
 
   /// Generates closing message for Part 1 and Part 3.
   Future<String> generateClosingMessage(TestTask testTask) async {
     final data = {'part': testTask.number};
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest(
+    final respJson = await sendJsonPostRequest(
       'speaking/generate-closing-message',
-      dataJson,
+      data,
     );
-
-    final json = jsonDecode(resp.body);
-    return json['message'];
+    return respJson['message'];
   }
 
   /// Evaluates the given speaking chat answer.
@@ -135,15 +125,13 @@ class SpeakingApiService with ApiRequester, TopicApiService {
       'speech': answer.answer.text,
       'ai_name': aiName.aiNameArgmentValue,
     };
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest('speaking/part2/evaluate', dataJson);
-    return SpeakingEvaluationResponse._fromJson(
-      jsonDecode(resp.body) as Map<String, dynamic>,
-    );
+    final respJson = await sendJsonPostRequest('speaking/part2/evaluate', data);
+    return SpeakingEvaluationResponse._fromJson(respJson);
   }
 
   /// Evaluates the pronunciation of speech audio data with script.
   Future<PronunciationEvaluationResponse> evaluatePronunciation({
+    required String lang,
     required String audioFilePath,
     required String script,
   }) async {
@@ -155,7 +143,8 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     // Sets auth header.
     request.headers['X-API-KEY'] = ApiRequester.apiKey;
 
-    // Sets script and audio file.
+    // Sets script, language, and audio file.
+    request.fields['lang'] = lang;
     request.fields['script'] = script;
     final audioFile = await http.MultipartFile.fromPath(
       'audio_data',
@@ -165,6 +154,8 @@ class SpeakingApiService with ApiRequester, TopicApiService {
 
     // Sends request through stream.
     final resp = await request.send();
+    await validateStreamApiResponse(resp);
+
     final respBody = await resp.stream.bytesToString();
 
     return PronunciationEvaluationResponse._fromJson(
@@ -179,14 +170,11 @@ class SpeakingApiService with ApiRequester, TopicApiService {
     required AiName aiName,
   }) async {
     final data = {'script': script, 'ai_name': aiName.aiNameArgmentValue};
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest(
+    final respJson = await sendJsonPostRequest(
       'speaking/part$partNo/evaluate',
-      dataJson,
+      data,
     );
-    return SpeakingEvaluationResponse._fromJson(
-      jsonDecode(resp.body) as Map<String, dynamic>,
-    );
+    return SpeakingEvaluationResponse._fromJson(respJson);
   }
 }
 
@@ -195,12 +183,10 @@ class TopicResponse {
   /// Generated topics.
   final List<String> topics;
 
-  const TopicResponse({required this.topics});
+  TopicResponse({required this.topics});
 
   factory TopicResponse.fromJson(Map<String, dynamic> json) {
-    if (!json.containsKey('topics')) {
-      throw FormatException('Missing response element: topics');
-    }
+    ApiResponseValidator.validateJsonResponse(json, ['topics']);
 
     final topics = (json['topics'] as List<dynamic>)
         .map((topic) => topic.toString())
@@ -223,6 +209,7 @@ class SpeakingQuestionResponse {
   });
 
   factory SpeakingQuestionResponse.fromJson(Map<String, dynamic> json) {
+    ApiResponseValidator.validateJsonResponse(json, ['prompt_id', 'question']);
     return SpeakingQuestionResponse(
       interactionId: json['prompt_id'],
       question: json['question'],
@@ -238,6 +225,13 @@ class SpeakingCuecardResponse {
   const SpeakingCuecardResponse({required this.prompt});
 
   factory SpeakingCuecardResponse.fromJson(Map<String, dynamic> json) {
+    ApiResponseValidator.validateJsonResponse(json, [
+      'instruction',
+      'q1',
+      'q2',
+      'q3',
+      'q4',
+    ]);
     final prompt =
         '''
 ${json['instruction']}
@@ -268,18 +262,14 @@ class SpeakingEvaluationResponse {
   });
 
   static SpeakingEvaluationResponse _fromJson(Map<String, dynamic> json) {
-    for (var name in [
+    ApiResponseValidator.validateJsonResponse(json, [
       'coherence_score',
       'lexical_score',
       'grammatical_score',
       'coherence_feedback',
       'lexical_feedback',
       'grammatical_feedback',
-    ]) {
-      if (!json.containsKey(name)) {
-        throw Exception('Missing required key: $name');
-      }
-    }
+    ]);
 
     return SpeakingEvaluationResponse(
       coherenceScore: json["coherence_score"],
@@ -294,17 +284,28 @@ class SpeakingEvaluationResponse {
 
 /// Response of evaluate pronunciation.
 class PronunciationEvaluationResponse {
-  final double score;
+  final double fluencyScore;
+  final double pronunciationScore;
 
-  const PronunciationEvaluationResponse({required this.score});
+  const PronunciationEvaluationResponse({
+    required this.fluencyScore,
+    required this.pronunciationScore,
+  });
 
   static PronunciationEvaluationResponse _fromJson(Map<String, dynamic> json) {
-    for (var name in ['score']) {
-      if (!json.containsKey(name)) {
-        throw Exception('Missing required key: $name');
-      }
-    }
+    ApiResponseValidator.validateJsonResponse(json, [
+      'fluency_score',
+      'pronunciation_score',
+    ]);
 
-    return PronunciationEvaluationResponse(score: json["score"]);
+    return PronunciationEvaluationResponse(
+      fluencyScore: to8Scale(json["fluency_score"]),
+      pronunciationScore: to8Scale(json['pronunciation_score']),
+    );
+  }
+
+  /// Converts 100-point scale to 0.0-8.0 scale.
+  static double to8Scale(double score) {
+    return ScoreCalculationService.roundToNearest(score * 8.0 / 100.0);
   }
 }

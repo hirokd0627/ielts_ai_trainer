@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_vo.dart';
 import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
+import 'package:ielts_ai_trainer/shared/domain/score_calculation_service.dart';
 
 part 'speaking_speech_answer.freezed.dart';
 
@@ -28,13 +29,31 @@ abstract class SpeakingSpeechAnswer with _$SpeakingSpeechAnswer {
     String? grammaticalFeedback,
   }) = _SpeakingSpeechAnswer;
 
-  /// Whether the pronunciation score can be calculated.
-  bool get hasPronunciationScore {
+  /// Whether the pronunciation can be evaluated.
+  bool get isEvaluatedPronunciation {
     return answer.isGraded;
   }
 
   /// Returns the pronunciation score.
   double get pronunciationScore {
     return answer.pronunciationScore ?? 0.0;
+  }
+
+  /// Returns the fluency score.
+  double get fluencyScore {
+    return answer.fluencyScore ?? 0.0;
+  }
+
+  /// Returns the fluency and coherence score.
+  double get fluencyAndCoherenceScore {
+    if (!isEvaluatedPronunciation ||
+        coherenceScore == null ||
+        answer.fluencyScore == null) {
+      return 0.0;
+    }
+    return ScoreCalculationService.calculateScore([
+      coherenceScore!,
+      answer.fluencyScore!,
+    ]);
   }
 }

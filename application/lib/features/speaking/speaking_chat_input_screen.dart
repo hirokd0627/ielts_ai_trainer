@@ -15,6 +15,7 @@ import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
 import 'package:ielts_ai_trainer/shared/views/buttons.dart';
 import 'package:ielts_ai_trainer/shared/views/hover_highlight_text_field.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
+import 'package:ielts_ai_trainer/shared/logging/logger.dart';
 import 'package:provider/provider.dart';
 
 /// An answer input view for the Speaking Part 1 & 3 Answer Input Screens.
@@ -46,6 +47,8 @@ class SpeakingChatInputScreen extends StatefulWidget {
 
 /// State for SpeakingChatInputScreen.
 class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
+  final _logger = createLogger('_SpeakingChatInputScreenState');
+
   late final SpeakingChatInputController _ctrl;
 
   /// Controller for the message input text field.
@@ -88,19 +91,33 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
 
   /// Called when the Recording button is pressed.
   void _onPressedRecording(int index) async {
-    if (_ctrl.isRecording) {
-      await _ctrl.stopRecording();
-    } else {
-      await _ctrl.startRecording(index);
+    try {
+      if (_ctrl.isRecording) {
+        await _ctrl.stopRecording();
+      } else {
+        await _ctrl.startRecording(index);
+      }
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to record');
+      }
     }
   }
 
   /// Called when the Play button is pressed.
   void _onPressedPlay(int index) async {
-    if (_ctrl.isPlaying) {
-      await _ctrl.stopPlaying();
-    } else {
-      await _ctrl.startPlaying(index);
+    try {
+      if (_ctrl.isPlaying) {
+        await _ctrl.stopPlaying();
+      } else {
+        await _ctrl.startPlaying(index);
+      }
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to play');
+      }
     }
   }
 
@@ -117,8 +134,16 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
     // Scrolls to the user's message.
     _scrollToBottom();
 
-    // Generates and adds the AI's reply.
-    await _ctrl.generateQuestion(userMessage);
+    try {
+      // Generates and adds the AI's reply.
+      await _ctrl.generateQuestion(userMessage);
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to generate next question');
+        return;
+      }
+    }
 
     // Scrolls to the AI's message.
     _scrollToBottom();
@@ -139,12 +164,11 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
     late int id;
     try {
       id = await _ctrl.saveUserAnswer();
-    } catch (e, stackTrace) {
-      if (!mounted) {
-        // avoid context across async gaps.
-        return;
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to save answer');
       }
-      showAlertDialog(context, e.toString(), stackTrace.toString());
       return;
     }
 
@@ -184,7 +208,11 @@ class _SpeakingChatInputScreenState extends State<SpeakingChatInputScreen> {
     }
 
     // Delete all files.
-    _ctrl.deleteAllRecordingFiles();
+    try {
+      _ctrl.deleteAllRecordingFiles();
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+    }
 
     if (!mounted) {
       // If state has been destroyed, context cannot be used, so return

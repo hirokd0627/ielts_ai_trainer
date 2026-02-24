@@ -1,12 +1,12 @@
-import 'dart:convert';
-
+import 'package:ielts_ai_trainer/shared/api/api_response_validator.dart';
 import 'package:ielts_ai_trainer/shared/api/common_api_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/ai_name.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/http/api_requester.dart';
 
 /// API service for the Writing screens, generating prompts and evaluating answers.
-class WritingApiService with ApiRequester, TopicApiService {
+class WritingApiService
+    with ApiRequester, ApiResponseValidator, CommonApiService {
   /// Generates Writing Task 1 prompt based on the given diagram type and topic.
   Future<WritingTask1Response> generateTask1Prompt(
     String diagramType,
@@ -18,14 +18,11 @@ class WritingApiService with ApiRequester, TopicApiService {
       'topic': topic,
       'ai_name': aiName.aiNameArgmentValue,
     };
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest(
+    final respJson = await sendJsonPostRequest(
       'writing/task1/generate-prompt',
-      dataJson,
+      data,
     );
-    return WritingTask1Response.fromJson(
-      jsonDecode(resp.body) as Map<String, dynamic>,
-    );
+    return WritingTask1Response.fromJson(respJson);
   }
 
   /// Generates Writing Task 2 prompt based on the given essay type and topic.
@@ -39,14 +36,11 @@ class WritingApiService with ApiRequester, TopicApiService {
       'topic': topic,
       'ai_name': aiName.aiNameArgmentValue,
     };
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest(
+    final respJson = await sendJsonPostRequest(
       'writing/task2/generate-prompt',
-      dataJson,
+      data,
     );
-    return WritingTask2Response.fromJson(
-      jsonDecode(resp.body) as Map<String, dynamic>,
-    );
+    return WritingTask2Response.fromJson(respJson);
   }
 
   /// Evaluate the given answer for Writing Task 1.
@@ -64,11 +58,8 @@ class WritingApiService with ApiRequester, TopicApiService {
       'answer': answerText,
       'ai_name': aiName.aiNameArgmentValue,
     };
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest('writing/task1/evaluate', dataJson);
-    return WritingEvaluationResponse.fromTask1Json(
-      jsonDecode(resp.body) as Map<String, dynamic>,
-    );
+    final respJson = await sendJsonPostRequest('writing/task1/evaluate', data);
+    return WritingEvaluationResponse.fromTask1Json(respJson);
   }
 
   /// Evaluate the given answer for Writing Task 2.
@@ -82,11 +73,8 @@ class WritingApiService with ApiRequester, TopicApiService {
       'answer': answerText,
       'ai_name': aiName.aiNameArgmentValue,
     };
-    final dataJson = jsonEncode(data);
-    final resp = await sendPostRequest('writing/task2/evaluate', dataJson);
-    return WritingEvaluationResponse.fromTask2Json(
-      jsonDecode(resp.body) as Map<String, dynamic>,
-    );
+    final respJson = await sendJsonPostRequest('writing/task2/evaluate', data);
+    return WritingEvaluationResponse.fromTask2Json(respJson);
   }
 }
 
@@ -112,17 +100,12 @@ class WritingTask1Response {
   });
 
   factory WritingTask1Response.fromJson(Map<String, dynamic> json) {
-    for (var name in [
+    ApiResponseValidator.validateJsonResponse(json, [
       'instruction',
       'introduction',
       'diagram_description',
       'diagram_data',
-    ]) {
-      if (!json.containsKey(name)) {
-        throw Exception('Missing required key: $name');
-      }
-    }
-
+    ]);
     return WritingTask1Response(
       instruction: json['instruction'],
       diagramData: json['diagram_data'],
@@ -146,12 +129,10 @@ class WritingTask2Response {
   });
 
   factory WritingTask2Response.fromJson(Map<String, dynamic> json) {
-    for (var name in ['statement', 'instruction']) {
-      if (!json.containsKey(name)) {
-        throw Exception('Missing required key: $name');
-      }
-    }
-
+    ApiResponseValidator.validateJsonResponse(json, [
+      'statement',
+      'instruction',
+    ]);
     return WritingTask2Response(
       statement: json['statement'],
       instruction: json['instruction'],
@@ -180,11 +161,10 @@ class WritingEvaluationResponse {
 
   /// Creaates WritingEvaluationResponse with the response of Task 1.
   factory WritingEvaluationResponse.fromTask1Json(Map<String, dynamic> json) {
-    for (var name in ["achievement_score", "achievement_feedback"]) {
-      if (!json.containsKey(name)) {
-        throw Exception('Missing required key: $name');
-      }
-    }
+    ApiResponseValidator.validateJsonResponse(json, [
+      "achievement_score",
+      "achievement_feedback",
+    ]);
     return _fromJson(
       json["achievement_score"],
       List<String>.from(json["achievement_feedback"]),
@@ -194,11 +174,10 @@ class WritingEvaluationResponse {
 
   /// Creaates WritingEvaluationResponse with the response of Task 2.
   factory WritingEvaluationResponse.fromTask2Json(Map<String, dynamic> json) {
-    for (var name in ["response_score", "response_feedback"]) {
-      if (!json.containsKey(name)) {
-        throw Exception('Missing required key: $name');
-      }
-    }
+    ApiResponseValidator.validateJsonResponse(json, [
+      "response_score",
+      "response_feedback",
+    ]);
     return _fromJson(
       json["response_score"],
       List<String>.from(json["response_feedback"]),
@@ -211,19 +190,14 @@ class WritingEvaluationResponse {
     List<String> taskFeedback,
     Map<String, dynamic> json,
   ) {
-    for (var name in [
+    ApiResponseValidator.validateJsonResponse(json, [
       "coherence_score",
       "grammatical_score",
       "lexical_score",
       "coherence_feedback",
       "grammatical_feedback",
       "lexical_feedback",
-    ]) {
-      if (!json.containsKey(name)) {
-        throw Exception('Missing required key: $name');
-      }
-    }
-
+    ]);
     return WritingEvaluationResponse(
       taskScore: taskScore,
       coherenceScore: json["coherence_score"],

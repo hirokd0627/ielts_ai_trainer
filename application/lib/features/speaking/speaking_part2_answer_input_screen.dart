@@ -12,6 +12,7 @@ import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
 import 'package:ielts_ai_trainer/shared/views/buttons.dart';
 import 'package:ielts_ai_trainer/shared/views/hover_highlight_text_field.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
+import 'package:ielts_ai_trainer/shared/logging/logger.dart';
 import 'package:provider/provider.dart';
 
 /// Speaking Part 2 Answer Input Screen.
@@ -36,6 +37,7 @@ class SpeakingPart2AnswerInputScreen extends StatefulWidget {
 /// State for SpeakingPart2AnswerInputScreen.
 class _SpeakingPart2AnswerInputScreenState
     extends State<SpeakingPart2AnswerInputScreen> {
+  final _logger = createLogger('_SpeakingPart2AnswerInputScreenState');
   late final SpeakingPart2AnswerInputController _ctrl;
 
   @override
@@ -77,22 +79,16 @@ class _SpeakingPart2AnswerInputScreenState
       return;
     }
 
-    if (!mounted) {
-      // If state has been destroyed, context cannot be used, so return
-      return;
-    }
-
     // Save the answer
     late int id;
     try {
       id = await _ctrl.saveUserAnswer();
-    } catch (e, stackTrace) {
-      if (!mounted) {
-        // avoid context across async gaps.
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'save error');
         return;
       }
-      showAlertDialog(context, e.toString(), stackTrace.toString());
-      return;
     }
 
     if (!mounted) {
@@ -116,7 +112,11 @@ class _SpeakingPart2AnswerInputScreenState
     }
 
     // Delete the recorded file.
-    _ctrl.deleteRecordingFile();
+    try {
+      _ctrl.deleteRecordingFile();
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+    }
 
     if (!mounted) {
       // If state has been destroyed, context cannot be used, so return
@@ -138,19 +138,33 @@ class _SpeakingPart2AnswerInputScreenState
 
   /// Called when the Recorrding button is pressed.
   void _onRecordingButtonPressed() async {
-    if (!_ctrl.isRecording && !_ctrl.isReRecording) {
-      await _ctrl.startRecording();
-    } else if (_ctrl.isRecording || _ctrl.isReRecording) {
-      await _ctrl.stopRecording();
+    try {
+      if (!_ctrl.isRecording && !_ctrl.isReRecording) {
+        await _ctrl.startRecording();
+      } else if (_ctrl.isRecording || _ctrl.isReRecording) {
+        await _ctrl.stopRecording();
+      }
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to sart recording');
+      }
     }
   }
 
   /// Called when the Play button is pressed.
   void _onPlayButtonPressed() async {
-    if (_ctrl.isStop) {
-      await _ctrl.startPlaying();
-    } else {
-      await _ctrl.stopPlaying();
+    try {
+      if (_ctrl.isStop) {
+        await _ctrl.startPlaying();
+      } else {
+        await _ctrl.stopPlaying();
+      }
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to sart playback');
+      }
     }
   }
 

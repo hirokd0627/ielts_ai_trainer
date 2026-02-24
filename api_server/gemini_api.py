@@ -10,6 +10,7 @@ from google.genai import types
 
 from ai_api_proxy import AiApiProxy
 from prompt_provider import PromptProvider
+from settings import settings
 
 
 class GeminiApi(AiApiProxy):
@@ -17,11 +18,11 @@ class GeminiApi(AiApiProxy):
     For details about methods, see `AiApiProxy`."""
 
     def __init__(self, app: Flask):
-        self._client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+        self._client = genai.Client(api_key=settings.gemini_api_key)
         self._logger = app.logger
         self._promptProvider = PromptProvider(app)
         self._statusCheckModel = "gemini-2.5-flash-lite"
-        if os.getenv("APP_ENV") == "production":
+        if settings.env == "production":
             # production
             # self._textGenModel = "gemini-2.5-flash"
             self._textGenModel = "gemini-3-pro-preview"
@@ -32,10 +33,12 @@ class GeminiApi(AiApiProxy):
                     include_thoughts=False, thinking_level="high"
                 ),
             }
+            # Ref. SDK can only image as PNG.
+            # https://googleapis.github.io/python-genai/genai.html#genai.types.ImageConfig.output_mime_type
+            # example code uses only PNG. https://ai.google.dev/gemini-api/docs/image-generation
             self._imgGenConfig = types.ImageConfig(
                 aspect_ratio="16:9",
                 image_size="2K",
-                output_mime_type="image/jpeg",
             )
         else:
             # develop
@@ -44,9 +47,7 @@ class GeminiApi(AiApiProxy):
             self._textGenDefaultConfig = {
                 "response_mime_type": "application/json",
             }
-            self._imgGenConfig = types.ImageConfig(
-                aspect_ratio="16:9", output_mime_type="image/jpeg"
-            )
+            self._imgGenConfig = types.ImageConfig(aspect_ratio="16:9")
 
     @override
     def get_status(self) -> str:
@@ -61,6 +62,14 @@ class GeminiApi(AiApiProxy):
             status = "Gemini API is operational"
         except Exception:
             status = "Failed to get Gemini API status."
+
+        # Log
+        line = """
+========================================
+Gemini Status: {}
+========================================
+""".format(status)
+        self._logger.debug(line)
 
         return {"status": status}
 
@@ -182,18 +191,18 @@ class GeminiApi(AiApiProxy):
 
         line = """
 ========================================
-Gemini Instructions:
+Gemini Instructions ({env}):
 {}
 
 ------------------------------
-Gemini Prompt:
+Gemini Prompt ({env}):
 {}
 
 ------------------------------
-Gemini Response:
+Gemini Response ({env}):
 {}
 ========================================
-""".format(instructions.strip(), input.strip(), resp.strip())
+""".format(instructions.strip(), input.strip(), resp.strip(), env=settings.env)
 
         self._logger.debug(line)
 
@@ -201,13 +210,13 @@ Gemini Response:
         """Output debug log for image generating."""
         line = """
 ========================================
-Gemini Prompt (Image generating):
+Gemini Prompt (Image generating) ({env}):
 {}
 
 ------------------------------
-Gemini Response:
+Gemini Response ({env}):
 {}
 ========================================
-""".format(input.strip(), resp.strip())
+""".format(input.strip(), resp.strip(), env=settings.env)
 
         self._logger.debug(line)

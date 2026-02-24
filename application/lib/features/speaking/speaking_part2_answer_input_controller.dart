@@ -8,9 +8,13 @@ import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_id_
 import 'package:ielts_ai_trainer/features/speaking/domain/speaking_utterance_vo.dart';
 import 'package:ielts_ai_trainer/features/speaking/utterance_recording_service.dart';
 import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
+import 'package:ielts_ai_trainer/shared/logging/logger.dart';
+import 'package:ielts_ai_trainer/shared/views/controller_exception.dart';
 
 /// Controller for SpeakingAnswerInputScreen.
 class SpeakingPart2AnswerInputController extends ChangeNotifier {
+  final _logger = createLogger('SpeakingPart2AnswerInputController');
+
   /// Repository for user answers related to speaking tasks.
   final SpeakingAnswerRepository _repo;
 
@@ -204,11 +208,17 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
     late ({int id, SpeakingUtteranceIdVO utteranceId}) ids;
     try {
       ids = await _repo.saveSpeakingSpeechAnswer(answer);
-    } catch (e, stackTrace) {
+    } catch (e, s) {
       if (_recordingFileUuid.isNotEmpty) {
         await _repo.deleteSpeakingUserAnswer(ids.id); // rollback
       }
-      throw Exception('Failed to persist recording file: $e\n$stackTrace');
+
+      _logger.e(e, stackTrace: s);
+      throw ControllerException(
+        'persist recording file error',
+        exception: e,
+        stackTrace: s,
+      );
     }
 
     return ids.id;
@@ -224,18 +234,29 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
 
   /// Starts recording the user's speech.
   Future<void> startRecording() async {
-    await deleteRecordingFile(); // delete old recorded file
-    _recordingState = isRecorded ? 3 : 1;
-    _recordingFileUuid = await _recordingSrv.startRecording();
-
-    notifyListeners();
+    try {
+      await deleteRecordingFile(); // delete old recorded file
+      _recordingState = isRecorded ? 3 : 1;
+      _recordingFileUuid = await _recordingSrv.startRecording();
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      _recordingState = 0;
+      throw ControllerException('start recording error');
+    } finally {
+      notifyListeners();
+    }
   }
 
   /// Stops the curerntly recording.
   Future<void> stopRecording() async {
-    if (isRecording || isReRecording) {
-      await _recordingSrv.stopRecording();
-      _recordingState = 2;
+    try {
+      if (isRecording || isReRecording) {
+        await _recordingSrv.stopRecording();
+        _recordingState = 2;
+      }
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      _recordingState = 0;
     }
 
     notifyListeners();
@@ -244,14 +265,28 @@ class SpeakingPart2AnswerInputController extends ChangeNotifier {
   /// Starts playing the recorded speech.
   Future<void> startPlaying() async {
     _playingState = 1;
-    await _recordingSrv.playAudio(_recordingFileUuid);
-    notifyListeners();
+
+    try {
+      await _recordingSrv.playAudio(_recordingFileUuid);
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      _playingState = 0;
+      throw ControllerException('playback error');
+    } finally {
+      notifyListeners();
+    }
   }
 
   /// Stops playing the currently playing recorded speech.
   Future<void> stopPlaying() async {
     _playingState = 0;
-    await _recordingSrv.stopAudio();
+
+    try {
+      await _recordingSrv.stopAudio();
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+    }
+
     notifyListeners();
   }
 

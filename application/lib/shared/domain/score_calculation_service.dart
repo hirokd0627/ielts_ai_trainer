@@ -6,15 +6,20 @@ class ScoreCalculationService {
   static double calculateScore(List<double> scores) {
     final sum = scores.sum;
     final avg = sum / scores.length;
-    var score = avg.truncateToDouble();
+    return roundToNearest(avg);
+  }
 
-    double frac = avg - score;
+  /// Rounds to nearest 0.5.
+  static double roundToNearest(double score) {
+    var rounded = score.truncateToDouble();
+
+    double frac = score - rounded;
     if (frac >= 0.75) {
-      score += 1.0;
+      rounded += 1.0;
     } else if (frac >= 0.25) {
-      score += 0.5;
+      rounded += 0.5;
     }
 
-    return score;
+    return rounded;
   }
 }

@@ -8,6 +8,8 @@ import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_result_controller.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
+import 'package:ielts_ai_trainer/shared/logging/logger.dart';
+import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
 import 'package:ielts_ai_trainer/shared/views/loading_indicator.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
@@ -33,6 +35,7 @@ class WritingResultScreen extends StatefulWidget {
 
 /// State for WritingResultScreen.
 class _WritingResultScreenState extends State<WritingResultScreen> {
+  final _logger = createLogger('_WritingResultScreenState');
   late final WritingResultController _ctrl;
 
   /// Returns the screen title based on the task type.
@@ -63,11 +66,18 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
 
   /// Loads the initial data.
   Future<void> _loadInitialDate() async {
-    await _ctrl.loadData(widget.userAnswerId);
+    try {
+      await _ctrl.loadData(widget.userAnswerId);
 
-    // Grades the answer if it is not graded.
-    if (!_ctrl.isGraded) {
-      _ctrl.evaluateAnswer();
+      // Grades the answer if it is not graded.
+      if (!_ctrl.isGraded) {
+        await _ctrl.evaluateAnswer();
+      }
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to load data');
+      }
     }
   }
 
@@ -101,7 +111,7 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
       child: SizedBox(
         height: 160,
         width: 600,
-        child: !_ctrl.isGraded
+        child: !_ctrl.isGraded && !_ctrl.isEvaluationFailed
             ? Center(child: LoadingIndicator('Reviewing...'))
             : Row(
                 children: [
@@ -131,18 +141,23 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildCriteriaRow(_taskCriteriaLabel, _ctrl.taskScore),
+                        _buildCriteriaRow(
+                          _taskCriteriaLabel,
+                          _ctrl.isEvaluationFailed ? '-' : _ctrl.taskScore,
+                        ),
                         _buildCriteriaRow(
                           'Coherence & Cohesion',
-                          _ctrl.coherenceScore,
+                          _ctrl.isEvaluationFailed ? '-' : _ctrl.coherenceScore,
                         ),
                         _buildCriteriaRow(
                           'Lexical Resource',
-                          _ctrl.lexicalScore,
+                          _ctrl.isEvaluationFailed ? '-' : _ctrl.lexicalScore,
                         ),
                         _buildCriteriaRow(
                           'Grammatical Range & Accuracy',
-                          _ctrl.grammaticalScore,
+                          _ctrl.isEvaluationFailed
+                              ? '-'
+                              : _ctrl.grammaticalScore,
                         ),
                       ],
                     ),
@@ -160,12 +175,29 @@ class _WritingResultScreenState extends State<WritingResultScreen> {
       SizedBox(height: 20),
       ConstrainedBox(
         constraints: BoxConstraints(minHeight: 60),
-        child: !_ctrl.isGraded
+        child: _ctrl.isEvaluationFailed
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  HeadlineText(_taskCriteriaLabel, level: 2),
+                  Text('-'),
+                  SizedBox(height: 20),
+                  HeadlineText('Coherence & Cohesion', level: 2),
+                  Text('-'),
+                  SizedBox(height: 20),
+                  HeadlineText('Lexical Resource', level: 2),
+                  Text('-'),
+                  SizedBox(height: 20),
+                  HeadlineText('Grammatical Range & Accuracy', level: 2),
+                  Text('-'),
+                ],
+              )
+            : !_ctrl.isGraded
             ? LoadingIndicator('Reviewing...')
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  HeadlineText('Task Achievement', level: 2),
+                  HeadlineText(_taskCriteriaLabel, level: 2),
                   Text(_ctrl.taskFeedback),
                   SizedBox(height: 20),
                   HeadlineText('Coherence & Cohesion', level: 2),

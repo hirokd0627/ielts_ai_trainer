@@ -11,6 +11,7 @@ import 'package:ielts_ai_trainer/features/writing/writing_question_generator_for
 import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
+import 'package:ielts_ai_trainer/shared/logging/logger.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/hover_highlight_text_field.dart';
 import 'package:ielts_ai_trainer/shared/views/loading_indicator.dart';
@@ -46,6 +47,8 @@ class WritingQuestionGeneratorForm extends StatefulWidget {
 /// State for WritingTaskQuestionGeneratorForm.
 class _WritingQuestionGeneratorFormState
     extends State<WritingQuestionGeneratorForm> {
+  final _logger = createLogger('_WritingQuestionGeneratorFormState');
+
   /// Controller for WritingQuestionGeneratorForm.
   late final WritingQuestionGeneratorFormController _ctrl;
 
@@ -145,7 +148,6 @@ class _WritingQuestionGeneratorFormState
   void dispose() {
     _ctrl.dispose();
     _topicTextEditCtrl.dispose();
-
     super.dispose();
   }
 
@@ -163,8 +165,15 @@ class _WritingQuestionGeneratorFormState
 
   /// Called when the generate button is tapped.
   void _onPressedGenerate() async {
-    await _ctrl.generatePromptText();
-    _topicTextEditCtrl.text = _ctrl.topic;
+    try {
+      await _ctrl.generatePromptText();
+      _topicTextEditCtrl.text = _ctrl.topic;
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to generate question');
+      }
+    }
   }
 
   /// Called when the start button is tapped.
@@ -278,6 +287,8 @@ class _WritingQuestionGeneratorFormState
       Container(
         child: (_ctrl.isPromptTextNotGenerated)
             ? Text('Prompt will display here after entering topics and submit')
+            : (_ctrl.isPromptTextGeneratedFailed)
+            ? Text('-')
             : (_ctrl.isPromptTextGenerating)
             ? LoadingIndicator('Generating...')
             : Column(

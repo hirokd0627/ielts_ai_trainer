@@ -6,10 +6,14 @@ import 'package:ielts_ai_trainer/features/writing/writing_api_service.dart';
 import 'package:ielts_ai_trainer/features/writing/writing_diagram_service.dart';
 import 'package:ielts_ai_trainer/shared/domain/score_calculation_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
+import 'package:ielts_ai_trainer/shared/logging/logger.dart';
 import 'package:ielts_ai_trainer/shared/setting/app_settings.dart';
+import 'package:ielts_ai_trainer/shared/views/controller_exception.dart';
 
 /// Controller for WritingResultScreen.
 class WritingResultController extends ChangeNotifier {
+  final _logger = createLogger('WritingResultController');
+
   /// Repository for user answers related to writing tasks.
   final WritingAnswerRepository _repo;
 
@@ -26,6 +30,9 @@ class WritingResultController extends ChangeNotifier {
 
   /// Whether the diagram image file exists.
   bool _existsDiagramFile = false;
+
+  /// Whether the evaluation has been failed.
+  bool _isEvaluationFailed = false;
 
   WritingResultController({
     required WritingAnswerRepository repo,
@@ -87,6 +94,8 @@ class WritingResultController extends ChangeNotifier {
 
   bool get existsDiagramFile => _existsDiagramFile;
 
+  bool get isEvaluationFailed => _isEvaluationFailed;
+
   /// Loads the answer by its id.
   Future<void> loadData(int id) async {
     _writingAnswer = await _repo.selectAnswerById(id);
@@ -108,42 +117,45 @@ class WritingResultController extends ChangeNotifier {
 
   /// Evaluates the current answer and updates the answer in the repository,
   Future<void> evaluateAnswer() async {
-    late WritingEvaluationResponse resp;
-    if (_writingAnswer!.testTask == TestTask.writingTask1) {
-      resp = await _apiSrv.evaluateTask1Answer(
-        promptText: _writingAnswer!.writingPrompt.promptText,
-        promptType: _writingAnswer!.promptType,
-        diagramDescription: _writingAnswer!.writingPrompt.diagramDescription!,
-        answerText: _writingAnswer!.answerText,
-        aiName: AppSettings.instance.aiAgent,
-      );
-    } else {
-      resp = await _apiSrv.evaluateTask2Answer(
-        promptText: _writingAnswer!.writingPrompt.promptText,
-        answerText: _writingAnswer!.answerText,
-        aiName: AppSettings.instance.aiAgent,
-      );
-    }
-
-    final gradedAnswer = _writingAnswer!.copyWith(
-      taskScore: resp.taskScore,
-      coherenceScore: resp.coherenceScore,
-      lexicalScore: resp.lexicalScore,
-      grammaticalScore: resp.grammaticalScore,
-      taskFeedback: resp.taskFeedback.join(" "),
-      coherenceFeedback: resp.coherenceFeedback.join(" "),
-      lexicalFeedback: resp.lexicalFeedback.join(" "),
-      grammaticalFeedback: resp.grammaticalFeedback.join(" "),
-      isGraded: true,
-    );
-
     try {
+      late WritingEvaluationResponse resp;
+      if (_writingAnswer!.testTask == TestTask.writingTask1) {
+        resp = await _apiSrv.evaluateTask1Answer(
+          promptText: _writingAnswer!.writingPrompt.promptText,
+          promptType: _writingAnswer!.promptType,
+          diagramDescription: _writingAnswer!.writingPrompt.diagramDescription!,
+          answerText: _writingAnswer!.answerText,
+          aiName: AppSettings.instance.aiAgent,
+        );
+      } else {
+        resp = await _apiSrv.evaluateTask2Answer(
+          promptText: _writingAnswer!.writingPrompt.promptText,
+          answerText: _writingAnswer!.answerText,
+          aiName: AppSettings.instance.aiAgent,
+        );
+      }
+
+      final gradedAnswer = _writingAnswer!.copyWith(
+        taskScore: resp.taskScore,
+        coherenceScore: resp.coherenceScore,
+        lexicalScore: resp.lexicalScore,
+        grammaticalScore: resp.grammaticalScore,
+        taskFeedback: resp.taskFeedback.join(" "),
+        coherenceFeedback: resp.coherenceFeedback.join(" "),
+        lexicalFeedback: resp.lexicalFeedback.join(" "),
+        grammaticalFeedback: resp.grammaticalFeedback.join(" "),
+        isGraded: true,
+      );
+
       _repo.saveUserAnswerWriting(gradedAnswer);
       _writingAnswer = gradedAnswer;
-    } catch (e) {
-      return;
+      _isEvaluationFailed = false;
+    } catch (e, s) {
+      _logger.e(s, stackTrace: s);
+      _isEvaluationFailed = true;
+      throw ControllerException('evaluation error');
+    } finally {
+      notifyListeners();
     }
-
-    notifyListeners();
   }
 }

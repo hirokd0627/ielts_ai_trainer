@@ -5,9 +5,13 @@ import 'package:ielts_ai_trainer/features/writing/writing_diagram_service.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
 import 'package:ielts_ai_trainer/shared/setting/app_settings.dart';
+import 'package:ielts_ai_trainer/shared/logging/logger.dart';
+import 'package:ielts_ai_trainer/shared/views/controller_exception.dart';
 
 /// Controller for WritingQuestionGeneratorForm.
 class WritingQuestionGeneratorFormController extends ChangeNotifier {
+  final _logger = createLogger('WritingQuestionGeneratorFormController');
+
   /// API service to generate prompt text
   final WritingApiService _apiSrv = WritingApiService();
 
@@ -29,7 +33,7 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
   String _diagramPath = '';
 
   /// Processing state of prompt text generation.
-  /// 0: not generated, 1: generating, 2: generated
+  /// 0: not generated, 1: generating, 2: generated, 3: generation failed
   int _promptTextState = 0;
 
   WritingQuestionGeneratorFormController({
@@ -61,7 +65,6 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
   /// Whether the start button is enabled;
   bool get isStartButtonEnabled {
-    // return _writingPrompt?.promptText.isNotEmpty && isPromptTextGenerated;
     return _writingPrompt == null
         ? false
         : _writingPrompt!.promptText.isNotEmpty && isPromptTextGenerated;
@@ -75,6 +78,9 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
   /// Whether the prompt text has been generated.
   bool get isPromptTextGenerated => _promptTextState == 2;
+
+  /// Whether the prompt generation has been failed.
+  bool get isPromptTextGeneratedFailed => _promptTextState == 3;
 
   /// Sets the selected prompt type.
   set promptType(WritingPromptType value) {
@@ -90,51 +96,61 @@ class WritingQuestionGeneratorFormController extends ChangeNotifier {
 
   /// Generates prompt text using the entered topics.
   Future<void> generatePromptText() async {
-    // Update screen.
-    _promptTextState = 1;
-    notifyListeners();
+    try {
+      // Update screen.
+      _promptTextState = 1;
+      notifyListeners();
 
-    // Generate a topic if not entered.
-    final targetTopic = topic.isEmpty
-        ? (await _apiSrv.generateTopics(1, AppSettings.instance.aiAgent))[0]
-        : topic;
-    // Store topics to show on screen.
-    _topic = targetTopic;
+      // Generate a topic if not entered.
+      final targetTopic = topic.isEmpty
+          ? (await _apiSrv.generateTopics(1, AppSettings.instance.aiAgent))[0]
+          : topic;
+      // Store topics to show on screen.
+      _topic = targetTopic;
 
-    // Generate prompt.
-    if (_testTask == TestTask.writingTask1) {
-      if (_diagramPath.isNotEmpty) {
-        await _diagramSrv.removeTmpFiles();
+      // Generate prompt.
+      if (_testTask == TestTask.writingTask1) {
+        if (_diagramPath.isNotEmpty) {
+          await _diagramSrv.removeTmpFiles();
+        }
+
+        final prompt = await _apiSrv.generateTask1Prompt(
+          _promptType!.diagramType,
+          _topic,
+          AppSettings.instance.aiAgent,
+        );
+        final uuid = await _diagramSrv.writeTempImage(prompt.diagramData);
+        _writingPrompt = WritingPromptVo(
+          taskContext: prompt.introduction,
+          taskInstruction: prompt.instruction,
+          diagramDescription: prompt.diagramDescription,
+          diagramUuid: uuid,
+        );
+        _diagramPath = await _diagramSrv.getTempFilePath(uuid);
+      } else {
+        final prompt = await _apiSrv.generateTask2Prompt(
+          _promptType!.essayType,
+          _topic,
+          AppSettings.instance.aiAgent,
+        );
+        _writingPrompt = WritingPromptVo(
+          taskContext: prompt.statement,
+          taskInstruction: prompt.instruction,
+        );
       }
-
-      final prompt = await _apiSrv.generateTask1Prompt(
-        _promptType!.diagramType,
-        _topic,
-        AppSettings.instance.aiAgent,
+      _promptTextState = 2;
+    } catch (e, s) {
+      _promptTextState = 3;
+      _logger.e(e, stackTrace: s);
+      throw ControllerException(
+        'diagram generation error',
+        exception: e,
+        stackTrace: s,
       );
-      final uuid = await _diagramSrv.writeTempImage(prompt.diagramData);
-      _writingPrompt = WritingPromptVo(
-        taskContext: prompt.introduction,
-        taskInstruction: prompt.instruction,
-        diagramDescription: prompt.diagramDescription,
-        diagramUuid: uuid,
-      );
-      _diagramPath = await _diagramSrv.getTempFilePath(uuid);
-    } else {
-      final prompt = await _apiSrv.generateTask2Prompt(
-        _promptType!.essayType,
-        _topic,
-        AppSettings.instance.aiAgent,
-      );
-      _writingPrompt = WritingPromptVo(
-        taskContext: prompt.statement,
-        taskInstruction: prompt.instruction,
-      );
+    } finally {
+      // Update screen.
+      notifyListeners();
     }
-
-    // Update screen.
-    _promptTextState = 2;
-    notifyListeners();
   }
 
   /// Loads and shows the diagram image.

@@ -28,10 +28,14 @@ abstract class SpeakingChatAnswer with _$SpeakingChatAnswer {
     String? grammaticalFeedback,
   }) = _SpeakingChatAnswer;
 
-  /// Whether the pronunciation score can be calculated.
-  bool get hasPronunciationScore {
+  /// Whether the pronunciation can be evaluated.
+  bool get isEvaluatedPronunciation {
     for (final u in utterances) {
-      if (u.isUser && u.isGraded && u.pronunciationScore != null) {
+      // Exists at least one evaluated SpeakingUtteranceVO.
+      if (u.isUser &&
+          u.isGraded &&
+          u.pronunciationScore != null &&
+          u.fluencyScore != null) {
         return true;
       }
     }
@@ -47,5 +51,27 @@ abstract class SpeakingChatAnswer with _$SpeakingChatAnswer {
       }
     }
     return ScoreCalculationService.calculateScore(scores);
+  }
+
+  /// Returns the fluency score.
+  double get fluencyScore {
+    final scores = <double>[];
+    for (final u in utterances) {
+      if (u.isUser && u.isGraded && u.fluencyScore != null) {
+        scores.add(u.fluencyScore!);
+      }
+    }
+    return ScoreCalculationService.calculateScore(scores);
+  }
+
+  /// Returns the fluency and coherence score.
+  double get fluencyAndCoherenceScore {
+    if (!isEvaluatedPronunciation || coherenceScore == null) {
+      return 0.0;
+    }
+    return ScoreCalculationService.calculateScore([
+      coherenceScore!,
+      fluencyScore,
+    ]);
   }
 }

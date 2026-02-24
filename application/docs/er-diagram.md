@@ -63,5 +63,6 @@ erDiagram
         TEXT message
         TEXT audio_file_uuid
         REAL pronunciation_score
+        REAL fluency_score
     }
 ```

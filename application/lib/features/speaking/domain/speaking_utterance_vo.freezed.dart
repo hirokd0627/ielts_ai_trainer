@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SpeakingUtteranceVO {
 
- int get order; bool get isUser; String get text; bool get isGraded; String? get audioFileUuid; double? get pronunciationScore;
+ int get order; bool get isUser; String get text; bool get isGraded; String? get audioFileUuid; double? get pronunciationScore; double? get fluencyScore;
 /// Create a copy of SpeakingUtteranceVO
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $SpeakingUtteranceVOCopyWith<SpeakingUtteranceVO> get copyWith => _$SpeakingUtte
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SpeakingUtteranceVO&&(identical(other.order, order) || other.order == order)&&(identical(other.isUser, isUser) || other.isUser == isUser)&&(identical(other.text, text) || other.text == text)&&(identical(other.isGraded, isGraded) || other.isGraded == isGraded)&&(identical(other.audioFileUuid, audioFileUuid) || other.audioFileUuid == audioFileUuid)&&(identical(other.pronunciationScore, pronunciationScore) || other.pronunciationScore == pronunciationScore));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SpeakingUtteranceVO&&(identical(other.order, order) || other.order == order)&&(identical(other.isUser, isUser) || other.isUser == isUser)&&(identical(other.text, text) || other.text == text)&&(identical(other.isGraded, isGraded) || other.isGraded == isGraded)&&(identical(other.audioFileUuid, audioFileUuid) || other.audioFileUuid == audioFileUuid)&&(identical(other.pronunciationScore, pronunciationScore) || other.pronunciationScore == pronunciationScore)&&(identical(other.fluencyScore, fluencyScore) || other.fluencyScore == fluencyScore));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,order,isUser,text,isGraded,audioFileUuid,pronunciationScore);
+int get hashCode => Object.hash(runtimeType,order,isUser,text,isGraded,audioFileUuid,pronunciationScore,fluencyScore);
 
 @override
 String toString() {
-  return 'SpeakingUtteranceVO(order: $order, isUser: $isUser, text: $text, isGraded: $isGraded, audioFileUuid: $audioFileUuid, pronunciationScore: $pronunciationScore)';
+  return 'SpeakingUtteranceVO(order: $order, isUser: $isUser, text: $text, isGraded: $isGraded, audioFileUuid: $audioFileUuid, pronunciationScore: $pronunciationScore, fluencyScore: $fluencyScore)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $SpeakingUtteranceVOCopyWith<$Res>  {
   factory $SpeakingUtteranceVOCopyWith(SpeakingUtteranceVO value, $Res Function(SpeakingUtteranceVO) _then) = _$SpeakingUtteranceVOCopyWithImpl;
 @useResult
 $Res call({
- int order, bool isUser, String text, bool isGraded, String? audioFileUuid, double? pronunciationScore
+ int order, bool isUser, String text, bool isGraded, String? audioFileUuid, double? pronunciationScore, double? fluencyScore
 });
 
 
@@ -62,7 +62,7 @@ class _$SpeakingUtteranceVOCopyWithImpl<$Res>
 
 /// Create a copy of SpeakingUtteranceVO
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? order = null,Object? isUser = null,Object? text = null,Object? isGraded = null,Object? audioFileUuid = freezed,Object? pronunciationScore = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? order = null,Object? isUser = null,Object? text = null,Object? isGraded = null,Object? audioFileUuid = freezed,Object? pronunciationScore = freezed,Object? fluencyScore = freezed,}) {
   return _then(_self.copyWith(
 order: null == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
 as int,isUser: null == isUser ? _self.isUser : isUser // ignore: cast_nullable_to_non_nullable
@@ -70,6 +70,7 @@ as bool,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_n
 as String,isGraded: null == isGraded ? _self.isGraded : isGraded // ignore: cast_nullable_to_non_nullable
 as bool,audioFileUuid: freezed == audioFileUuid ? _self.audioFileUuid : audioFileUuid // ignore: cast_nullable_to_non_nullable
 as String?,pronunciationScore: freezed == pronunciationScore ? _self.pronunciationScore : pronunciationScore // ignore: cast_nullable_to_non_nullable
+as double?,fluencyScore: freezed == fluencyScore ? _self.fluencyScore : fluencyScore // ignore: cast_nullable_to_non_nullable
 as double?,
   ));
 }
@@ -155,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int order,  bool isUser,  String text,  bool isGraded,  String? audioFileUuid,  double? pronunciationScore)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int order,  bool isUser,  String text,  bool isGraded,  String? audioFileUuid,  double? pronunciationScore,  double? fluencyScore)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SpeakingUtteranceVO() when $default != null:
-return $default(_that.order,_that.isUser,_that.text,_that.isGraded,_that.audioFileUuid,_that.pronunciationScore);case _:
+return $default(_that.order,_that.isUser,_that.text,_that.isGraded,_that.audioFileUuid,_that.pronunciationScore,_that.fluencyScore);case _:
   return orElse();
 
 }
@@ -176,10 +177,10 @@ return $default(_that.order,_that.isUser,_that.text,_that.isGraded,_that.audioFi
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int order,  bool isUser,  String text,  bool isGraded,  String? audioFileUuid,  double? pronunciationScore)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int order,  bool isUser,  String text,  bool isGraded,  String? audioFileUuid,  double? pronunciationScore,  double? fluencyScore)  $default,) {final _that = this;
 switch (_that) {
 case _SpeakingUtteranceVO():
-return $default(_that.order,_that.isUser,_that.text,_that.isGraded,_that.audioFileUuid,_that.pronunciationScore);case _:
+return $default(_that.order,_that.isUser,_that.text,_that.isGraded,_that.audioFileUuid,_that.pronunciationScore,_that.fluencyScore);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +197,10 @@ return $default(_that.order,_that.isUser,_that.text,_that.isGraded,_that.audioFi
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int order,  bool isUser,  String text,  bool isGraded,  String? audioFileUuid,  double? pronunciationScore)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int order,  bool isUser,  String text,  bool isGraded,  String? audioFileUuid,  double? pronunciationScore,  double? fluencyScore)?  $default,) {final _that = this;
 switch (_that) {
 case _SpeakingUtteranceVO() when $default != null:
-return $default(_that.order,_that.isUser,_that.text,_that.isGraded,_that.audioFileUuid,_that.pronunciationScore);case _:
+return $default(_that.order,_that.isUser,_that.text,_that.isGraded,_that.audioFileUuid,_that.pronunciationScore,_that.fluencyScore);case _:
   return null;
 
 }
@@ -211,7 +212,7 @@ return $default(_that.order,_that.isUser,_that.text,_that.isGraded,_that.audioFi
 
 
 class _SpeakingUtteranceVO implements SpeakingUtteranceVO {
-  const _SpeakingUtteranceVO({required this.order, required this.isUser, required this.text, required this.isGraded, this.audioFileUuid, this.pronunciationScore});
+  const _SpeakingUtteranceVO({required this.order, required this.isUser, required this.text, required this.isGraded, this.audioFileUuid, this.pronunciationScore, this.fluencyScore});
   
 
 @override final  int order;
@@ -220,6 +221,7 @@ class _SpeakingUtteranceVO implements SpeakingUtteranceVO {
 @override final  bool isGraded;
 @override final  String? audioFileUuid;
 @override final  double? pronunciationScore;
+@override final  double? fluencyScore;
 
 /// Create a copy of SpeakingUtteranceVO
 /// with the given fields replaced by the non-null parameter values.
@@ -231,16 +233,16 @@ _$SpeakingUtteranceVOCopyWith<_SpeakingUtteranceVO> get copyWith => __$SpeakingU
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SpeakingUtteranceVO&&(identical(other.order, order) || other.order == order)&&(identical(other.isUser, isUser) || other.isUser == isUser)&&(identical(other.text, text) || other.text == text)&&(identical(other.isGraded, isGraded) || other.isGraded == isGraded)&&(identical(other.audioFileUuid, audioFileUuid) || other.audioFileUuid == audioFileUuid)&&(identical(other.pronunciationScore, pronunciationScore) || other.pronunciationScore == pronunciationScore));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SpeakingUtteranceVO&&(identical(other.order, order) || other.order == order)&&(identical(other.isUser, isUser) || other.isUser == isUser)&&(identical(other.text, text) || other.text == text)&&(identical(other.isGraded, isGraded) || other.isGraded == isGraded)&&(identical(other.audioFileUuid, audioFileUuid) || other.audioFileUuid == audioFileUuid)&&(identical(other.pronunciationScore, pronunciationScore) || other.pronunciationScore == pronunciationScore)&&(identical(other.fluencyScore, fluencyScore) || other.fluencyScore == fluencyScore));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,order,isUser,text,isGraded,audioFileUuid,pronunciationScore);
+int get hashCode => Object.hash(runtimeType,order,isUser,text,isGraded,audioFileUuid,pronunciationScore,fluencyScore);
 
 @override
 String toString() {
-  return 'SpeakingUtteranceVO(order: $order, isUser: $isUser, text: $text, isGraded: $isGraded, audioFileUuid: $audioFileUuid, pronunciationScore: $pronunciationScore)';
+  return 'SpeakingUtteranceVO(order: $order, isUser: $isUser, text: $text, isGraded: $isGraded, audioFileUuid: $audioFileUuid, pronunciationScore: $pronunciationScore, fluencyScore: $fluencyScore)';
 }
 
 
@@ -251,7 +253,7 @@ abstract mixin class _$SpeakingUtteranceVOCopyWith<$Res> implements $SpeakingUtt
   factory _$SpeakingUtteranceVOCopyWith(_SpeakingUtteranceVO value, $Res Function(_SpeakingUtteranceVO) _then) = __$SpeakingUtteranceVOCopyWithImpl;
 @override @useResult
 $Res call({
- int order, bool isUser, String text, bool isGraded, String? audioFileUuid, double? pronunciationScore
+ int order, bool isUser, String text, bool isGraded, String? audioFileUuid, double? pronunciationScore, double? fluencyScore
 });
 
 
@@ -268,7 +270,7 @@ class __$SpeakingUtteranceVOCopyWithImpl<$Res>
 
 /// Create a copy of SpeakingUtteranceVO
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? order = null,Object? isUser = null,Object? text = null,Object? isGraded = null,Object? audioFileUuid = freezed,Object? pronunciationScore = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? order = null,Object? isUser = null,Object? text = null,Object? isGraded = null,Object? audioFileUuid = freezed,Object? pronunciationScore = freezed,Object? fluencyScore = freezed,}) {
   return _then(_SpeakingUtteranceVO(
 order: null == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
 as int,isUser: null == isUser ? _self.isUser : isUser // ignore: cast_nullable_to_non_nullable
@@ -276,6 +278,7 @@ as bool,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_n
 as String,isGraded: null == isGraded ? _self.isGraded : isGraded // ignore: cast_nullable_to_non_nullable
 as bool,audioFileUuid: freezed == audioFileUuid ? _self.audioFileUuid : audioFileUuid // ignore: cast_nullable_to_non_nullable
 as String?,pronunciationScore: freezed == pronunciationScore ? _self.pronunciationScore : pronunciationScore // ignore: cast_nullable_to_non_nullable
+as double?,fluencyScore: freezed == fluencyScore ? _self.fluencyScore : fluencyScore // ignore: cast_nullable_to_non_nullable
 as double?,
   ));
 }

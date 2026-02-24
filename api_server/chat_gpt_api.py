@@ -1,4 +1,3 @@
-import os
 from typing import override
 from flask import Flask
 import requests
@@ -8,6 +7,7 @@ from openai import OpenAI
 
 from ai_api_proxy import AiApiProxy
 from prompt_provider import PromptProvider
+from settings import settings
 
 
 class ChatGptApi(AiApiProxy):
@@ -15,12 +15,12 @@ class ChatGptApi(AiApiProxy):
     For details about methods, see `AiApiProxy`."""
 
     def __init__(self, app: Flask):
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        self.client = OpenAI(api_key=settings.openai_api_key)
         self._logger = app.logger
         self._promptProvider = PromptProvider(app)
         self._model = ""
         self._statusCheckModel = "gpt-5-nano"
-        if os.getenv("APP_ENV") == "production":
+        if settings.env == "production":
             # production
             self._textGenArgs = {
                 "model": "gpt-5",
@@ -63,6 +63,14 @@ class ChatGptApi(AiApiProxy):
             status = "ChatGPT API is operational"
         except Exception:
             status = self._get_status_from_status_page()
+
+        # Log
+        line = """
+========================================
+ChatGPT Status: {}
+========================================
+""".format(status)
+        self._logger.debug(line)
 
         return {"status": status}
 
@@ -161,18 +169,18 @@ class ChatGptApi(AiApiProxy):
 
         line = """
 ========================================
-ChatGPT Instructions:
+ChatGPT Instructions ({env}):
 {}
 
 ------------------------------
-ChatGPT Prompt:
+ChatGPT Prompt ({env}):
 {}
 
 ------------------------------
-ChatGPT Response:
+ChatGPT Response ({env}):
 {}
 ========================================
-""".format(instructions.strip(), input.strip(), resp.strip())
+""".format(instructions.strip(), input.strip(), resp.strip(), env=settings.env)
 
         self._logger.debug(line)
 
@@ -180,13 +188,13 @@ ChatGPT Response:
         """Output debug log for image generating."""
         line = """
 ========================================
-ChatGPT Prompt (Image generating):
+ChatGPT Prompt (Image generating) ({env}):
 {}
 
 ------------------------------
-ChatGPT Response:
+ChatGPT Response ({env}):
 {}
 ========================================
-""".format(input.strip(), resp.strip())
+""".format(input.strip(), resp.strip(), env=settings.env)
 
         self._logger.debug(line)

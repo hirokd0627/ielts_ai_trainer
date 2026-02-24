@@ -2,7 +2,9 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
+import 'package:ielts_ai_trainer/shared/logging/logger.dart';
 import 'package:ielts_ai_trainer/shared/question_list/question_list_view.dart';
+import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/texts.dart';
 import 'package:provider/provider.dart';
 import 'package:ielts_ai_trainer/features/home/calendar.dart';
@@ -21,6 +23,8 @@ class HomeScreen extends StatefulWidget {
 
 /// State for HomeScreen
 class _HomeScreenState extends State<HomeScreen> {
+  final _logger = createLogger('_HomeScreenState');
+
   /// Controller
   late final HomeController _ctrl;
 
@@ -40,25 +44,29 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
     _ctrl = context.read<HomeController>();
-
     _loadInitialData();
   }
 
   /// Loads the initial data.
   Future<void> _loadInitialData() async {
-    final dr = await _ctrl.getUserAnswerDateTimeRange();
-    final calEvents = await _ctrl.getDailyUserAnswerInMonth(
-      dr.end.year,
-      dr.end.month,
-    );
-
-    setState(() {
-      _calendarVisibleDateRange = dr;
-      _currentMonthEvents = calEvents;
-      _selectedDate = _calendarVisibleDateRange.end;
-    });
+    try {
+      final dr = await _ctrl.getUserAnswerDateTimeRange();
+      final calEvents = await _ctrl.getDailyUserAnswerInMonth(
+        dr.end.year,
+        dr.end.month,
+      );
+      setState(() {
+        _calendarVisibleDateRange = dr;
+        _currentMonthEvents = calEvents;
+        _selectedDate = _calendarVisibleDateRange.end;
+      });
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to load your history');
+      }
+    }
   }
 
   /// Called when a day is selected in calendar.

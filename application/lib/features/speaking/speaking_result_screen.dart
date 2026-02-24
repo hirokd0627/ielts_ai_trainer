@@ -9,6 +9,8 @@ import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_result_controller.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
+import 'package:ielts_ai_trainer/shared/logging/logger.dart';
+import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
 import 'package:ielts_ai_trainer/shared/views/buttons.dart';
 import 'package:ielts_ai_trainer/shared/views/loading_indicator.dart';
@@ -35,6 +37,8 @@ class SpeakingResultScreen extends StatefulWidget {
 
 /// State for SpeakingResultScreen.
 class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
+  final _logger = createLogger('_SpeakingResultScreenState');
+
   late final SpeakingResultController _ctrl;
 
   /// Returns the screen title based on the part.
@@ -62,21 +66,35 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
 
   /// Loads the initial data.
   Future<void> _loadInitialDate() async {
-    await _ctrl.loadData(widget.userAnswerId);
+    try {
+      await _ctrl.loadData(widget.userAnswerId);
 
-    // Grades the answer if it is not graded.
-    _ctrl.evaluateAnswer();
+      // Grades the answer if it is not graded.
+      await _ctrl.evaluateAnswer();
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to load data');
+      }
+    }
   }
 
   /// Called when the Play button is pressed.
   void _onPressedPlay(int index) async {
-    if (_ctrl.isPlaying) {
-      await _ctrl.stopPlaying();
-    } else {
-      if (widget.testTask == TestTask.speakingPart2) {
-        await _ctrl.startPlayingSpeechAudio();
+    try {
+      if (_ctrl.isPlaying) {
+        await _ctrl.stopPlaying();
       } else {
-        await _ctrl.startPlayingChatAudio(index);
+        if (widget.testTask == TestTask.speakingPart2) {
+          await _ctrl.startPlayingSpeechAudio();
+        } else {
+          await _ctrl.startPlayingChatAudio(index);
+        }
+      }
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to sart playback');
       }
     }
   }
@@ -111,7 +129,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
       child: SizedBox(
         height: 160,
         width: 600,
-        child: !_ctrl.isGraded
+        child: !_ctrl.isGraded && !_ctrl.isEvaluationFailed
             ? Center(child: LoadingIndicator('Reviewing...'))
             : Row(
                 children: [
@@ -127,7 +145,7 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                           ),
                         ),
                         Text(
-                          _ctrl.bandScore,
+                          _ctrl.isEvaluationFailed ? '-' : _ctrl.bandScore,
                           style: TextStyle(
                             fontSize: 40,
                             fontWeight: FontWeight.w500,
@@ -141,18 +159,27 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildCriteriaRow('Coherence', _ctrl.coherenceScore),
+                        _buildCriteriaRow(
+                          _ctrl.isEvaluatedPronunciation
+                              ? 'Fluency and Coherence'
+                              : 'Coherence',
+                          _ctrl.isEvaluationFailed ? '-' : _ctrl.coherenceScore,
+                        ),
                         _buildCriteriaRow(
                           'Lexical Resource',
-                          _ctrl.lexicalScore,
+                          _ctrl.isEvaluationFailed ? '-' : _ctrl.lexicalScore,
                         ),
                         _buildCriteriaRow(
                           'Grammatical Range & Accuracy',
-                          _ctrl.grammaticalScore,
+                          _ctrl.isEvaluationFailed
+                              ? '-'
+                              : _ctrl.grammaticalScore,
                         ),
                         _buildCriteriaRow(
                           'Pronunciation',
-                          _ctrl.pronunciationScore,
+                          _ctrl.isEvaluationFailed
+                              ? '-'
+                              : _ctrl.pronunciationScore,
                         ),
                       ],
                     ),
@@ -164,13 +191,29 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
   }
 
   /// Builds widgets to show feedback for the answer.
+  /// Fluency and Pronunciation feedback cannnot show
+  /// because Azure Speech Service does not have these features.
   List<Widget> _buildFeedback() {
     return [
       HeadlineText("Feedback"),
       SizedBox(height: 20),
       ConstrainedBox(
         constraints: BoxConstraints(minHeight: 60),
-        child: !_ctrl.isGraded
+        child: _ctrl.isEvaluationFailed
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  HeadlineText('Coherence', level: 2),
+                  Text('-'),
+                  SizedBox(height: 20),
+                  HeadlineText('Lexical Resource', level: 2),
+                  Text('-'),
+                  SizedBox(height: 20),
+                  HeadlineText('Grammatical Range & Accuracy', level: 2),
+                  Text('-'),
+                ],
+              )
+            : !_ctrl.isGraded
             ? LoadingIndicator('Reviewing...')
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,10 +234,19 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
 
   /// Builds a widget to show pronunciation score.
   Widget _buildPronunciationScoreWidget(SpeakingUtteranceVO u) {
-    if (!u.isGraded) {
+    if (!u.isGraded && !_ctrl.isUtteranceEvaluationFailed(u.order - 1)) {
       return LoadingIndicator('Reviewing...');
     }
-    return Text('Pronunciation: ${u.pronunciationScore}');
+    final evaluationFailed = _ctrl.isUtteranceEvaluationFailed(u.order - 1);
+    final pronunciationScore = evaluationFailed ? '-' : u.pronunciationScore;
+    final fluencyScore = evaluationFailed ? '-' : u.pronunciationScore;
+    return Wrap(
+      spacing: 10.0,
+      children: [
+        Text('Pronunciation: $pronunciationScore'),
+        Text('Fluency: $fluencyScore'),
+      ],
+    );
   }
 
   @override
