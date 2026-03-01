@@ -21,13 +21,13 @@ class WritingDiagramService {
   /// Returns the diagram file path.
   Future<String> getFilePath(String uuid) async {
     final dir = await getApplicationDocumentsDirectory();
-    return p.join(dir.path, '$uuid.jpg');
+    return p.join(dir.path, '$uuid.png');
   }
 
   /// Returns the temporary diagram file path.
   Future<String> getTempFilePath(String uuid) async {
     final dir = await getApplicationDocumentsDirectory();
-    return p.join(dir.path, 'tmp_$uuid.jpg');
+    return p.join(dir.path, 'tmp_$uuid.png');
   }
 
   /// Saves the temprary diagram file as the file for persisting.
@@ -36,7 +36,7 @@ class WritingDiagramService {
 
     // Rename
     final tmpFile = File(await getTempFilePath(uuid));
-    final newPath = p.join(dirPath.path, '$uuid.jpg');
+    final newPath = p.join(dirPath.path, '$uuid.png');
     await tmpFile.rename(newPath);
 
     // Deletes old temporary files that no longer needed.
@@ -46,7 +46,7 @@ class WritingDiagramService {
   /// Deltes the temporary file.
   Future<void> removeTmpFiles() async {
     final dirPath = await getApplicationDocumentsDirectory();
-    final gp = Glob(p.join(dirPath.path, 'tmp_*.jpg'));
+    final gp = Glob(p.join(dirPath.path, 'tmp_*.png'));
     for (final item in gp.listSync()) {
       if (item is File) {
         await item.delete();
@@ -57,7 +57,7 @@ class WritingDiagramService {
   /// Returns true if the persisted diagram file based on uuid, otherwise, false.
   Future<bool> existsFile(String uuid) async {
     final dirPath = await getApplicationDocumentsDirectory();
-    final path = p.join(dirPath.path, '$uuid.jpg');
+    final path = p.join(dirPath.path, '$uuid.png');
     final file = File(path);
     return await file.exists();
   }

@@ -63,18 +63,22 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
     String answerText = '';
     bool isAnswerGraded = false;
     String? answerAudioUuid;
-    double? promptScore;
-    double? answerScore;
+    double? promptPronunciationScore;
+    double? answerPronunciationScore;
+    double? promptFluencyScore;
+    double? answerFluencyScore;
     for (final row in utteranceRows) {
       if (row.isUser) {
         answerText = row.message;
         answerAudioUuid = row.audioFileUuid;
         isAnswerGraded = row.isGraded;
-        answerScore = row.pronunciationScore;
+        answerPronunciationScore = row.pronunciationScore;
+        answerFluencyScore = row.fluencyScore;
       } else {
         promptText = row.message;
         isPromptGraded = row.isGraded;
-        promptScore = row.pronunciationScore;
+        promptPronunciationScore = row.pronunciationScore;
+        promptFluencyScore = row.fluencyScore;
       }
     }
 
@@ -99,7 +103,8 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
         isUser: false,
         text: promptText,
         isGraded: isPromptGraded,
-        pronunciationScore: promptScore,
+        pronunciationScore: promptPronunciationScore,
+        fluencyScore: promptFluencyScore,
       ),
       answer: SpeakingUtteranceVO(
         order: 2,
@@ -107,7 +112,8 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
         isGraded: isAnswerGraded,
         text: answerText,
         audioFileUuid: answerAudioUuid,
-        pronunciationScore: answerScore,
+        pronunciationScore: answerPronunciationScore,
+        fluencyScore: answerFluencyScore,
       ),
       note: detail.note,
     );
@@ -158,6 +164,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
           isGraded: row.isGraded,
           text: row.message,
           pronunciationScore: row.pronunciationScore,
+          fluencyScore: row.fluencyScore,
           audioFileUuid: row.audioFileUuid,
         ),
       );
@@ -228,6 +235,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
                 ? Value(answer.utterances[i].audioFileUuid!)
                 : Value.absent(),
             pronunciationScore: Value(answer.utterances[i].pronunciationScore),
+            fluencyScore: Value(answer.utterances[i].fluencyScore),
           ),
         );
         utteranceIds.add(
@@ -260,6 +268,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
           ? Value(utterance.audioFileUuid!)
           : Value.absent(),
       pronunciationScore: Value(utterance.pronunciationScore),
+      fluencyScore: Value(utterance.fluencyScore),
     );
     speakingUtterancesTable.insertOnConflictUpdate(u);
   }
@@ -302,6 +311,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
             message: Value(answer.prompt.text),
             audioFileUuid: Value.absent(),
             pronunciationScore: Value(answer.prompt.pronunciationScore),
+            fluencyScore: Value(answer.prompt.fluencyScore),
           ),
           mode: InsertMode.insertOrReplace,
         );
@@ -317,6 +327,7 @@ class SpeakingAnswerRepository extends DatabaseAccessor<AppDatabase>
                 ? Value(answer.answer.audioFileUuid!)
                 : Value.absent(),
             pronunciationScore: Value(answer.answer.pronunciationScore),
+            fluencyScore: Value(answer.answer.fluencyScore),
           ),
           mode: InsertMode.insertOrReplace,
         );

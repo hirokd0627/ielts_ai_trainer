@@ -13,6 +13,7 @@ import 'package:ielts_ai_trainer/features/writing/writing_routes.dart';
 import 'package:ielts_ai_trainer/shared/database/app_database.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
 import 'package:ielts_ai_trainer/shared/enums/writing_prompt_type.dart';
+import 'package:ielts_ai_trainer/shared/logging/logger.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/base_screen_scaffold.dart';
 import 'package:ielts_ai_trainer/shared/views/hover_highlight_text_field.dart';
@@ -48,7 +49,10 @@ class WritingAnswerInputScreen extends StatefulWidget {
 
 /// State for WritingAnswerInputScreen.
 class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
+  final _logger = createLogger('_WritingAnswerInputScreenState');
+
   late final WritingAnswerInputController _ctrl;
+
   final WritingDiagramService _diagramSrv = WritingDiagramService();
 
   /// The diagram image file path.
@@ -95,12 +99,19 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
 
   /// Loads and shows diagram image.
   Future<void> _loadImage() async {
-    final path = await _diagramSrv.getTempFilePath(
-      widget.writingPrompt.diagramUuid!,
-    );
-    setState(() {
-      _diagramPath = path;
-    });
+    try {
+      final path = await _diagramSrv.getTempFilePath(
+        widget.writingPrompt.diagramUuid!,
+      );
+      setState(() {
+        _diagramPath = path;
+      });
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to load diagram');
+      }
+    }
   }
 
   /// Called when the submit button is pressed.
@@ -112,15 +123,14 @@ class _WritingAnswerInputScreenState extends State<WritingAnswerInputScreen> {
     }
 
     // Save the answer
-    int id;
+    late int id;
     try {
       id = await _ctrl.saveUserAnswer();
-    } catch (e, stackTrace) {
-      if (!mounted) {
-        // avoid context across async gaps.
-        return;
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to save answer');
       }
-      showAlertDialog(context, e.toString(), stackTrace.toString());
       return;
     }
 

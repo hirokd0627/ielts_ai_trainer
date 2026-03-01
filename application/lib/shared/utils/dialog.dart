@@ -46,9 +46,9 @@ Future<bool?> showSubmitAnswerDialog(
 /// Shows an alert dialog.
 Future<bool?> showAlertDialog(
   BuildContext context,
-  String title,
-  String? message,
-) {
+  String message, {
+  String? title,
+}) {
   return showDialog<bool>(
     context: context,
     builder: (_) => AppAlertDialog(title: title, message: message ?? ''),

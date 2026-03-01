@@ -135,7 +135,7 @@ class GenerativeAiService:
             phrases.append("Do the advantages outweigh the disadvantages?")
             phrases.append("What are the pros and cons of this development?")
 
-        expression_phrases = "- " + "\n* ".join(phrases)
+        expression_phrases = "- " + "\n- ".join(phrases)
 
         instructions = (
             self._promptProvider.get_writing_task2_task_instructions()

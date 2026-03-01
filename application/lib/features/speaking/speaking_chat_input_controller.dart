@@ -10,10 +10,14 @@ import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/utterance_recording_service.dart';
 import 'package:ielts_ai_trainer/shared/domain/prompt_topic.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
+import 'package:ielts_ai_trainer/shared/logging/logger.dart';
 import 'package:ielts_ai_trainer/shared/setting/app_settings.dart';
+import 'package:ielts_ai_trainer/shared/views/controller_exception.dart';
 
 /// Controller for SpeakingChatInputView.
 class SpeakingChatInputController extends ChangeNotifier {
+  final _logger = createLogger('SpeakingChatInputController');
+
   /// Repository for user answers related to speaking tasks.
   final SpeakingAnswerRepository _repo;
 
@@ -285,6 +289,13 @@ class SpeakingChatInputController extends ChangeNotifier {
 
         _currentInteractionId = resp.interactionId;
       }
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      throw ControllerException(
+        'question generation error',
+        exception: e,
+        stackTrace: s,
+      );
     } finally {
       _setIsGeneratingPromptText(false);
       notifyListeners();
@@ -312,9 +323,15 @@ class SpeakingChatInputController extends ChangeNotifier {
     late ({int id, List<SpeakingUtteranceIdVO> utteranceIds}) ids;
     try {
       ids = await _repo.saveSpeakingChatAnswer(answer);
-    } catch (e, stackTrace) {
+    } catch (e, s) {
       await _repo.deleteSpeakingUserAnswer(ids.id); // rollback
-      throw Exception('Failed to persist recording file: $e\n$stackTrace');
+
+      _logger.e(e, stackTrace: s);
+      throw ControllerException(
+        'persist recording file error',
+        exception: e,
+        stackTrace: s,
+      );
     }
 
     return ids.id;
@@ -329,32 +346,41 @@ class SpeakingChatInputController extends ChangeNotifier {
 
   /// Starts recording the user's speech in the message at the given index.
   Future<void> startRecording(int index) async {
-    await _deleteRecordingFile(index); // deletes old file
-
-    _currentRecordingIndex = index;
-
-    _recordingFileUuidMap[index] = await _recordingSrv.startRecording();
-
-    _recordingState[_currentRecordingIndex] =
-        (_recordingState[_currentRecordingIndex] == 2) ? 3 : 1;
-
-    notifyListeners();
+    try {
+      await _deleteRecordingFile(index); // deletes old file
+      _currentRecordingIndex = index;
+      _recordingFileUuidMap[index] = await _recordingSrv.startRecording();
+      _recordingState[_currentRecordingIndex] =
+          (_recordingState[_currentRecordingIndex] == 2) ? 3 : 1;
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      _recordingState[index] = 0;
+      _currentRecordingIndex = -1;
+      throw ControllerException('start recording error');
+    } finally {
+      notifyListeners();
+    }
   }
 
   /// Stops the curently recording.
   Future<void> stopRecording() async {
-    if (isRecording) {
-      await _recordingSrv.stopRecording();
-      _recordingState[_currentRecordingIndex] = 2; // recorded
+    try {
+      if (isRecording) {
+        await _recordingSrv.stopRecording();
+        _recordingState[_currentRecordingIndex] = 2; // recorded
 
-      // Updates audio file UUID
-      _messages[_currentRecordingIndex] = _messages[_currentRecordingIndex]
-          .copyWith(
-            audioFileUuid: _recordingFileUuidMap[_currentRecordingIndex],
-          );
+        // Updates audio file UUID
+        _messages[_currentRecordingIndex] = _messages[_currentRecordingIndex]
+            .copyWith(
+              audioFileUuid: _recordingFileUuidMap[_currentRecordingIndex],
+            );
+      }
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      _recordingState[_currentRecordingIndex] = 0;
     }
-    _currentRecordingIndex = -1;
 
+    _currentRecordingIndex = -1;
     notifyListeners();
   }
 
@@ -362,15 +388,27 @@ class SpeakingChatInputController extends ChangeNotifier {
   Future<void> startPlaying(int index) async {
     _currentPlayingIndex = index;
 
-    await _recordingSrv.playAudio(_recordingFileUuidMap[index]!);
-    notifyListeners();
+    try {
+      await _recordingSrv.playAudio(_recordingFileUuidMap[index]!);
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      _currentPlayingIndex = -1;
+      throw ControllerException('playback error');
+    } finally {
+      notifyListeners();
+    }
   }
 
   /// Stops playing the currently playing recorded speech.
   Future<void> stopPlaying() async {
     _currentPlayingIndex = -1;
 
-    await _recordingSrv.stopAudio();
+    try {
+      await _recordingSrv.stopAudio();
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+    }
+
     notifyListeners();
   }
 

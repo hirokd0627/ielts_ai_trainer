@@ -1,24 +1,16 @@
 import logging
 from random import choice
-import random
 import time
-import tempfile
-import os
-import shutil
-from pathlib import Path
 
 from flask import Flask, request, jsonify
 from chat_gpt_api import ChatGptApi
 from decorators import auth_required
-from dotenv import load_dotenv
 from exceptions import AppException
-from streaming_form_data import StreamingFormDataParser
-from streaming_form_data.targets import FileTarget, ValueTarget
 from gemini_api import GeminiApi
 from generative_ai_service import GenerativeAiService
-
-# Load environment variables from .env file.
-load_dotenv()
+from pronunciation_evaluation_service import (
+    PronunciationEvaluationService,
+)
 
 # Ref. https://flask.palletsprojects.com/en/stable/api/#flask.Request
 
@@ -29,7 +21,6 @@ app.logger.setLevel(logging.DEBUG)
 
 
 @app.route("/hello", methods=["GET"])
-@auth_required
 def hello():
     """API for health check."""
 
@@ -430,70 +421,16 @@ def speaking_evaluate_pronunciation():
     """API for evaluating pronunciation with script.
 
     Args: multipart/form-data
+        lang: Language to be evaluated. en-US, en-GB, or en-AU
         script (str): Script of speech.
-        audio_data (bytes): Recorded audio data (m4a) of the user's speech.
+        audio_data (bytes): Recorded audio data (wav, PCM) of the user's speech.
 
     Returns: application/json
-        score (float): Pronunciation score.
+        See `PronunciationEvaluationService.evaluate_pronunciation`
     """
-    # Ref. https://github.com/siddhantgoel/streaming-form-data
-
-    # Create temporary .m4a file.
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".m4a") as f:
-        tmp_path = f.name
-
-    script_target = ValueTarget()
-    audio_file_target = FileTarget(tmp_path)
-
-    parser = StreamingFormDataParser(headers=request.headers)
-    parser.register("script", script_target)
-    parser.register("audio_data", audio_file_target)
-
-    # Read data through stream.
-    byte_len = 4096  # 4096 bytes
-    try:
-        while True:
-            chunk = request.stream.read(byte_len)
-            if not chunk:
-                break
-            parser.data_received(chunk)
-
-        script = script_target.value.decode("utf-8")
-        audio_file_target.on_finish()
-
-        # TODO: Call Azure Speech Service
-
-        # TEST
-        current_dir = Path(__file__).resolve().parent
-        target_dir = "{}/tmp".format(current_dir)
-        shutil.copy2(tmp_path, target_dir)
-        tmp_name = Path(tmp_path).name
-        file_size = os.path.getsize("{}/{}".format(target_dir, tmp_name))
-        log_line = """
-========================================
-Pronunciation Evaluation
-
-Received script and audio data.
-- script: {}
-- audio_data: size={} test_copy=./tmp/{}
-========================================
-""".format(script, file_size, tmp_name)
-        app.logger.debug(log_line)
-
-    except Exception as e:
-        raise e
-
-    finally:
-        # Delete temporary file.
-        if os.path.exists(tmp_path):
-            os.remove(tmp_path)
-
-    return jsonify(
-        {
-            # TODO: currenty use random value
-            "score": random.choice([1.5, 3.0, 4.5, 6.5])
-        }
-    )
+    srv = PronunciationEvaluationService(app)
+    result = srv.evaluate_pronunciation(request)
+    return jsonify(result)
 
 
 @app.route("/setting/api-status", methods=["GET"])
@@ -517,14 +454,14 @@ def setting_api_status():
 @app.errorhandler(AppException)
 def handle_app_exception(e: AppException):
     """AppException handler to return error information in JSON format."""
-    app.logger.debug(e.description, exc_info=e)
+    app.logger.error(e.description, exc_info=e)
     return jsonify({"error": e.description}), e.code
 
 
 @app.errorhandler(Exception)
 def handle_exception(e: Exception):
     """Exception handler to return error information in JSON format."""
-    app.logger.debug(str(e), exc_info=e)
+    app.logger.error(str(e), exc_info=e)
     return jsonify({"error": str(e)}), 500
 
 

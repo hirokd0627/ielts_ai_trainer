@@ -1,8 +1,9 @@
 # ref. https://flask.palletsprojects.com/en/stable/patterns/viewdecorators/
-import os
 from functools import wraps
 
 from flask import request, abort
+
+from settings import settings
 
 
 def auth_required(f):
@@ -10,9 +11,10 @@ def auth_required(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if request.headers.get("X-API-KEY") is None or not request.headers.get(
-            "X-API-KEY"
-        ) == os.getenv("X-API-KEY"):
+        if (
+            request.headers.get("X-API-KEY") is None
+            or not request.headers.get("X-API-KEY") == settings.x_api_key
+        ):
             abort(401)
 
         return f(*args, **kwargs)

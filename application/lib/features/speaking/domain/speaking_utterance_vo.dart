@@ -12,5 +12,6 @@ abstract class SpeakingUtteranceVO with _$SpeakingUtteranceVO {
     required bool isGraded,
     String? audioFileUuid,
     double? pronunciationScore,
+    double? fluencyScore,
   }) = _SpeakingUtteranceVO;
 }

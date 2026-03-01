@@ -39,8 +39,8 @@ class UtteranceRecordingService {
       throw UnsupportedError('Audio recording permission denied.');
     }
 
-    // Save a file using AAC codec.
-    const encoder = AudioEncoder.aacLc;
+    // Save a file using WAV codec.
+    const encoder = AudioEncoder.wav;
     if (!await _isEncoderSupported(encoder)) {
       throw UnsupportedError(
         'aacLc encoder is not supported on this platform.',
@@ -49,9 +49,9 @@ class UtteranceRecordingService {
 
     // Use mono audio.
     const config = RecordConfig(
-      encoder: AudioEncoder.aacLc,
-      sampleRate: 44100,
-      bitRate: 128000,
+      encoder: AudioEncoder.pcm16bits,
+      sampleRate: 16000,
+      bitRate: 256000,
       numChannels: 1,
     );
 
@@ -119,6 +119,6 @@ class UtteranceRecordingService {
   /// Returns the path of the recording file.
   Future<String> getFilePath(String uuid) async {
     final dir = await getApplicationDocumentsDirectory();
-    return p.join(dir.path, '$uuid.m4a');
+    return p.join(dir.path, '$uuid.wav');
   }
 }

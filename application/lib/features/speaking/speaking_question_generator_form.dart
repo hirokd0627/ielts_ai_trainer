@@ -4,6 +4,7 @@ import 'package:ielts_ai_trainer/app/theme/app_styles.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_api_service.dart';
 import 'package:ielts_ai_trainer/features/speaking/speaking_question_generator_form_controller.dart';
 import 'package:ielts_ai_trainer/shared/enums/test_task.dart';
+import 'package:ielts_ai_trainer/shared/logging/logger.dart';
 import 'package:ielts_ai_trainer/shared/utils/dialog.dart';
 import 'package:ielts_ai_trainer/shared/views/hover_highlight_text_field.dart';
 import 'package:ielts_ai_trainer/shared/views/loading_indicator.dart';
@@ -48,6 +49,8 @@ class SpeakingQuestionGeneratorForm extends StatefulWidget {
 /// State for SpeakingQuestionGeneratorForm.
 class _SpeakingQuestionGeneratorFormState
     extends State<SpeakingQuestionGeneratorForm> {
+  final _logger = createLogger('_SpeakingQuestionGeneratorFormState');
+
   /// Controller for SpeakingQuestionGeneratorForm.
   late final SpeakingQuestionGeneratorFormController _ctrl;
 
@@ -87,7 +90,6 @@ class _SpeakingQuestionGeneratorFormState
   void dispose() {
     _ctrl.dispose();
     _topicTextEditCtrl.dispose();
-
     super.dispose();
   }
 
@@ -136,7 +138,17 @@ class _SpeakingQuestionGeneratorFormState
     setState(() {
       _topicInputErrorText = '';
     });
-    await _ctrl.generateInitialQuestion();
+
+    try {
+      await _ctrl.generateInitialQuestion();
+    } catch (e, s) {
+      _logger.e(e, stackTrace: s);
+      if (mounted) {
+        showAlertDialog(context, 'Failed to generate question');
+        return;
+      }
+    }
+
     if (widget.testTask == TestTask.speakingPart2) {
       _topicTextEditCtrl.text = _ctrl.topic;
     }
@@ -332,6 +344,8 @@ class _SpeakingQuestionGeneratorFormState
                   ? Text(
                       'Prompt will display here after entering topics and submit',
                     )
+                  : (_ctrl.isPromptTextGeneratedFailed)
+                  ? Text('-')
                   : (_ctrl.isPromptTextGenerating)
                   ? LoadingIndicator('Generating...')
                   : Text(_ctrl.promptText),

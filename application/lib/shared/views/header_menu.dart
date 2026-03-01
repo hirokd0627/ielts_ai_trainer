@@ -194,69 +194,11 @@ class _HeaderMenuBarState extends State<HeaderMenuBar> {
       ),
 
       // Development
-      SubmenuButton(
+      MenuItemButton(
         style: menuButtonStyle,
-        menuStyle: _subMenuStyle,
-        menuChildren: [
-          MenuItemButton(
-            onPressed: () {
-              context.go(developmentScreenRoutePath);
-            },
-            style: subMenuButtonStyle,
-            child: SizedBox(
-              width: menuWidth,
-              child: const Text('Reset DB', textAlign: TextAlign.center),
-            ),
-          ),
-          MenuItemButton(
-            onPressed: () {
-              context.go(
-                speakingPart1ResultScreenRoutePath,
-                extra: RouterExtra({'id': 13}),
-              );
-            },
-            style: subMenuButtonStyle,
-            child: SizedBox(
-              width: menuWidth,
-              child: const Text(
-                'Speaking Part 1 Result',
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-          MenuItemButton(
-            onPressed: () {
-              context.go(
-                speakingPart2ResultScreenRoutePath,
-                extra: RouterExtra({'id': 15}),
-              );
-            },
-            style: subMenuButtonStyle,
-            child: SizedBox(
-              width: menuWidth,
-              child: const Text(
-                'Speaking Part 2 Result',
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-          MenuItemButton(
-            onPressed: () {
-              context.go(
-                speakingPart3ResultScreenRoutePath,
-                extra: RouterExtra({'id': 14}),
-              );
-            },
-            style: subMenuButtonStyle,
-            child: SizedBox(
-              width: menuWidth,
-              child: const Text(
-                'Speaking Part 3 Result',
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ],
+        onPressed: () {
+          context.go(developmentScreenRoutePath);
+        },
         child: SizedBox(
           width: menuWidth,
           child: const Text('Development', textAlign: TextAlign.center),
