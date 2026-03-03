@@ -44,11 +44,11 @@ class _SpeakingResultScreenState extends State<SpeakingResultScreen> {
   /// Returns the screen title based on the part.
   String get _screenTitle {
     if (widget.testTask == TestTask.speakingPart1) {
-      return 'Speaking Task 1 Result';
+      return 'Speaking Part 1 Result';
     } else if (widget.testTask == TestTask.speakingPart2) {
-      return 'Speaking Task 2 Result';
+      return 'Speaking Part 2 Result';
     }
-    return 'Speaking Task 3 Result';
+    return 'Speaking Part 3 Result';
   }
 
   @override
